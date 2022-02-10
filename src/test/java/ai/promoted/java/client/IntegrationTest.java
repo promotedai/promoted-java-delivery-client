@@ -1,7 +1,7 @@
 package ai.promoted.java.client;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ai.promoted.delivery.model.Insertion;
@@ -10,6 +10,7 @@ import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 import ai.promoted.delivery.model.UserInfo;
 
+@Disabled("only runs locally for interactive debugging")
 public class IntegrationTest {
 
   @Test
