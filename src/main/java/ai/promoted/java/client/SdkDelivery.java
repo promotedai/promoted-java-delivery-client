@@ -13,7 +13,7 @@ import ai.promoted.delivery.model.Response;
  * to the request insertions and sets up for logging. This is useful for experiment controls, error
  * fallbacks, and logging during the integration period.
  */
-public class SdkDelivery {
+public class SdkDelivery implements Delivery {
 
   /**
    * Do delivery.
@@ -21,6 +21,7 @@ public class SdkDelivery {
    * @param deliveryRequest the delivery request
    * @return the populated response
    */
+  @Override
   public Response runDelivery(DeliveryRequest deliveryRequest) throws DeliveryException {
     Request request = deliveryRequest.getRequest();
 

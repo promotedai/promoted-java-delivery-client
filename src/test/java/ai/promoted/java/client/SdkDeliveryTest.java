@@ -1,7 +1,6 @@
 package ai.promoted.java.client;
 
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import ai.promoted.delivery.model.Insertion;
@@ -13,7 +12,7 @@ class SdkDeliveryTest {
 
   @Test
   void testInvalidPagingOffset() {
-    Request req = new Request().paging(new Paging().offset(10)).insertion(createInsertions(10));
+    Request req = new Request().paging(new Paging().offset(10)).insertion(TestUtils.createInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
     Exception exception = assertThrows(
         DeliveryException.class, 
@@ -24,7 +23,7 @@ class SdkDeliveryTest {
 
   @Test
   void testNoPagingReturnsAll() throws Exception {
-    List<Insertion> insertions = createInsertions(10);
+    List<Insertion> insertions = TestUtils.createInsertions(10);
     Request req = new Request().insertion(insertions);
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
     
@@ -36,7 +35,7 @@ class SdkDeliveryTest {
   
   @Test
   void testPagingZeroSizeReturnsAll() throws Exception {
-    List<Insertion> insertions = createInsertions(10);
+    List<Insertion> insertions = TestUtils.createInsertions(10);
     Request req = new Request().paging(new Paging().offset(0).size(0)).insertion(insertions);
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
     
@@ -48,7 +47,7 @@ class SdkDeliveryTest {
 
   @Test
   void testPagingZeroOffset() throws Exception {
-    List<Insertion> insertions = createInsertions(10);
+    List<Insertion> insertions = TestUtils.createInsertions(10);
     Request req = new Request().paging(new Paging().offset(0).size(5)).insertion(insertions);
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
     
@@ -64,7 +63,7 @@ class SdkDeliveryTest {
   
   @Test
   void testPagingNonZeroOffset() throws Exception {
-    List<Insertion> insertions = createInsertions(10);
+    List<Insertion> insertions = TestUtils.createInsertions(10);
     Request req = new Request().paging(new Paging().offset(5).size(5)).insertion(insertions);
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
     
@@ -80,7 +79,7 @@ class SdkDeliveryTest {
   
   @Test
   void testPagingSizeMoreThanInsertions() throws Exception {
-    List<Insertion> insertions = createInsertions(10);
+    List<Insertion> insertions = TestUtils.createInsertions(10);
     Request req = new Request().paging(new Paging().offset(0).size(11)).insertion(insertions);
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
     
@@ -92,7 +91,7 @@ class SdkDeliveryTest {
   
   @Test
   void testPrepaged() throws Exception {
-    List<Insertion> insertions = createInsertions(10);
+    List<Insertion> insertions = TestUtils.createInsertions(10);
     Request req = new Request().paging(new Paging().offset(5)).insertion(insertions);
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, InsertionPageType.PREPAGED);
     
@@ -113,13 +112,5 @@ class SdkDeliveryTest {
       assertEquals(i, insertion.getPosition());
       assertTrue(insertion.getInsertionId().length() > 0);
     }
-  }
-  
-  private List<Insertion> createInsertions(int num) {
-    List<Insertion> res = new ArrayList<>();
-    for (int i = 0; i < num; i++) {
-      res.add(new Insertion().contentId("" + i));
-    }
-    return res;
   }
 }

@@ -13,7 +13,7 @@ import ai.promoted.delivery.model.Response;
 /**
  * Client for Promoted.ai's Delivery API.
  */
-public class ApiDelivery {
+public class ApiDelivery implements Delivery  {
 
   private static final Logger LOGGER = Logger.getLogger(ApiDelivery.class.getName());
 
@@ -38,14 +38,19 @@ public class ApiDelivery {
    * @param endpoint the endpoint
    * @param apiKey the api key
    * @param timeoutMillis the timeout in millis
+   * @param warmup 
    */
-  public ApiDelivery(String endpoint, String apiKey, long timeoutMillis) {
+  public ApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup) {
     this.endpoint = endpoint;
     this.apiKey = apiKey;
     this.mapper = new ObjectMapper();
     this.timeoutDuration = Duration.of(timeoutMillis, ChronoUnit.MILLIS);
 
     this.httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
+    
+    if (warmup) {
+      runWarmup();
+    }
   }
 
   /**
@@ -55,6 +60,7 @@ public class ApiDelivery {
    * @return the response with insertions from Promoted.ai
    * @throws DeliveryException any delivery exception that may occur
    */
+  @Override
   public Response runDelivery(DeliveryRequest deliveryRequest) throws DeliveryException {
     try {
       String requestBody = mapper.writeValueAsString(deliveryRequest.getRequest());
@@ -75,7 +81,7 @@ public class ApiDelivery {
   /**
    * Do warmup.
    */
-  public void runWarmup() {
+  private void runWarmup() {
     String warmupEndpoint = endpoint.replace("/deliver", "/health");
     for (int i = 0; i < 20; i++) {
       try {
