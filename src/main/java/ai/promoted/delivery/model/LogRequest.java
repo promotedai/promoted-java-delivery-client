@@ -11,13 +11,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({LogRequest.JSON_PROPERTY_DELIVERY_LOG,
-    LogRequest.JSON_PROPERTY_COHORT_MEMBERSHIP})
+    LogRequest.JSON_PROPERTY_COHORT_MEMBERSHIP,
+    LogRequest.JSON_PROPERTY_PLATFORM_ID,
+    LogRequest.JSON_PROPERTY_TIMING,
+    LogRequest.JSON_PROPERTY_USER_INFO,
+    LogRequest.JSON_PROPERTY_CLIENT_INFO})
 public class LogRequest {
   public static final String JSON_PROPERTY_DELIVERY_LOG = "deliveryLog";
   private List<DeliveryLog> deliveryLog = null;
 
   public static final String JSON_PROPERTY_COHORT_MEMBERSHIP = "cohortMembership";
   private List<CohortMembership> cohortMembership = null;
+
+  public static final String JSON_PROPERTY_CLIENT_INFO = "clientInfo";
+  private ClientInfo clientInfo;
+
+  public static final String JSON_PROPERTY_PLATFORM_ID = "platformId";
+  private Integer platformId;
+
+  public static final String JSON_PROPERTY_TIMING = "timing";
+  private Timing timing;
+
+  public static final String JSON_PROPERTY_USER_INFO = "userInfo";
+  private UserInfo userInfo;
 
   public LogRequest deliveryLog(List<DeliveryLog> deliveryLog) {
     this.deliveryLog = deliveryLog;
@@ -82,6 +98,101 @@ public class LogRequest {
     this.deliveryLog = deliveryLog;
   }
 
+  public LogRequest clientInfo(ClientInfo clientInfo) {
+    this.clientInfo = clientInfo;
+    return this;
+  }
+
+  /**
+   * Get clientInfo
+   * 
+   * @return clientInfo
+   **/
+  @JsonProperty(JSON_PROPERTY_CLIENT_INFO)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public ClientInfo getClientInfo() {
+    return clientInfo;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CLIENT_INFO)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setClientInfo(ClientInfo clientInfo) {
+    this.clientInfo = clientInfo;
+  }
+
+  public LogRequest platformId(Integer platformId) {
+    this.platformId = platformId;
+    return this;
+  }
+
+  /**
+   * Get platformId
+   * 
+   * @return platformId
+   **/
+  @JsonProperty(JSON_PROPERTY_PLATFORM_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Integer getPlatformId() {
+    return platformId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PLATFORM_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPlatformId(Integer platformId) {
+    this.platformId = platformId;
+  }
+
+  public LogRequest userInfo(UserInfo userInfo) {
+    this.userInfo = userInfo;
+    return this;
+  }
+
+  /**
+   * Get userInfo
+   * 
+   * @return userInfo
+   **/
+  @JsonProperty(JSON_PROPERTY_USER_INFO)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public UserInfo getUserInfo() {
+    return userInfo;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_USER_INFO)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setUserInfo(UserInfo userInfo) {
+    this.userInfo = userInfo;
+  }
+
+  public LogRequest timing(Timing timing) {
+    this.timing = timing;
+    return this;
+  }
+
+  /**
+   * Get timing
+   * 
+   * @return timing
+   **/
+  @JsonProperty(JSON_PROPERTY_TIMING)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Timing getTiming() {
+    return timing;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TIMING)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTiming(Timing timing) {
+    this.timing = timing;
+  }
 
   /**
    * Return true if this Request object is equal to o.
@@ -96,12 +207,16 @@ public class LogRequest {
     }
     LogRequest request = (LogRequest) o;
     return Objects.equals(this.deliveryLog, request.deliveryLog)
+        && Objects.equals(this.timing, request.timing)
+        && Objects.equals(this.platformId, request.platformId)
+        && Objects.equals(this.userInfo, request.userInfo)
+        && Objects.equals(this.clientInfo, request.clientInfo)
         && Objects.equals(this.cohortMembership, request.cohortMembership);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(deliveryLog, cohortMembership);
+    return Objects.hash(deliveryLog, cohortMembership, timing, platformId, userInfo, clientInfo);
   }
 
   @Override
@@ -109,6 +224,10 @@ public class LogRequest {
     StringBuilder sb = new StringBuilder();
     sb.append("class LogRequest {\n");
     sb.append("    deliveryLog: ").append(toIndentedString(deliveryLog)).append("\n");
+    sb.append("    timing: ").append(toIndentedString(timing)).append("\n");
+    sb.append("    platformId: ").append(toIndentedString(platformId)).append("\n");
+    sb.append("    userInfo: ").append(toIndentedString(userInfo)).append("\n");
+    sb.append("    clientInfo: ").append(toIndentedString(clientInfo)).append("\n");
     sb.append("    cohortMembership: ").append(toIndentedString(cohortMembership)).append("\n");
     sb.append("}");
     return sb.toString();

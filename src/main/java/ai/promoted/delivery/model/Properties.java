@@ -29,7 +29,7 @@ public class Properties {
   @JsonProperty(JSON_PROPERTY_STRUCT_FIELD)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Object getStructField() {
+  public Struct getStructField() {
     return structField;
   }
 

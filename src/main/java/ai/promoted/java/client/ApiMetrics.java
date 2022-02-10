@@ -53,7 +53,7 @@ public class ApiMetrics {
    * @return the response
    * @throws DeliveryException any delivery exception that may occur
    */
-  public Response DoMetricsLogging(LogRequest logRequest) throws DeliveryException {
+  public Response runMetricsLogging(LogRequest logRequest) throws DeliveryException {
     try {
       String requestBody = mapper.writeValueAsString(logRequest);
       // TODO: Compression (does metrics accept that?).

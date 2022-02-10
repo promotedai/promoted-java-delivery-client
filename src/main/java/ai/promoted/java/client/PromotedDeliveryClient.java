@@ -52,6 +52,7 @@ public class PromotedDeliveryClient {
 
   /**
    * Instantiates a new promoted delivery client.
+   * This class is thread-safe and intended to be used as a singleton.
    *
    * @param deliveryEndpoint the delivery endpoint
    * @param deliveryApiKey the delivery api key
@@ -84,7 +85,7 @@ public class PromotedDeliveryClient {
     this.apiMetrics = new ApiMetrics(metricsEndpoint, metricsApiKey, metricsTimeoutMillis);
     this.apiDelivery = new ApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis);
     if (warmup) {
-      apiDelivery.DoWarmup();
+      apiDelivery.runWarmup();
     }
   }
 
@@ -94,7 +95,7 @@ public class PromotedDeliveryClient {
    * @param deliveryRequest the delivery request
    * @throws DeliveryException when any exception occurs
    */
-  public void Deliver(DeliveryRequest deliveryRequest) throws DeliveryException {
+  public void deliver(DeliveryRequest deliveryRequest) throws DeliveryException {
 
     Response deliveryResponse;
 
@@ -107,19 +108,19 @@ public class PromotedDeliveryClient {
     ExecutionServer execSrv = ExecutionServer.SDK;
 
     if (deliveryRequest.isOnlyLog() || !shouldApplyTreatment(cohortMembership)) {
-      deliveryResponse = sdkDelivery.DoDelivery(deliveryRequest);
+      deliveryResponse = sdkDelivery.runDelivery(deliveryRequest);
     } else {
       try {
-        deliveryResponse = apiDelivery.DoDelivery(deliveryRequest);
+        deliveryResponse = apiDelivery.runDelivery(deliveryRequest);
         execSrv = ExecutionServer.API;
       } catch (DeliveryException ex) {
         LOGGER.warning("Error calling Delivery API, falling back: " + ex);
-        deliveryResponse = sdkDelivery.DoDelivery(deliveryRequest);
+        deliveryResponse = sdkDelivery.runDelivery(deliveryRequest);
       }
     }
 
     // If delivery happened client-side, log the insertions to metrics API.
-    if (execSrv != ExecutionServer.API) {
+    if (execSrv != ExecutionServer.API || cohortMembership != null) {
       logToMetrics(deliveryRequest, deliveryResponse, cohortMembership, execSrv);
     }
 
@@ -135,18 +136,18 @@ public class PromotedDeliveryClient {
    */
   private boolean shouldApplyTreatment(CohortMembership cohortMembership) {
     if (applyTreatmentChecker != null) {
-      return applyTreatmentChecker.ShouldApplyTreatment(cohortMembership);
+      return applyTreatmentChecker.shouldApplyTreatment(cohortMembership);
     }
     if (cohortMembership == null) {
-      return false;
+      return true;
     }
 
     return cohortMembership.getArm() == null || cohortMembership.getArm() != CohortArm.CONTROL;
   }
 
   /**
-   * Creates a cohort membership from the request, based on the provided experiment If there isn't
-   * one, returns null.
+   * Creates a cohort membership from the request, based on the provided experiment.
+   * If there isn't one, returns null.
    *
    * @param deliveryRequest the delivery request
    * @return the cohort membership to use, or null if none
@@ -157,10 +158,24 @@ public class PromotedDeliveryClient {
       return null;
     }
 
-    CohortMembership cohortMembership = new CohortMembership().arm(experiment.getArm())
-        .cohortId(experiment.getCohortId()).platformId(deliveryRequest.getRequest().getPlatformId())
-        .userInfo(deliveryRequest.getRequest().getUserInfo())
-        .timing(deliveryRequest.getRequest().getTiming());
+    CohortMembership cohortMembership = new CohortMembership()
+        .arm(experiment.getArm())
+        .cohortId(experiment.getCohortId())
+        .platformId(experiment.getPlatformId())
+        .userInfo(experiment.getUserInfo())
+        .timing(experiment.getTiming());
+    
+    // Fall back to request values for things not set on the experiment.
+    if (cohortMembership.getPlatformId() == null) {
+      cohortMembership.setPlatformId(deliveryRequest.getRequest().getPlatformId());
+    }
+    if (cohortMembership.getUserInfo() == null) {
+      cohortMembership.setUserInfo(deliveryRequest.getRequest().getUserInfo());
+    }
+    if (cohortMembership.getTiming() == null) {
+      cohortMembership.setTiming(deliveryRequest.getRequest().getTiming());
+    }
+    
     return cohortMembership;
   }
 
@@ -178,7 +193,7 @@ public class PromotedDeliveryClient {
       LogRequest logRequest =
           createLogRequest(deliveryRequest, deliveryResponse, cohortMembership, execSrv);
       try {
-        apiMetrics.DoMetricsLogging(logRequest);
+        apiMetrics.runMetricsLogging(logRequest);
       } catch (DeliveryException ex) {
         LOGGER.warning("Error calling Metrics API: " + ex);
       }
@@ -196,16 +211,29 @@ public class PromotedDeliveryClient {
    */
   private LogRequest createLogRequest(DeliveryRequest deliveryRequest, Response response,
       CohortMembership cohortMembershipToLog, ExecutionServer execSvr) {
-    DeliveryLog deliveryLog = new DeliveryLog()
-        .execution(new DeliveryExecution().executionServer(execSvr).serverVersion(SERVER_VERSION));
-    deliveryLog.setResponse(response);
 
-    // TODO: What fields do we really need to strip from the original request?
-    deliveryLog.setRequest(deliveryRequest.getRequest());
+    Request request = deliveryRequest.getRequest();
+    
+    LogRequest logRequest = new LogRequest()
+        .userInfo(request.getUserInfo())
+        .clientInfo(request.getClientInfo())
+        .platformId(request.getPlatformId())
+        .timing(request.getTiming());
 
-    // TODO: What fields must be copied up from Request to LogRequest?
-    LogRequest logRequest = new LogRequest().addDeliveryLogItem(deliveryLog);
+    // If delivery was done API-side, we don't need to follow up with a delivery log.
+    if (execSvr != ExecutionServer.API) {    
+      DeliveryLog deliveryLog = new DeliveryLog()
+          .execution(new DeliveryExecution().executionServer(execSvr).serverVersion(SERVER_VERSION))
+          .request(request)
+          .response(response);
+      logRequest.addDeliveryLogItem(deliveryLog);
+    }
 
+    // We promoted a few of the request fields to the log request, so we can clear them out there to save space.
+    request.setUserInfo(null);
+    request.setClientInfo(null);
+    request.setTiming(null);
+    
     if (cohortMembershipToLog != null) {
       logRequest.addCohortMembershipItem(cohortMembershipToLog);
     }

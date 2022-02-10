@@ -55,7 +55,7 @@ public class ApiDelivery {
    * @return the response with insertions from Promoted.ai
    * @throws DeliveryException any delivery exception that may occur
    */
-  public Response DoDelivery(DeliveryRequest deliveryRequest) throws DeliveryException {
+  public Response runDelivery(DeliveryRequest deliveryRequest) throws DeliveryException {
     try {
       String requestBody = mapper.writeValueAsString(deliveryRequest.getRequest());
       // TODO: Compression, simple example here
@@ -75,7 +75,7 @@ public class ApiDelivery {
   /**
    * Do warmup.
    */
-  public void DoWarmup() {
+  public void runWarmup() {
     String warmupEndpoint = endpoint.replace("/deliver", "/health");
     for (int i = 0; i < 20; i++) {
       try {

@@ -21,12 +21,12 @@ public class SdkDelivery {
    * @param deliveryRequest the delivery request
    * @return the populated response
    */
-  public Response DoDelivery(DeliveryRequest deliveryRequest) {
+  public Response runDelivery(DeliveryRequest deliveryRequest) throws DeliveryException {
     Request request = deliveryRequest.getRequest();
 
     if (request.getPaging() != null && request.getPaging().getOffset() != null
         && request.getPaging().getOffset() >= request.getInsertion().size()) {
-      throw new RuntimeException("Invalid paging");
+      throw new DeliveryException("Invalid paging (offset >= size)");
     }
 
     // Set a request id.
@@ -54,7 +54,7 @@ public class SdkDelivery {
     int finalInsertionSize = Math.min(size, request.getInsertion().size() - index);
     List<Insertion> insertionPage = new ArrayList<>(finalInsertionSize);
     for (int i = 0; i < finalInsertionSize; i++) {
-      Insertion ins = request.getInsertion().get(i);
+      Insertion ins = request.getInsertion().get(index);
       ins.setPosition(offset);
       ins.setInsertionId(UUID.randomUUID().toString());
       insertionPage.add(ins);

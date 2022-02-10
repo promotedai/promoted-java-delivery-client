@@ -22,7 +22,7 @@ public class IntegrationTest {
         .addInsertionItem(new Insertion().contentId("28835"))
         .addInsertionItem(new Insertion().contentId("49550"));
 
-    client.Deliver(new DeliveryRequest(req, null, false, InsertionPageType.UNPAGED));
+    client.deliver(new DeliveryRequest(req, null, false, InsertionPageType.UNPAGED));
     assertTrue(true);
   }
 
