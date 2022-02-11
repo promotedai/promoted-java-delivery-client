@@ -1,8 +1,13 @@
 package ai.promoted.java.client;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +44,7 @@ class PromotedDeliveryClientTest {
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
     Response resp = client.deliver(dreq);
+    assertTrue(req.getClientRequestId().length() > 0);
     
     assertEquals(10, resp.getInsertion().size());
     verify(apiFactory.getSdkDelivery(), times(1)).runDelivery(dreq);
@@ -49,13 +55,9 @@ class PromotedDeliveryClientTest {
     verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
     LogRequest logRequest = logRequestCaptor.getValue();
     
-    assertEquals(1, logRequest.getDeliveryLog().size());
-    DeliveryLog deliveryLog = logRequest.getDeliveryLog().get(0);
-    assertEquals(req, deliveryLog.getRequest());
-    assertEquals(resp, deliveryLog.getResponse());
-    assertEquals(ExecutionServer.SDK, deliveryLog.getExecution().getExecutionServer());
+    assertSDKLogRequest(req, resp, logRequest);
   }
-  
+
   @Test
   void testCustomNotShouldApplyTreatmentCallsSDKDeliveryAndLogs() throws Exception {
     PromotedDeliveryClient client = PromotedDeliveryClient.builder()
@@ -69,7 +71,8 @@ class PromotedDeliveryClientTest {
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
     Response resp = client.deliver(dreq);
-    
+    assertTrue(req.getClientRequestId().length() > 0);
+
     assertEquals(10, resp.getInsertion().size());
     verify(apiFactory.getSdkDelivery(), times(1)).runDelivery(dreq);
     verifyNoInteractions(apiFactory.getApiDelivery());
@@ -79,11 +82,7 @@ class PromotedDeliveryClientTest {
     verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
     LogRequest logRequest = logRequestCaptor.getValue();
 
-    assertEquals(1, logRequest.getDeliveryLog().size());
-    DeliveryLog deliveryLog = logRequest.getDeliveryLog().get(0);
-    assertEquals(req, deliveryLog.getRequest());
-    assertEquals(resp, deliveryLog.getResponse());
-    assertEquals(ExecutionServer.SDK, deliveryLog.getExecution().getExecutionServer());
+    assertSDKLogRequest(req, resp, logRequest);
   }
   
   @Test
@@ -99,7 +98,8 @@ class PromotedDeliveryClientTest {
     when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
 
     Response resp = client.deliver(dreq);
-    
+    assertTrue(req.getClientRequestId().length() > 0);
+
     assertEquals(10, resp.getInsertion().size());
     verify(apiFactory.getApiDelivery(), times(1)).runDelivery(dreq);
     verifyNoInteractions(apiFactory.getSdkDelivery());
@@ -121,7 +121,36 @@ class PromotedDeliveryClientTest {
     when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
     Response resp = client.deliver(dreq);
+    assertTrue(req.getClientRequestId().length() > 0);
+
+    assertEquals(10, resp.getInsertion().size());
+    verify(apiFactory.getApiDelivery(), times(1)).runDelivery(dreq);
+    verifyNoInteractions(apiFactory.getSdkDelivery());
     
+    // Cohort membership and server side delivery -> follow-up logging.
+    ArgumentCaptor<LogRequest> logRequestCaptor = ArgumentCaptor.forClass(LogRequest.class);
+    verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
+    LogRequest logRequest = logRequestCaptor.getValue();
+
+    // No need to send a delivery log since delivery happened server-side.
+    assertNull(logRequest.getDeliveryLog());
+  }  
+  
+  @Test
+  void testNullCohortMembershipArmIsTreatment() throws Exception {
+    PromotedDeliveryClient client = PromotedDeliveryClient.builder()
+        .withMetricsExecutor(new CurrentThreadExecutor())
+        .withApiFactory(apiFactory).build();
+    
+    CohortMembership cm = new CohortMembership().cohortId("testing");
+    Request req = new Request().insertion(TestUtils.createInsertions(10));
+    DeliveryRequest dreq = new DeliveryRequest(req, cm, false, null);
+
+    when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
+    
+    Response resp = client.deliver(dreq);
+    assertTrue(req.getClientRequestId().length() > 0);
+
     assertEquals(10, resp.getInsertion().size());
     verify(apiFactory.getApiDelivery(), times(1)).runDelivery(dreq);
     verifyNoInteractions(apiFactory.getSdkDelivery());
@@ -148,7 +177,8 @@ class PromotedDeliveryClientTest {
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
     Response resp = client.deliver(dreq);
-    
+    assertTrue(req.getClientRequestId().length() > 0);
+
     assertEquals(10, resp.getInsertion().size());
     verify(apiFactory.getSdkDelivery(), times(1)).runDelivery(dreq);
     verifyNoInteractions(apiFactory.getApiDelivery());
@@ -157,12 +187,42 @@ class PromotedDeliveryClientTest {
     verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
     LogRequest logRequest = logRequestCaptor.getValue();
 
-    // Send a delivery log since delivery happened in the SDK.
+    assertSDKLogRequest(req, resp, logRequest);
+  }
+
+  @Test
+  void testApiDelvieryErrorFallsBackToSdkDelivery() throws Exception {
+    PromotedDeliveryClient client = PromotedDeliveryClient.builder()
+        .withMetricsExecutor(new CurrentThreadExecutor())
+        .withApiFactory(apiFactory).build();
+    
+    Request req = new Request().insertion(TestUtils.createInsertions(10));
+    DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
+
+
+    when(apiFactory.getApiDelivery().runDelivery(any())).thenThrow(DeliveryException.class);
+    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
+
+    Response resp = client.deliver(dreq);
+    assertTrue(req.getClientRequestId().length() > 0);
+
+    assertEquals(10, resp.getInsertion().size());
+    verify(apiFactory.getApiDelivery(), times(1)).runDelivery(dreq);
+    verify(apiFactory.getSdkDelivery(), times(1)).runDelivery(dreq);
+    
+    ArgumentCaptor<LogRequest> logRequestCaptor = ArgumentCaptor.forClass(LogRequest.class);
+    verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
+    LogRequest logRequest = logRequestCaptor.getValue();
+
+    assertSDKLogRequest(req, resp, logRequest);
+  }
+
+  private void assertSDKLogRequest(Request req, Response resp, LogRequest logRequest) {
+    System.out.println(logRequest);
     assertEquals(1, logRequest.getDeliveryLog().size());
     DeliveryLog deliveryLog = logRequest.getDeliveryLog().get(0);
     assertEquals(req, deliveryLog.getRequest());
     assertEquals(resp, deliveryLog.getResponse());
     assertEquals(ExecutionServer.SDK, deliveryLog.getExecution().getExecutionServer());
   }
-
 }
