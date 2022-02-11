@@ -98,9 +98,9 @@ public class PromotedDeliveryClient {
    * @param deliveryRequest the delivery request
    * @throws DeliveryException when any exception occurs
    */
-  public Response deliver(DeliveryRequest deliveryRequest) throws DeliveryException {
+  public DeliveryResponse deliver(DeliveryRequest deliveryRequest) throws DeliveryException {
 
-    Response deliveryResponse;
+    Response response;
 
     Request request = deliveryRequest.getRequest();
 
@@ -111,23 +111,23 @@ public class PromotedDeliveryClient {
     ExecutionServer execSrv = ExecutionServer.SDK;
 
     if (deliveryRequest.isOnlyLog() || !shouldApplyTreatment(cohortMembership)) {
-      deliveryResponse = sdkDelivery.runDelivery(deliveryRequest);
+      response = sdkDelivery.runDelivery(deliveryRequest);
     } else {
       try {
-        deliveryResponse = apiDelivery.runDelivery(deliveryRequest);
+        response = apiDelivery.runDelivery(deliveryRequest);
         execSrv = ExecutionServer.API;
       } catch (DeliveryException ex) {
         LOGGER.warning("Error calling Delivery API, falling back: " + ex);
-        deliveryResponse = sdkDelivery.runDelivery(deliveryRequest);
+        response = sdkDelivery.runDelivery(deliveryRequest);
       }
     }
 
     // If delivery happened client-side, log the insertions to metrics API.
     if (execSrv != ExecutionServer.API || cohortMembership != null) {
-      logToMetrics(deliveryRequest, deliveryResponse, cohortMembership, execSrv);
+      logToMetrics(deliveryRequest, response, cohortMembership, execSrv);
     }
 
-    return deliveryResponse;
+    return new DeliveryResponse(response, request.getClientRequestId(), execSrv);
   }
 
   /**

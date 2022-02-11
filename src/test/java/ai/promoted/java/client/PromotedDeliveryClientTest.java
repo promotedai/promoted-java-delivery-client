@@ -43,10 +43,10 @@ class PromotedDeliveryClientTest {
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
-    Response resp = client.deliver(dreq);
+    DeliveryResponse resp = client.deliver(dreq);
     assertTrue(req.getClientRequestId().length() > 0);
     
-    assertEquals(10, resp.getInsertion().size());
+    assertEquals(10, resp.getResponse().getInsertion().size());
     verify(apiFactory.getSdkDelivery(), times(1)).runDelivery(dreq);
     verifyNoInteractions(apiFactory.getApiDelivery());
     verify(apiFactory.getApiMetrics(), times(1)).runMetricsLogging(any());
@@ -55,7 +55,8 @@ class PromotedDeliveryClientTest {
     verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
     LogRequest logRequest = logRequestCaptor.getValue();
     
-    assertSDKLogRequest(req, resp, logRequest);
+    assertSDKLogRequest(req, resp.getResponse(), logRequest);
+    assertDeliveryResponse(resp, ExecutionServer.SDK);
   }
 
   @Test
@@ -70,10 +71,10 @@ class PromotedDeliveryClientTest {
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
-    Response resp = client.deliver(dreq);
+    DeliveryResponse resp = client.deliver(dreq);
     assertTrue(req.getClientRequestId().length() > 0);
 
-    assertEquals(10, resp.getInsertion().size());
+    assertEquals(10, resp.getResponse().getInsertion().size());
     verify(apiFactory.getSdkDelivery(), times(1)).runDelivery(dreq);
     verifyNoInteractions(apiFactory.getApiDelivery());
     verify(apiFactory.getApiMetrics(), times(1)).runMetricsLogging(any());
@@ -82,8 +83,9 @@ class PromotedDeliveryClientTest {
     verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
     LogRequest logRequest = logRequestCaptor.getValue();
 
-    assertSDKLogRequest(req, resp, logRequest);
-  }
+    assertSDKLogRequest(req, resp.getResponse(), logRequest);
+    assertDeliveryResponse(resp, ExecutionServer.SDK);
+}
   
   @Test
   void testCustomShouldApplyTreatmentCallsAPIDeliveryAndDoesNotLog() throws Exception {
@@ -97,16 +99,17 @@ class PromotedDeliveryClientTest {
 
     when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
 
-    Response resp = client.deliver(dreq);
+    DeliveryResponse resp = client.deliver(dreq);
     assertTrue(req.getClientRequestId().length() > 0);
 
-    assertEquals(10, resp.getInsertion().size());
+    assertEquals(10, resp.getResponse().getInsertion().size());
     verify(apiFactory.getApiDelivery(), times(1)).runDelivery(dreq);
     verifyNoInteractions(apiFactory.getSdkDelivery());
     
     // No cohort membership and server side delivery -> no follow-up logging.
     verifyNoInteractions(apiFactory.getApiMetrics());
-  }
+    assertDeliveryResponse(resp, ExecutionServer.API);
+}
   
   @Test
   void testHasTreatmentCohortMembershipCallsAPIDeliveryAndLogs() throws Exception {
@@ -120,10 +123,10 @@ class PromotedDeliveryClientTest {
 
     when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
-    Response resp = client.deliver(dreq);
+    DeliveryResponse resp = client.deliver(dreq);
     assertTrue(req.getClientRequestId().length() > 0);
 
-    assertEquals(10, resp.getInsertion().size());
+    assertEquals(10, resp.getResponse().getInsertion().size());
     verify(apiFactory.getApiDelivery(), times(1)).runDelivery(dreq);
     verifyNoInteractions(apiFactory.getSdkDelivery());
     
@@ -134,6 +137,7 @@ class PromotedDeliveryClientTest {
 
     // No need to send a delivery log since delivery happened server-side.
     assertNull(logRequest.getDeliveryLog());
+    assertDeliveryResponse(resp, ExecutionServer.API);
   }  
   
   @Test
@@ -148,10 +152,10 @@ class PromotedDeliveryClientTest {
 
     when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
-    Response resp = client.deliver(dreq);
+    DeliveryResponse resp = client.deliver(dreq);
     assertTrue(req.getClientRequestId().length() > 0);
 
-    assertEquals(10, resp.getInsertion().size());
+    assertEquals(10, resp.getResponse().getInsertion().size());
     verify(apiFactory.getApiDelivery(), times(1)).runDelivery(dreq);
     verifyNoInteractions(apiFactory.getSdkDelivery());
     
@@ -162,6 +166,7 @@ class PromotedDeliveryClientTest {
 
     // No need to send a delivery log since delivery happened server-side.
     assertNull(logRequest.getDeliveryLog());
+    assertDeliveryResponse(resp, ExecutionServer.API);
   }
 
   @Test
@@ -176,10 +181,10 @@ class PromotedDeliveryClientTest {
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
-    Response resp = client.deliver(dreq);
+    DeliveryResponse resp = client.deliver(dreq);
     assertTrue(req.getClientRequestId().length() > 0);
 
-    assertEquals(10, resp.getInsertion().size());
+    assertEquals(10, resp.getResponse().getInsertion().size());
     verify(apiFactory.getSdkDelivery(), times(1)).runDelivery(dreq);
     verifyNoInteractions(apiFactory.getApiDelivery());
     
@@ -187,7 +192,8 @@ class PromotedDeliveryClientTest {
     verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
     LogRequest logRequest = logRequestCaptor.getValue();
 
-    assertSDKLogRequest(req, resp, logRequest);
+    assertSDKLogRequest(req, resp.getResponse(), logRequest);
+    assertDeliveryResponse(resp, ExecutionServer.SDK);
   }
 
   @Test
@@ -203,10 +209,10 @@ class PromotedDeliveryClientTest {
     when(apiFactory.getApiDelivery().runDelivery(any())).thenThrow(DeliveryException.class);
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
 
-    Response resp = client.deliver(dreq);
+    DeliveryResponse resp = client.deliver(dreq);
     assertTrue(req.getClientRequestId().length() > 0);
 
-    assertEquals(10, resp.getInsertion().size());
+    assertEquals(10, resp.getResponse().getInsertion().size());
     verify(apiFactory.getApiDelivery(), times(1)).runDelivery(dreq);
     verify(apiFactory.getSdkDelivery(), times(1)).runDelivery(dreq);
     
@@ -214,7 +220,8 @@ class PromotedDeliveryClientTest {
     verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
     LogRequest logRequest = logRequestCaptor.getValue();
 
-    assertSDKLogRequest(req, resp, logRequest);
+    assertSDKLogRequest(req, resp.getResponse(), logRequest);
+    assertDeliveryResponse(resp, ExecutionServer.SDK);
   }
 
   private void assertSDKLogRequest(Request req, Response resp, LogRequest logRequest) {
@@ -224,5 +231,10 @@ class PromotedDeliveryClientTest {
     assertEquals(req, deliveryLog.getRequest());
     assertEquals(resp, deliveryLog.getResponse());
     assertEquals(ExecutionServer.SDK, deliveryLog.getExecution().getExecutionServer());
+  }
+  
+  private void assertDeliveryResponse(DeliveryResponse resp, ExecutionServer sdk) {
+    assertEquals(sdk, resp.getExecutionServer());
+    assertTrue(resp.getClientRequestId().length() > 0);
   }
 }
