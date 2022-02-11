@@ -64,6 +64,7 @@ public class ApiDelivery implements Delivery  {
   public Response runDelivery(DeliveryRequest deliveryRequest) throws DeliveryException {
     try {
       String requestBody = mapper.writeValueAsString(deliveryRequest.getRequest());
+      
       // TODO: Compression, simple example here
       // https://golb.hplar.ch/2019/01/java-11-http-client.html
       HttpRequest httpReq = HttpRequest.newBuilder().uri(URI.create(endpoint))

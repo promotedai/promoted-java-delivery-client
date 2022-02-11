@@ -1,5 +1,6 @@
 package ai.promoted.delivery.model;
 
+import java.util.Map;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,11 +13,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({Properties.JSON_PROPERTY_STRUCT_FIELD})
 public class Properties {
   public static final String JSON_PROPERTY_STRUCT_FIELD = "struct";
-  private Struct structField;
+  private Map<String, Object> structField;
 
   public Properties() {}
 
-  public Properties structField(Struct structField) {
+  public Properties structField(Map<String, Object> structField) {
     this.structField = structField;
     return this;
   }
@@ -29,14 +30,14 @@ public class Properties {
   @JsonProperty(JSON_PROPERTY_STRUCT_FIELD)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Struct getStructField() {
+  public Map<String, Object> getStructField() {
     return structField;
   }
 
 
   @JsonProperty(JSON_PROPERTY_STRUCT_FIELD)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setStructField(Struct structField) {
+  public void setStructField(Map<String, Object> structField) {
     this.structField = structField;
   }
 
