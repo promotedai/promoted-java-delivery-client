@@ -34,9 +34,7 @@ class PromotedDeliveryClientTest {
   
   @Test
   void testOnlyLogCallsSDKDeliveryAndLogs() throws Exception {
-    PromotedDeliveryClient client = PromotedDeliveryClient.builder()
-        .withMetricsExecutor(new CurrentThreadExecutor())
-        .withApiFactory(apiFactory).build();
+    PromotedDeliveryClient client = createDefaultClient();
     
     Request req = new Request().insertion(TestUtils.createInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, true, null);
@@ -59,10 +57,11 @@ class PromotedDeliveryClientTest {
     assertDeliveryResponse(resp, ExecutionServer.SDK);
   }
 
+
   @Test
   void testCustomNotShouldApplyTreatmentCallsSDKDeliveryAndLogs() throws Exception {
     PromotedDeliveryClient client = PromotedDeliveryClient.builder()
-        .withMetricsExecutor(new CurrentThreadExecutor())
+        .withMetricsExecutor(Runnable::run)
         .withApplyTreatmentChecker((cm) -> false)
         .withApiFactory(apiFactory).build();
     
@@ -90,7 +89,7 @@ class PromotedDeliveryClientTest {
   @Test
   void testCustomShouldApplyTreatmentCallsAPIDeliveryAndDoesNotLog() throws Exception {
     PromotedDeliveryClient client = PromotedDeliveryClient.builder()
-        .withMetricsExecutor(new CurrentThreadExecutor())
+        .withMetricsExecutor(Runnable::run)
         .withApplyTreatmentChecker((cm) -> true)
         .withApiFactory(apiFactory).build();
     
@@ -113,9 +112,7 @@ class PromotedDeliveryClientTest {
   
   @Test
   void testHasTreatmentCohortMembershipCallsAPIDeliveryAndLogs() throws Exception {
-    PromotedDeliveryClient client = PromotedDeliveryClient.builder()
-        .withMetricsExecutor(new CurrentThreadExecutor())
-        .withApiFactory(apiFactory).build();
+    PromotedDeliveryClient client = createDefaultClient();
     
     CohortMembership cm = new CohortMembership().arm(CohortArm.TREATMENT).cohortId("testing");
     Request req = new Request().insertion(TestUtils.createInsertions(10));
@@ -142,9 +139,7 @@ class PromotedDeliveryClientTest {
   
   @Test
   void testNullCohortMembershipArmIsTreatment() throws Exception {
-    PromotedDeliveryClient client = PromotedDeliveryClient.builder()
-        .withMetricsExecutor(new CurrentThreadExecutor())
-        .withApiFactory(apiFactory).build();
+    PromotedDeliveryClient client = createDefaultClient();
     
     CohortMembership cm = new CohortMembership().cohortId("testing");
     Request req = new Request().insertion(TestUtils.createInsertions(10));
@@ -171,9 +166,7 @@ class PromotedDeliveryClientTest {
 
   @Test
   void testHasControlCohortMembershipCallsSDKDeliveryAndLogs() throws Exception {
-    PromotedDeliveryClient client = PromotedDeliveryClient.builder()
-        .withMetricsExecutor(new CurrentThreadExecutor())
-        .withApiFactory(apiFactory).build();
+    PromotedDeliveryClient client = createDefaultClient();
     
     CohortMembership cm = new CohortMembership().arm(CohortArm.CONTROL).cohortId("testing");
     Request req = new Request().insertion(TestUtils.createInsertions(10));
@@ -198,9 +191,7 @@ class PromotedDeliveryClientTest {
 
   @Test
   void testApiDelvieryErrorFallsBackToSdkDelivery() throws Exception {
-    PromotedDeliveryClient client = PromotedDeliveryClient.builder()
-        .withMetricsExecutor(new CurrentThreadExecutor())
-        .withApiFactory(apiFactory).build();
+    PromotedDeliveryClient client = createDefaultClient();
     
     Request req = new Request().insertion(TestUtils.createInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
@@ -224,6 +215,13 @@ class PromotedDeliveryClientTest {
     assertDeliveryResponse(resp, ExecutionServer.SDK);
   }
 
+  private PromotedDeliveryClient createDefaultClient() {
+    PromotedDeliveryClient client = PromotedDeliveryClient.builder()
+        .withMetricsExecutor(Runnable::run)
+        .withApiFactory(apiFactory).build();
+    return client;
+  }
+  
   private void assertSDKLogRequest(Request req, Response resp, LogRequest logRequest) {
     System.out.println(logRequest);
     assertEquals(1, logRequest.getDeliveryLog().size());

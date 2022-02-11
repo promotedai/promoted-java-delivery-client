@@ -1,5 +1,6 @@
 package ai.promoted.java.client;
 
+import javax.annotation.Nullable;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.Request;
 
@@ -18,6 +19,7 @@ public class DeliveryRequest {
   private final InsertionPageType insertionPageType;
   
   /** An experiment (if any) to use for this request. */
+  @Nullable
   private final CohortMembership experiment;
 
   /**
@@ -46,7 +48,7 @@ public class DeliveryRequest {
   }
 
   /**
-   * Checks whether ot not to only perform logging and not call Delivery API.
+   * Checks whether or not to only perform logging and not call Delivery API.
    *
    * @return true, if is only log
    */
