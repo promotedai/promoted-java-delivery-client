@@ -1,7 +1,10 @@
 package ai.promoted.java.client;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ai.promoted.delivery.model.Insertion;
@@ -10,6 +13,7 @@ import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 import ai.promoted.delivery.model.UserInfo;
 
+@Disabled("only runs locally for interactive debugging")
 public class IntegrationTest {
 
   @Test
@@ -17,13 +21,28 @@ public class IntegrationTest {
     PromotedDeliveryClient client =
         PromotedDeliveryClient.builder().withDeliveryEndpoint("http://localhost:9090/deliver")
             .withDeliveryApiKey("abc").withDeliveryTimeoutMillis(30000).build();
+    
+    Map<String, Object> myProps = new HashMap<>();
+    Map<String, Object> searchProps = new HashMap<>();
+    searchProps.put("lat", 40.0);
+    searchProps.put("lng", -122.3);
+    myProps.put("search", searchProps);
+    
     Request req = new Request().userInfo(new UserInfo().logUserId("12355")).platformId(0)
-        .paging(new Paging().size(10).offset(0))
-        .addInsertionItem(new Insertion().contentId("28835"))
+        .paging(new Paging().size(100).offset(0))
+        .addInsertionItem(InsertionFactory.createInsertionWithProperties("28835", myProps))
         .addInsertionItem(new Insertion().contentId("49550"));
-
-    client.deliver(new DeliveryRequest(req, null, false, InsertionPageType.UNPAGED));
+    add100Insertions(req);
+    
+    DeliveryResponse resp = client.deliver(new DeliveryRequest(req, null, false, InsertionPageType.UNPAGED));
+    System.out.println(resp);
     assertTrue(true);
+  }
+
+  private void add100Insertions(Request req) {
+    for (int i = 0; i < 1000; i++) {
+      req.addInsertionItem(new Insertion().contentId(UUID.randomUUID().toString()));
+    }
   }
 
   @Test

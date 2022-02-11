@@ -6,14 +6,15 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.logging.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ai.promoted.delivery.model.LogRequest;
-import ai.promoted.delivery.model.Response;
 
 /**
  * Client for Promoted.ai's Metrics API.
  */
-public class ApiMetrics {
+public class ApiMetrics implements Metrics {
+  private static final Logger LOGGER = Logger.getLogger(ApiMetrics.class.getName());
 
   /** The Metrics API endpoint (get this from Promoted.ai). */
   private final String endpoint;
@@ -53,7 +54,8 @@ public class ApiMetrics {
    * @return the response
    * @throws DeliveryException any delivery exception that may occur
    */
-  public Response runMetricsLogging(LogRequest logRequest) throws DeliveryException {
+  @Override
+  public void runMetricsLogging(LogRequest logRequest) throws DeliveryException {
     try {
       String requestBody = mapper.writeValueAsString(logRequest);
       // TODO: Compression (does metrics accept that?).
@@ -61,9 +63,11 @@ public class ApiMetrics {
           .header("x-api-key", apiKey).timeout(timeoutDuration)
           .POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
 
-      HttpResponse<String> response =
-          httpClient.send(httpReq, HttpResponse.BodyHandlers.ofString());
-      return mapper.readValue(response.body(), Response.class);
+      HttpResponse<Void> response =
+          httpClient.send(httpReq, HttpResponse.BodyHandlers.discarding());
+      if (response.statusCode() != 200) {
+        LOGGER.warning("Failure calling Metrics API");
+      }
     } catch (Exception ex) {
       throw new DeliveryException("Error logging to metrics", ex);
     }

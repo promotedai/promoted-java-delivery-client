@@ -13,7 +13,7 @@ import ai.promoted.delivery.model.Response;
  * to the request insertions and sets up for logging. This is useful for experiment controls, error
  * fallbacks, and logging during the integration period.
  */
-public class SdkDelivery {
+public class SdkDelivery implements Delivery {
 
   /**
    * Do delivery.
@@ -21,6 +21,7 @@ public class SdkDelivery {
    * @param deliveryRequest the delivery request
    * @return the populated response
    */
+  @Override
   public Response runDelivery(DeliveryRequest deliveryRequest) throws DeliveryException {
     Request request = deliveryRequest.getRequest();
 
@@ -37,7 +38,7 @@ public class SdkDelivery {
       paging = new Paging().offset(0).size(request.getInsertion().size());
     }
 
-    int offset = Math.max(0, paging.getOffset());
+    int offset = paging.getOffset() != null ? Math.max(0, paging.getOffset()) : 0;
     int index = offset;
     if (deliveryRequest.getInsertionPageType() == InsertionPageType.PREPAGED) {
       // When insertions are pre-paged, we don't use offset to
@@ -46,7 +47,7 @@ public class SdkDelivery {
       index = 0;
     }
 
-    int size = paging.getSize();
+    int size = paging.getSize() != null ? paging.getSize() : 0;
     if (size <= 0) {
       size = request.getInsertion().size();
     }

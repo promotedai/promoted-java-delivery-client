@@ -36,13 +36,13 @@ public class PromotedDeliveryClient {
   public static final int DEFAULT_METRICS_THREAD_POOL_SIZE = 5;
 
   /** Service for SDK-side delivery, used for fallbacks, experiment controls, and only-log mode. */
-  private final SdkDelivery sdkDelivery;
+  private final Delivery sdkDelivery;
 
   /** Service for API-side delivery. */
-  private final ApiDelivery apiDelivery;
+  private final Delivery apiDelivery;
 
   /** Service for metrics logging. */
-  private final ApiMetrics apiMetrics;
+  private final Metrics apiMetrics;
 
   /** Executor to send metrics requests in the background. */
   private final Executor metricsExecutor;
@@ -63,11 +63,12 @@ public class PromotedDeliveryClient {
    * @param warmup the warmup
    * @param metricsExecutor the metrics executor
    * @param applyTreatmentChecker the apply treatment checker
+   * @param apiFactory for creating API clients, may be null to use the built-in defaults
    */
   private PromotedDeliveryClient(String deliveryEndpoint, String deliveryApiKey,
       long deliveryTimeoutMillis, String metricsEndpoint, String metricsApiKey,
       long metricsTimeoutMillis, boolean warmup, Executor metricsExecutor,
-      ApplyTreatmentChecker applyTreatmentChecker) {
+      ApplyTreatmentChecker applyTreatmentChecker, ApiFactory apiFactory) {
 
     if (deliveryTimeoutMillis <= 0) {
       deliveryTimeoutMillis = DEFAULT_DELIVERY_TIMEOUT_MILLIS;
@@ -79,14 +80,16 @@ public class PromotedDeliveryClient {
     if (metricsExecutor == null) {
       metricsExecutor = Executors.newSingleThreadExecutor();
     }
+    
+    if (apiFactory == null) {
+      apiFactory = new DefaultApiFactory();
+    }
+    
     this.metricsExecutor = metricsExecutor;
     this.applyTreatmentChecker = applyTreatmentChecker;
-    this.sdkDelivery = new SdkDelivery();
-    this.apiMetrics = new ApiMetrics(metricsEndpoint, metricsApiKey, metricsTimeoutMillis);
-    this.apiDelivery = new ApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis);
-    if (warmup) {
-      apiDelivery.runWarmup();
-    }
+    this.sdkDelivery = apiFactory.createSdkDelivery();
+    this.apiMetrics = apiFactory.createApiMetrics(metricsEndpoint, metricsApiKey, metricsTimeoutMillis);
+    this.apiDelivery = apiFactory.createApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis, warmup);
   }
 
   /**
@@ -95,9 +98,9 @@ public class PromotedDeliveryClient {
    * @param deliveryRequest the delivery request
    * @throws DeliveryException when any exception occurs
    */
-  public void deliver(DeliveryRequest deliveryRequest) throws DeliveryException {
+  public DeliveryResponse deliver(DeliveryRequest deliveryRequest) throws DeliveryException {
 
-    Response deliveryResponse;
+    Response response;
 
     Request request = deliveryRequest.getRequest();
 
@@ -108,23 +111,23 @@ public class PromotedDeliveryClient {
     ExecutionServer execSrv = ExecutionServer.SDK;
 
     if (deliveryRequest.isOnlyLog() || !shouldApplyTreatment(cohortMembership)) {
-      deliveryResponse = sdkDelivery.runDelivery(deliveryRequest);
+      response = sdkDelivery.runDelivery(deliveryRequest);
     } else {
       try {
-        deliveryResponse = apiDelivery.runDelivery(deliveryRequest);
+        response = apiDelivery.runDelivery(deliveryRequest);
         execSrv = ExecutionServer.API;
       } catch (DeliveryException ex) {
         LOGGER.warning("Error calling Delivery API, falling back: " + ex);
-        deliveryResponse = sdkDelivery.runDelivery(deliveryRequest);
+        response = sdkDelivery.runDelivery(deliveryRequest);
       }
     }
 
     // If delivery happened client-side, log the insertions to metrics API.
     if (execSrv != ExecutionServer.API || cohortMembership != null) {
-      logToMetrics(deliveryRequest, deliveryResponse, cohortMembership, execSrv);
+      logToMetrics(deliveryRequest, response, cohortMembership, execSrv);
     }
 
-    System.out.println(deliveryResponse);
+    return new DeliveryResponse(response, request.getClientRequestId(), execSrv);
   }
 
   /**
@@ -326,6 +329,9 @@ public class PromotedDeliveryClient {
     /** The apply treatment checker. */
     private ApplyTreatmentChecker applyTreatmentChecker;
 
+    /** The API factory. */
+    private ApiFactory apiFactory;
+    
     /**
      * Instantiates a new builder.
      */
@@ -431,6 +437,17 @@ public class PromotedDeliveryClient {
     }
 
     /**
+     * Sets API factory.
+     *
+     * @param apiFactory the API factory
+     * @return the builder
+     */
+    public Builder withApiFactory(ApiFactory apiFactory) {
+      this.apiFactory = apiFactory;
+      return this;
+    }
+
+    /**
      * Builds the {@link PromotedDeliveryClient}.
      *
      * @return the promoted delivery client
@@ -438,7 +455,7 @@ public class PromotedDeliveryClient {
     public PromotedDeliveryClient build() {
       return new PromotedDeliveryClient(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis,
           metricsEndpoint, metricsApiKey, metricsTimeoutMillis, warmup, metricsExecutor,
-          applyTreatmentChecker);
+          applyTreatmentChecker, apiFactory);
     }
   }
 }
