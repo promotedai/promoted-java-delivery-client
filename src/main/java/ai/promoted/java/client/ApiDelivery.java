@@ -1,12 +1,19 @@
 package ai.promoted.java.client;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ai.promoted.delivery.model.Response;
 
@@ -65,18 +72,43 @@ public class ApiDelivery implements Delivery  {
     try {
       String requestBody = mapper.writeValueAsString(deliveryRequest.getRequest());
       
-      // TODO: Compression, simple example here
-      // https://golb.hplar.ch/2019/01/java-11-http-client.html
       HttpRequest httpReq = HttpRequest.newBuilder().uri(URI.create(endpoint))
-          .header("x-api-key", apiKey).timeout(timeoutDuration)
+          .header("Accept-Encoding", "gzip")
+          .header("x-api-key", apiKey)
+          .timeout(timeoutDuration)
           .POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
 
-      HttpResponse<String> response =
-          httpClient.send(httpReq, HttpResponse.BodyHandlers.ofString());
-      return mapper.readValue(response.body(), Response.class);
+      HttpResponse<InputStream> response =
+          httpClient.send(httpReq, HttpResponse.BodyHandlers.ofInputStream());
+      String encoding = response.headers().firstValue("Content-Encoding").orElse("");
+      
+      if (encoding.equals("gzip")) {
+        return processCompressedResponse(response);
+      }
+      else {
+        return processUncompressedResponse(response);
+      }      
     } catch (Exception ex) {
       throw new DeliveryException("Error running delivery", ex);
     }
+  }
+
+  private Response processUncompressedResponse(HttpResponse<InputStream> response)
+      throws IOException, StreamReadException, DatabindException {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    try (var is = response.body(); var autoCloseOs = os) {
+      is.transferTo(autoCloseOs);
+    }
+    return mapper.readValue(os.toByteArray(), Response.class);
+  }
+
+  private Response processCompressedResponse(HttpResponse<InputStream> response)
+      throws IOException, StreamReadException, DatabindException {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    try (InputStream is = new GZIPInputStream(response.body()); var autoCloseOs = os) {
+      is.transferTo(autoCloseOs);
+    }
+    return mapper.readValue(os.toByteArray(), Response.class);
   }
 
   /**

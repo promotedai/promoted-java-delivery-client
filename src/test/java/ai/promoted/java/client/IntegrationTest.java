@@ -3,6 +3,7 @@ package ai.promoted.java.client;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,12 +29,20 @@ public class IntegrationTest {
     myProps.put("search", searchProps);
     
     Request req = new Request().userInfo(new UserInfo().logUserId("12355")).platformId(0)
-        .paging(new Paging().size(10).offset(0))
+        .paging(new Paging().size(100).offset(0))
         .addInsertionItem(InsertionFactory.createInsertionWithProperties("28835", myProps))
         .addInsertionItem(new Insertion().contentId("49550"));
-
-    client.deliver(new DeliveryRequest(req, null, false, InsertionPageType.UNPAGED));
+    add100Insertions(req);
+    
+    Response resp = client.deliver(new DeliveryRequest(req, null, false, InsertionPageType.UNPAGED));
+    System.out.println(resp);
     assertTrue(true);
+  }
+
+  private void add100Insertions(Request req) {
+    for (int i = 0; i < 1000; i++) {
+      req.addInsertionItem(new Insertion().contentId(UUID.randomUUID().toString()));
+    }
   }
 
   @Test
