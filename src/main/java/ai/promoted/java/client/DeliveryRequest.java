@@ -39,6 +39,25 @@ public class DeliveryRequest {
   }
 
   /**
+   * Instantiates a new delivery request.
+   *
+   * @param request the request to process
+   * @param experiment the experiment that the user is in, may be null, which means apply the treatment
+=   */
+  public DeliveryRequest(Request request, CohortMembership experiment) {
+    this(request, experiment, false, InsertionPageType.UNPAGED);
+  }
+
+  /**
+   * Instantiates a new delivery request.
+   *
+   * @param request the request to process
+=   */
+  public DeliveryRequest(Request request) {
+    this(request, null);
+  }
+
+  /**
    * Gets the underlying request for ranked content.
    *
    * @return the request
