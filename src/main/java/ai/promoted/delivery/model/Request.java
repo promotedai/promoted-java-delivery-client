@@ -63,7 +63,7 @@ public class Request {
   private Timing timing;
 
   public static final String JSON_PROPERTY_USE_CASE = "useCase";
-  private Integer useCase;
+  private UseCase useCase;
 
   public static final String JSON_PROPERTY_USER_INFO = "userInfo";
   private UserInfo userInfo;
@@ -431,7 +431,7 @@ public class Request {
   }
 
 
-  public Request useCase(Integer useCase) {
+  public Request useCase(UseCase useCase) {
     this.useCase = useCase;
     return this;
   }
@@ -444,14 +444,14 @@ public class Request {
   @JsonProperty(JSON_PROPERTY_USE_CASE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Integer getUseCase() {
+  public UseCase getUseCase() {
     return useCase;
   }
 
 
   @JsonProperty(JSON_PROPERTY_USE_CASE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setUseCase(Integer useCase) {
+  public void setUseCase(UseCase useCase) {
     this.useCase = useCase;
   }
 
