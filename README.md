@@ -63,6 +63,7 @@ Field Name | Type | Optional? | Description
 ---------- | ---- | --------- | -----------
 `userInfo` | UserInfo | Yes | The user info structure.
 `arm` | String | Yes | 'CONTROL' or one of the TREATMENT values ('TREATMENT', 'TREATMENT1', etc.).
+`cohortId` | String | Yes | Name of the cohort (e.g. "LOCAL_HOLDOUT" etc.)
 
 ---
 
@@ -251,10 +252,13 @@ We might modify to something like this:
 ```java
 void getProducts(ProductRequest req) {
   List<Product> products = ...;
-  DeliveryRequest deliveryRequest = new DeliveryRequest();
+  Request req = new Request().userInfo(new UserInfo()
+      .logUserId("12355")
+      .paging(new Paging().size(100).offset(0)));
+  DeliveryRequest deliveryRequest = new DeliveryRequest(req);
   Map<String, Product> productsMap = new HashMap<>();
   for (Product product : products) {
-      deliveryRequest.addInsertion(new Insertion().contentId(product.getProductId());
+      deliveryRequest.getRequest().addInsertion(new Insertion().contentId(product.getProductId());
       productsMap.put(product.getProductId(), product);
   }
 
