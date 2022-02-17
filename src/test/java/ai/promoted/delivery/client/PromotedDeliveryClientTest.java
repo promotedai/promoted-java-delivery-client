@@ -223,7 +223,6 @@ class PromotedDeliveryClientTest {
   }
   
   private void assertSDKLogRequest(Request req, Response resp, LogRequest logRequest) {
-    System.out.println(logRequest);
     assertEquals(1, logRequest.getDeliveryLog().size());
     DeliveryLog deliveryLog = logRequest.getDeliveryLog().get(0);
     assertEquals(req, deliveryLog.getRequest());

@@ -51,7 +51,6 @@ public class ApiMetrics implements Metrics {
    * Do metrics logging.
    *
    * @param logRequest the log request
-   * @return the response
    * @throws DeliveryException any delivery exception that may occur
    */
   @Override
