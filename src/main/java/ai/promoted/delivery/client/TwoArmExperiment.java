@@ -1,4 +1,4 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
 import ai.promoted.delivery.model.CohortArm;
 import ai.promoted.delivery.model.CohortMembership;
@@ -43,8 +43,12 @@ public class TwoArmExperiment {
   
   private final int numTotalBuckets;
 
+
   /**
    * Factory method for a 50/50 experiment.
+   * @param cohortId name of the cohort id (experiment)
+   * @param controlPercent percent to activate into control, range [0, 100]
+   * @param treatmentPercent percent to activate into treatment, range [0, 100]
    * @return the configured experiment
    */
   public static TwoArmExperiment create5050TwoArmExperimentConfig(String cohortId, int controlPercent,
@@ -117,6 +121,11 @@ public class TwoArmExperiment {
     return numTreatmentBuckets;
   }
   
+  /**
+   * Evaluates the experiment membership for a given user.
+   * @param userId the user id to check
+   * @return the correct cohort membership if the user is activated into the experiment, or null if not.
+   */
   public CohortMembership checkMembership(String userId) {
     int hash = combineHash(userId.hashCode(), cohortIdHash);
     int bucket = Math.abs(hash) % numTotalBuckets;

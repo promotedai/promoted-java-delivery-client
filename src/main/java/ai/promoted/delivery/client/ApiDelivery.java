@@ -1,4 +1,4 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

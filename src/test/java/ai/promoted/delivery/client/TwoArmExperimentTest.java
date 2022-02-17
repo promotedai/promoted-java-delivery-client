@@ -1,6 +1,8 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import ai.promoted.delivery.model.CohortArm;
 import ai.promoted.delivery.model.CohortMembership;

@@ -1,4 +1,4 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
 import javax.annotation.Nullable;
 import ai.promoted.delivery.model.CohortMembership;

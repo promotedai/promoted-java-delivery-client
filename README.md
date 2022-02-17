@@ -313,7 +313,7 @@ void getProducts(ProductRequest req) {
 
 Here's an example using custom arm assignment logic (not using `twoArmExperimentConfig5050`).
 
-```typescript
+```java
   // If you already use an experiment framework, it'll have the ability to return
   // (1) if a user is activated into an experiment and
   // (2) which arm to perform.

@@ -1,4 +1,4 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
 import ai.promoted.delivery.model.ExecutionServer;
 import ai.promoted.delivery.model.Response;
