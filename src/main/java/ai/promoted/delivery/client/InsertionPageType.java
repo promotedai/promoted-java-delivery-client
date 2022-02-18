@@ -1,4 +1,4 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
 public enum InsertionPageType {
   UNPAGED(1), PREPAGED(2);

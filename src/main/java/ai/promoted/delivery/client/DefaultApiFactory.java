@@ -1,4 +1,4 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
 /**
  * API factory that creates the standard API clients.

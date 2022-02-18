@@ -1,4 +1,4 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
 /**
  * API factory to configure with mocks/stubs for use in unit tests.

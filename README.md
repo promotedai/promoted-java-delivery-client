@@ -279,6 +279,55 @@ You can use `deliver` but add a `onlyLog: true` parameter.
 
 - Do not set the insertion `position` field in client code. The SDK and Delivery API will set it when `deliver` is called.
 
+### Experiments
+
+Promoted supports the ability to run Promoted-side experiments.  Sometimes it is useful to run an experiment in your where `promoted-java-delivery-client` is integrated (e.g. you want arm assignments to match your own internal experiment arm assignments).
+
+```java
+// Create a small config indicating the experiment is a 50-50 experiment where 10% of the users are activated.
+TwoArmExperiment experimentConfig = TwoArmExperiment.create5050TwoArmExperimentConfig("promoted-v1", 5, 5);
+
+void getProducts(ProductRequest req) {
+  List<Product> products = //...;
+
+  // This gets the anonymous user id from the request.
+  String logUserId = getLogUserId(req);
+  CohortMembership experimentMembership = experimentConfig.checkMembership(logUserId);
+
+  Request req = new Request().userInfo(new UserInfo()
+      .logUserId("12355")
+      .paging(new Paging().size(100).offset(0)));
+
+  // If experimentActivated can be false (e.g. only 5% of users get put into an experiment) and
+  // you want the non-activated behavior to not call Delivery API, then you need to specify onlyLog to false.
+  // This is common during ramp up.  `onlyLog` can be dropped if it's always false.
+  //
+  // Example:
+  // `onlyLog: experimentMembership == null`
+  DeliveryRequest deliveryRequest = new DeliveryRequest(req).experiment(experimentMembership);
+
+  DeliveryResponse response = promotedDeliveryClient.deliver(deliveryRequest);
+  //...
+}
+```
+
+Here's an example using custom arm assignment logic (not using `twoArmExperimentConfig5050`).
+
+```java
+  // If you already use an experiment framework, it'll have the ability to return
+  // (1) if a user is activated into an experiment and
+  // (2) which arm to perform.
+  //
+  CohortMembership experimentMembership = null;
+  if (isUserActivated(experimentName, logUserId)) {
+  	boolean inTreatment = isUserInTreatmentArm(experimentName, logUserId);
+  	
+    // Only log if the user is activated into the experiment.
+    experimentMembership = new CohortMembership().cohortId(experimentName)
+        .arm(inTreatment ? CohortArm.TREATMENT : CohortArm.CONTROL);
+  }
+```
+
 # Improving this library
 - Source code follwoing the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 
@@ -296,5 +345,5 @@ Uses
 - Build and install SNAPSHOT locally: `mvn install`
 
 ## Deploy
-
-TODO
+- Sign: `mvn clean verify -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`
+- Deploy to Sonatype: `mvn deploy -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`

@@ -1,6 +1,6 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

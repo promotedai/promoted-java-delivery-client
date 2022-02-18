@@ -1,4 +1,4 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
 import java.util.UUID;
 import java.util.concurrent.Executor;

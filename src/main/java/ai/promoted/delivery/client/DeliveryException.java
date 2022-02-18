@@ -1,4 +1,4 @@
-package ai.promoted.java.client;
+package ai.promoted.delivery.client;
 
 public class DeliveryException extends Exception {
   private static final long serialVersionUID = -5346305939046085966L;
