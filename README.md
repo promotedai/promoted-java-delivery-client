@@ -345,5 +345,5 @@ Uses
 - Build and install SNAPSHOT locally: `mvn install`
 
 ## Deploy
-
-TODO
+- Sign: `mvn clean verify -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`
+- Deploy to Sonatype: `mvn deploy -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`
