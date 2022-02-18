@@ -47,19 +47,19 @@ public class TwoArmExperiment {
   /**
    * Factory method for a 50/50 experiment.
    * @param cohortId name of the cohort id (experiment)
-   * @param controlPercent percent to activate into control, range [0, 100]
-   * @param treatmentPercent percent to activate into treatment, range [0, 100]
+   * @param controlPercent percent of the total to activate into control, range [0, 50]
+   * @param treatmentPercent percent of the total to activate into treatment, range [0, 50]
    * @return the configured experiment
    */
   public static TwoArmExperiment create5050TwoArmExperimentConfig(String cohortId, int controlPercent,
       int treatmentPercent) {
-    if (controlPercent < 0 || controlPercent > 100) {
-      throw new IllegalArgumentException("Control percent must be in the range [0, 100]");
+    if (controlPercent < 0 || controlPercent > 50) {
+      throw new IllegalArgumentException("Control percent must be in the range [0, 50]");
     }
-    if (treatmentPercent < 0 || treatmentPercent > 100) {
-      throw new IllegalArgumentException("Treatment percent must be in the range [0, 100]");
+    if (treatmentPercent < 0 || treatmentPercent > 50) {
+      throw new IllegalArgumentException("Treatment percent must be in the range [0, 50]");
     }
-    return new TwoArmExperiment(cohortId, controlPercent, 100, treatmentPercent, 100);
+    return new TwoArmExperiment(cohortId, controlPercent, 50, treatmentPercent, 50);
   }
   
   /**

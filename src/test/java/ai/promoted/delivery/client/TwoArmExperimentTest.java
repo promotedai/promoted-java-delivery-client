@@ -72,8 +72,8 @@ class TwoArmExperimentTest {
   void testCreateTwoArmExperiment1PercentSuccess() {
     TwoArmExperiment exp = TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", 1, 1);
     assertEquals("HOLD_OUT", exp.getCohortId());
-    assertEquals(100, exp.getNumControlBuckets());
-    assertEquals(100, exp.getNumTreatmentBuckets());
+    assertEquals(50, exp.getNumControlBuckets());
+    assertEquals(50, exp.getNumTreatmentBuckets());
     assertEquals(1, exp.getNumActiveTreatmentBuckets());
     assertEquals(1, exp.getNumActiveControlBuckets());
   }
@@ -82,8 +82,8 @@ class TwoArmExperimentTest {
   void testCreateTwoArmExperiment10And5PercentSuccess() {
     TwoArmExperiment exp = TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", 10, 5);
     assertEquals("HOLD_OUT", exp.getCohortId());
-    assertEquals(100, exp.getNumControlBuckets());
-    assertEquals(100, exp.getNumTreatmentBuckets());
+    assertEquals(50, exp.getNumControlBuckets());
+    assertEquals(50, exp.getNumTreatmentBuckets());
     assertEquals(5, exp.getNumActiveTreatmentBuckets());
     assertEquals(10, exp.getNumActiveControlBuckets());
   }
@@ -101,15 +101,15 @@ class TwoArmExperimentTest {
   
   @Test
   void testUserNotActive() {
-    TwoArmExperiment exp = TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", 50, 50);
-    CohortMembership mem = exp.checkMembership("user2");
+    TwoArmExperiment exp = TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", 1, 1);
+    CohortMembership mem = exp.checkMembership("user5");
     assertNull(mem);
   }
   
   @Test
   void testUserInTreatment() {
     TwoArmExperiment exp = TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", 50, 50);
-    CohortMembership mem = exp.checkMembership("user4");
+    CohortMembership mem = exp.checkMembership("user3");
     assertEquals("HOLD_OUT", mem.getCohortId());
     assertEquals(CohortArm.TREATMENT, mem.getArm());
   }
@@ -119,22 +119,22 @@ class TwoArmExperimentTest {
     Exception exception = assertThrows(
         IllegalArgumentException.class, 
         () -> TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", -1, 50));
-    assertEquals("Control percent must be in the range [0, 100]", exception.getMessage());
+    assertEquals("Control percent must be in the range [0, 50]", exception.getMessage());
     
     exception = assertThrows(
         IllegalArgumentException.class, 
-        () -> TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", 101, 50));
-    assertEquals("Control percent must be in the range [0, 100]", exception.getMessage());
+        () -> TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", 51, 50));
+    assertEquals("Control percent must be in the range [0, 50]", exception.getMessage());
     
     exception = assertThrows(
         IllegalArgumentException.class, 
         () -> TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", 50, -1));
-    assertEquals("Treatment percent must be in the range [0, 100]", exception.getMessage());
+    assertEquals("Treatment percent must be in the range [0, 50]", exception.getMessage());
     
     exception = assertThrows(
         IllegalArgumentException.class, 
-        () -> TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", 50, 101));
-    assertEquals("Treatment percent must be in the range [0, 100]", exception.getMessage());
+        () -> TwoArmExperiment.create5050TwoArmExperimentConfig("HOLD_OUT", 50, 51));
+    assertEquals("Treatment percent must be in the range [0, 50]", exception.getMessage());
   }
 
 }

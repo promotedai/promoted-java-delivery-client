@@ -318,14 +318,14 @@ Here's an example using custom arm assignment logic (not using `twoArmExperiment
   // (1) if a user is activated into an experiment and
   // (2) which arm to perform.
   //
-  // [boolean, boolean]
-  const [experimentActivated, inTreatment] = getExperimentActivationAndArm(experimentName, logUserId);
-
-  // Only log if the user is activated into the experiment.
-  const experimentMembership = experimentActivated ? {
-    cohortId: experimentName,
-    arm: inTreatment ? 'TREATMENT' : 'CONTROL'
-  } : null;
+  CohortMembership experimentMembership = null;
+  if (isUserActivated(experimentName, logUserId)) {
+  	boolean inTreatment = isUserInTreatmentArm(experimentName, logUserId);
+  	
+    // Only log if the user is activated into the experiment.
+    experimentMembership = new CohortMembership().cohortId(experimentName)
+        .arm(inTreatment ? CohortArm.TREATMENT : CohortArm.CONTROL);
+  }
 ```
 
 # Improving this library
