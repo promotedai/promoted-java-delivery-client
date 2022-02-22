@@ -35,6 +35,9 @@ public class PromotedDeliveryClient {
   /** Executor to run metrics logging in the background. */
   public static final int DEFAULT_METRICS_THREAD_POOL_SIZE = 5;
 
+  /** Default number of maximum request insertion passed to Delivery API. */
+  public static final int DEFAULT_MAX_REQUEST_INSERTIONS = 500;
+  
   /** Service for SDK-side delivery, used for fallbacks, experiment controls, and only-log mode. */
   private final Delivery sdkDelivery;
 
@@ -49,7 +52,7 @@ public class PromotedDeliveryClient {
 
   /** Optional function to see if treatment should be applied to a cohort membership. */
   private final ApplyTreatmentChecker applyTreatmentChecker;
-
+  
   /**
    * Instantiates a new promoted delivery client.
    * This class is thread-safe and intended to be used as a singleton.
@@ -62,13 +65,15 @@ public class PromotedDeliveryClient {
    * @param metricsTimeoutMillis the metrics timeout millis
    * @param warmup the warmup
    * @param metricsExecutor the metrics executor
+   * @param maxRequestInsertions the maximum number of request insertions sent to Delivery API
    * @param applyTreatmentChecker the apply treatment checker
    * @param apiFactory for creating API clients, may be null to use the built-in defaults
    */
   private PromotedDeliveryClient(String deliveryEndpoint, String deliveryApiKey,
       long deliveryTimeoutMillis, String metricsEndpoint, String metricsApiKey,
       long metricsTimeoutMillis, boolean warmup, Executor metricsExecutor,
-      ApplyTreatmentChecker applyTreatmentChecker, ApiFactory apiFactory) {
+      int maxRequestInsertions, ApplyTreatmentChecker applyTreatmentChecker,
+      ApiFactory apiFactory) {
 
     if (deliveryTimeoutMillis <= 0) {
       deliveryTimeoutMillis = DEFAULT_DELIVERY_TIMEOUT_MILLIS;
@@ -85,11 +90,15 @@ public class PromotedDeliveryClient {
       apiFactory = new DefaultApiFactory();
     }
     
+    if (maxRequestInsertions <= 0 ) {
+      maxRequestInsertions = DEFAULT_MAX_REQUEST_INSERTIONS;
+    }
+    
     this.metricsExecutor = metricsExecutor;
     this.applyTreatmentChecker = applyTreatmentChecker;
     this.sdkDelivery = apiFactory.createSdkDelivery();
     this.apiMetrics = apiFactory.createApiMetrics(metricsEndpoint, metricsApiKey, metricsTimeoutMillis);
-    this.apiDelivery = apiFactory.createApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis, warmup);
+    this.apiDelivery = apiFactory.createApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis, warmup, maxRequestInsertions);
   }
 
   /**
@@ -332,6 +341,9 @@ public class PromotedDeliveryClient {
     /** The API factory. */
     private ApiFactory apiFactory;
     
+    /** Maximum number of request insertions. */
+    private int maxRequestInsertions;
+    
     /**
      * Instantiates a new builder.
      */
@@ -448,6 +460,17 @@ public class PromotedDeliveryClient {
     }
 
     /**
+     * Sets max request insertions.
+     *
+     * @param maxRequestInsertions the max request insertions
+     * @return the builder
+     */
+    public Builder withMaxRequestInsertions(int maxRequestInsertions) {
+      this.maxRequestInsertions = maxRequestInsertions;
+      return this;
+    }
+
+    /**
      * Builds the {@link PromotedDeliveryClient}.
      *
      * @return the promoted delivery client
@@ -455,7 +478,7 @@ public class PromotedDeliveryClient {
     public PromotedDeliveryClient build() {
       return new PromotedDeliveryClient(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis,
           metricsEndpoint, metricsApiKey, metricsTimeoutMillis, warmup, metricsExecutor,
-          applyTreatmentChecker, apiFactory);
+          maxRequestInsertions, applyTreatmentChecker, apiFactory);
     }
   }
 }

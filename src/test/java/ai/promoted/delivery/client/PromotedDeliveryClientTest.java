@@ -36,7 +36,7 @@ class PromotedDeliveryClientTest {
   void testOnlyLogCallsSDKDeliveryAndLogs() throws Exception {
     PromotedDeliveryClient client = createDefaultClient();
     
-    Request req = new Request().insertion(TestUtils.createInsertions(10));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, true, null);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
@@ -65,7 +65,7 @@ class PromotedDeliveryClientTest {
         .withApplyTreatmentChecker((cm) -> false)
         .withApiFactory(apiFactory).build();
     
-    Request req = new Request().insertion(TestUtils.createInsertions(10));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
@@ -93,7 +93,7 @@ class PromotedDeliveryClientTest {
         .withApplyTreatmentChecker((cm) -> true)
         .withApiFactory(apiFactory).build();
     
-    Request req = new Request().insertion(TestUtils.createInsertions(10));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
 
     when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
@@ -115,7 +115,7 @@ class PromotedDeliveryClientTest {
     PromotedDeliveryClient client = createDefaultClient();
     
     CohortMembership cm = new CohortMembership().arm(CohortArm.TREATMENT).cohortId("testing");
-    Request req = new Request().insertion(TestUtils.createInsertions(10));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, cm, false, null);
 
     when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
@@ -142,7 +142,7 @@ class PromotedDeliveryClientTest {
     PromotedDeliveryClient client = createDefaultClient();
     
     CohortMembership cm = new CohortMembership().cohortId("testing");
-    Request req = new Request().insertion(TestUtils.createInsertions(10));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, cm, false, null);
 
     when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
@@ -169,7 +169,7 @@ class PromotedDeliveryClientTest {
     PromotedDeliveryClient client = createDefaultClient();
     
     CohortMembership cm = new CohortMembership().arm(CohortArm.CONTROL).cohortId("testing");
-    Request req = new Request().insertion(TestUtils.createInsertions(10));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, cm, false, null);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
@@ -193,7 +193,7 @@ class PromotedDeliveryClientTest {
   void testApiDelvieryErrorFallsBackToSdkDelivery() throws Exception {
     PromotedDeliveryClient client = createDefaultClient();
     
-    Request req = new Request().insertion(TestUtils.createInsertions(10));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
 
 

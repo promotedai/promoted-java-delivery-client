@@ -11,8 +11,8 @@ public class DefaultApiFactory implements ApiFactory {
   }
 
   @Override
-  public Delivery createApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup) {
-    return new ApiDelivery(endpoint, apiKey, timeoutMillis, warmup);
+  public Delivery createApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions) {
+    return new ApiDelivery(endpoint, apiKey, timeoutMillis, warmup, maxRequestInsertions);
   }
 
   @Override
