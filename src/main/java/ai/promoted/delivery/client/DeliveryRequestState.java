@@ -1,7 +1,6 @@
 package ai.promoted.delivery.client;
 
-import java.util.List;
-import ai.promoted.delivery.model.Insertion;
+import java.util.logging.Logger;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 
@@ -10,12 +9,11 @@ import ai.promoted.delivery.model.Response;
  */
 class DeliveryRequestState {
 
+  private static final Logger LOGGER = Logger.getLogger(DeliveryRequestState.class.getName());
+
   /** The delivery request we're processing */
   private final DeliveryRequest deliveryRequest;
 
-  /** Any insertions on the request that were not passed to Delivery API */
-  private List<Insertion> nonApiInsertions;
-  
   /**
    * Creates a state object for the given request.
    * 
@@ -31,21 +29,6 @@ class DeliveryRequestState {
    * @return the post-processed response
    */
   public Response getResponseToReturn(Response resp) {
-    
-    // Add any insertions back past the maximum, and assign them an insertion id.
-    if (nonApiInsertions != null) {
-      int nextIndex = 0;
-      if (resp.getInsertion().size() > 0) {
-        nextIndex = resp.getInsertion().get(resp.getInsertion().size()-1).getPosition() + 1;
-      }
-      
-      for (Insertion ins : nonApiInsertions) {
-        InsertionFactory.prepareResponseInsertion(ins, nextIndex);
-        resp.addInsertionItem(ins);
-        nextIndex++;
-      }
-    }
-    
     return resp;
   }
 
@@ -60,7 +43,7 @@ class DeliveryRequestState {
     
     // Trim the list if necessary.
     if (req.getInsertion().size() > maxRequestInsertions) {
-      nonApiInsertions = req.getInsertion().subList(maxRequestInsertions, req.getInsertion().size());
+      LOGGER.warning("Too many request insertions, truncating at " + maxRequestInsertions);
       req.setInsertion(req.getInsertion().subList(0, maxRequestInsertions));
     }
     
