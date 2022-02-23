@@ -36,7 +36,7 @@ public class PromotedDeliveryClient {
   public static final int DEFAULT_METRICS_THREAD_POOL_SIZE = 5;
 
   /** Default number of maximum request insertion passed to Delivery API. */
-  public static final int DEFAULT_MAX_REQUEST_INSERTIONS = 500;
+  public static final int DEFAULT_MAX_REQUEST_INSERTIONS = 1000;
   
   /** Service for SDK-side delivery, used for fallbacks, experiment controls, and only-log mode. */
   private final Delivery sdkDelivery;
