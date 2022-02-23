@@ -39,18 +39,27 @@ public class ApiDelivery implements Delivery  {
   private final Duration timeoutDuration;
 
   /**
+   * Maximum number of request insertions passed to delivery API. Any request insertions
+   * beyond this limit will be returned in the provided order at the end of the response
+   * list.
+   */
+  private final int maxRequestInsertions;
+
+  /**
    * Instantiates a new Delivery API client.
    *
    * @param endpoint the endpoint
    * @param apiKey the api key
    * @param timeoutMillis the timeout in millis
+   * @param maxRequestInsertions the max number of request insertions
    * @param warmup 
    */
-  public ApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup) {
+  public ApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions) {
     this.endpoint = endpoint;
     this.apiKey = apiKey;
     this.mapper = new ObjectMapper();
     this.timeoutDuration = Duration.of(timeoutMillis, ChronoUnit.MILLIS);
+    this.maxRequestInsertions = maxRequestInsertions;
 
     this.httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
     
@@ -68,8 +77,11 @@ public class ApiDelivery implements Delivery  {
    */
   @Override
   public Response runDelivery(DeliveryRequest deliveryRequest) throws DeliveryException {
+    DeliveryRequestState state = new DeliveryRequestState(deliveryRequest);
+    Response resp;
+    
     try {
-      String requestBody = mapper.writeValueAsString(deliveryRequest.getRequest());
+      String requestBody = mapper.writeValueAsString(state.getRequestToSend(maxRequestInsertions));
       
       HttpRequest httpReq = HttpRequest.newBuilder().uri(URI.create(endpoint))
           .header("Accept-Encoding", "gzip")
@@ -82,14 +94,16 @@ public class ApiDelivery implements Delivery  {
       String encoding = response.headers().firstValue("Content-Encoding").orElse("");
       
       if (encoding.equals("gzip")) {
-        return processCompressedResponse(response);
+        resp = processCompressedResponse(response);
       }
       else {
-        return processUncompressedResponse(response);
+        resp = processUncompressedResponse(response);
       }      
     } catch (Exception ex) {
       throw new DeliveryException("Error running delivery", ex);
     }
+    
+    return state.getResponseToReturn(resp);
   }
 
   private Response processUncompressedResponse(HttpResponse<InputStream> response)

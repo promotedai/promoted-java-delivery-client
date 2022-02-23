@@ -42,7 +42,7 @@ PromotedDeliveryClient client = PromotedDeliveryClient.builder()
 | `warmup`        | boolean                                                         | Option to warm up the HTTP connection pool at initialization.                                                                                                                                                                                                                                        |
 | `metricsExecutor`        | Executor                                                         | Metrics API calls take place on an `ExecutorService`. You are expected to supply one that suits your application requirements.                                                                                                                                                                                                                                        |
 | `applyTreatmentChecker`         | ApplyTreatmentChecker | Optional function interface called during delivery, accepts an experiment and returns a boolean indicating whether the request should be considered part of the control group (false) or in the treatment arm of an experiment (true). If not set, the default behavior of checking the experiement `arm` is applied. |
-
+| `maxRequestInsertions`        | int                                                         | Maximum number of request insertions that will be passed to (and returned from) Delivery API. Defaults to 1000.                                                                                                                                                                                                                                        |
 ## Data Types
 
 ### UserInfo

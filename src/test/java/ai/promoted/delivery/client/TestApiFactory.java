@@ -22,7 +22,7 @@ public class TestApiFactory implements ApiFactory {
 
   @Override
   public Delivery createApiDelivery(String endpoint, String apiKey, long timeoutMillis,
-      boolean warmup) {
+      boolean warmup, int maxRequestInsertions) {
     return apiDelivery;
   }
 
