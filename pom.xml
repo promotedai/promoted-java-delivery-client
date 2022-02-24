@@ -22,8 +22,8 @@
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:git:git://github.com/promotedai/promoted-java-delivery-client.git</connection>
-		<developerConnection>scm:git:ssh://github.com:promotedai/promoted-java-delivery-client.git</developerConnection>
+		<connection>scm:git:git@github.com/promotedai/promoted-java-delivery-client.git</connection>
+		<developerConnection>scm:git:git@github.com:promotedai/promoted-java-delivery-client.git</developerConnection>
 		<url>https://github.com/promotedai/promoted-java-delivery-client/tree/main</url>
 	</scm>
 
