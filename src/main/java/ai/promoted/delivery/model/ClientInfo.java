@@ -10,16 +10,16 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * ClientInfo
  */
 @JsonPropertyOrder({ClientInfo.JSON_PROPERTY_CLIENT_TYPE, ClientInfo.JSON_PROPERTY_TRAFFIC_TYPE})
-public class ClientInfo {
+public class ClientInfo implements Cloneable {
   public static final String JSON_PROPERTY_CLIENT_TYPE = "clientType";
-  private Integer clientType;
+  private ClientType clientType;
 
   public static final String JSON_PROPERTY_TRAFFIC_TYPE = "trafficType";
-  private Integer trafficType;
+  private TrafficType trafficType;
 
   public ClientInfo() {}
 
-  public ClientInfo clientType(Integer clientType) {
+  public ClientInfo clientType(ClientType clientType) {
     this.clientType = clientType;
     return this;
   }
@@ -32,19 +32,19 @@ public class ClientInfo {
   @JsonProperty(JSON_PROPERTY_CLIENT_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Integer getClientType() {
+  public ClientType getClientType() {
     return clientType;
   }
 
 
   @JsonProperty(JSON_PROPERTY_CLIENT_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setClientType(Integer clientType) {
+  public void setClientType(ClientType clientType) {
     this.clientType = clientType;
   }
 
 
-  public ClientInfo trafficType(Integer trafficType) {
+  public ClientInfo trafficType(TrafficType trafficType) {
     this.trafficType = trafficType;
     return this;
   }
@@ -57,14 +57,14 @@ public class ClientInfo {
   @JsonProperty(JSON_PROPERTY_TRAFFIC_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Integer getTrafficType() {
+  public TrafficType getTrafficType() {
     return trafficType;
   }
 
 
   @JsonProperty(JSON_PROPERTY_TRAFFIC_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setTrafficType(Integer trafficType) {
+  public void setTrafficType(TrafficType trafficType) {
     this.trafficType = trafficType;
   }
 
@@ -110,5 +110,11 @@ public class ClientInfo {
     return o.toString().replace("\n", "\n    ");
   }
 
+  /**
+   * Gets a clone of the ClientInfo.
+   */
+  public ClientInfo clone() throws CloneNotSupportedException {
+    return (ClientInfo) super.clone();
+  }
 }
 
