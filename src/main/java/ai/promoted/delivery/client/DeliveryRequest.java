@@ -7,17 +7,17 @@ import ai.promoted.delivery.model.Request;
 /**
  * DeliveryRequest is the input into delivery.
  */
-public class DeliveryRequest {
-  
+public class DeliveryRequest implements Cloneable {
+
   /** The underlying request for ranked content. */
-  private final Request request;
-  
+  private Request request;
+
   /** True to only send logs to Metrics API */
   private final boolean onlyLog;
-  
+
   /** The insertion page type (PREPAGED or UNPAGED). */
   private final InsertionPageType insertionPageType;
-  
+
   /** An experiment (if any) to use for this request. */
   @Nullable
   private final CohortMembership experiment;
@@ -26,9 +26,11 @@ public class DeliveryRequest {
    * Instantiates a new delivery request.
    *
    * @param request the request to process
-   * @param experiment the experiment that the user is in, may be null, which means apply the treatment
+   * @param experiment the experiment that the user is in, may be null, which means apply the
+   *        treatment
    * @param onlyLog if true, will log to Promoted.ai Metrics but not call Delivery API to re-rank
-   * @param insertionPageType the insertion page type, should be UNPAGED in order for Promoted.ai to best rank the results
+   * @param insertionPageType the insertion page type, should be UNPAGED in order for Promoted.ai to
+   *        best rank the results
    */
   public DeliveryRequest(Request request, CohortMembership experiment, boolean onlyLog,
       InsertionPageType insertionPageType) {
@@ -42,8 +44,9 @@ public class DeliveryRequest {
    * Instantiates a new delivery request.
    *
    * @param request the request to process
-   * @param experiment the experiment that the user is in, may be null, which means apply the treatment
-=   */
+   * @param experiment the experiment that the user is in, may be null, which means apply the
+   *        treatment
+   */
   public DeliveryRequest(Request request, CohortMembership experiment) {
     this(request, experiment, false, InsertionPageType.UNPAGED);
   }
@@ -51,8 +54,8 @@ public class DeliveryRequest {
   /**
    * Instantiates a new delivery request.
    *
-   * @param request the request to process
-=   */
+   * @param request the request to process =
+   */
   public DeliveryRequest(Request request) {
     this(request, null);
   }
@@ -91,5 +94,11 @@ public class DeliveryRequest {
    */
   public CohortMembership getExperiment() {
     return experiment;
+  }
+
+  public DeliveryRequest clone() throws CloneNotSupportedException {
+    DeliveryRequest deliveryRequestCopy = (DeliveryRequest) super.clone();
+    deliveryRequestCopy.request = request.clone();
+    return deliveryRequestCopy;
   }
 }

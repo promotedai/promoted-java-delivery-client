@@ -61,7 +61,7 @@ class PromotedDeliveryClientTest {
   @Test
   void testCustomNotShouldApplyTreatmentCallsSDKDeliveryAndLogs() throws Exception {
     PromotedDeliveryClient client = PromotedDeliveryClient.builder()
-        .withMetricsExecutor(Runnable::run)
+        .withExecutor(Runnable::run)
         .withApplyTreatmentChecker((cm) -> false)
         .withApiFactory(apiFactory).build();
     
@@ -89,7 +89,7 @@ class PromotedDeliveryClientTest {
   @Test
   void testCustomShouldApplyTreatmentCallsAPIDeliveryAndDoesNotLog() throws Exception {
     PromotedDeliveryClient client = PromotedDeliveryClient.builder()
-        .withMetricsExecutor(Runnable::run)
+        .withExecutor(Runnable::run)
         .withApplyTreatmentChecker((cm) -> true)
         .withApiFactory(apiFactory).build();
     
@@ -190,7 +190,7 @@ class PromotedDeliveryClientTest {
   }
 
   @Test
-  void testApiDelvieryErrorFallsBackToSdkDelivery() throws Exception {
+  void testApiDeliveryErrorFallsBackToSdkDelivery() throws Exception {
     PromotedDeliveryClient client = createDefaultClient();
     
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
@@ -217,7 +217,7 @@ class PromotedDeliveryClientTest {
 
   private PromotedDeliveryClient createDefaultClient() {
     PromotedDeliveryClient client = PromotedDeliveryClient.builder()
-        .withMetricsExecutor(Runnable::run)
+        .withExecutor(Runnable::run)
         .withApiFactory(apiFactory).build();
     return client;
   }

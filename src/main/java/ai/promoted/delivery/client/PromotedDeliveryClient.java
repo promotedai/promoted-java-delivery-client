@@ -47,11 +47,17 @@ public class PromotedDeliveryClient {
   /** Service for metrics logging. */
   private final Metrics apiMetrics;
 
-  /** Executor to send metrics requests in the background. */
-  private final Executor metricsExecutor;
+  /** Executor to send requests in the background. */
+  private final Executor executor;
 
   /** Optional function to see if treatment should be applied to a cohort membership. */
   private final ApplyTreatmentChecker applyTreatmentChecker;
+  
+  /** Percent of traffic not already sent to delivery to send as shadow traffic in the range [0, 1]. */
+  private final float shadowTrafficDeliveryRate;
+  
+  /** For sampling use cases. */
+  private final Sampler sampler;
   
   /**
    * Instantiates a new promoted delivery client.
@@ -64,16 +70,18 @@ public class PromotedDeliveryClient {
    * @param metricsApiKey the metrics api key
    * @param metricsTimeoutMillis the metrics timeout millis
    * @param warmup the warmup
-   * @param metricsExecutor the metrics executor
+   * @param executor the executor for sending async requests to Promoted.
    * @param maxRequestInsertions the maximum number of request insertions sent to Delivery API
    * @param applyTreatmentChecker the apply treatment checker
    * @param apiFactory for creating API clients, may be null to use the built-in defaults
+   * @param shadowTrafficDeliveryRate rate = [0,1] of traffic not otherwise sent to Delivery API sent as shadow traffic
+   * @param sampler the sampler to use
    */
   private PromotedDeliveryClient(String deliveryEndpoint, String deliveryApiKey,
       long deliveryTimeoutMillis, String metricsEndpoint, String metricsApiKey,
-      long metricsTimeoutMillis, boolean warmup, Executor metricsExecutor,
+      long metricsTimeoutMillis, boolean warmup, Executor executor,
       int maxRequestInsertions, ApplyTreatmentChecker applyTreatmentChecker,
-      ApiFactory apiFactory) {
+      ApiFactory apiFactory, float shadowTrafficDeliveryRate, Sampler sampler) {
 
     if (deliveryTimeoutMillis <= 0) {
       deliveryTimeoutMillis = DEFAULT_DELIVERY_TIMEOUT_MILLIS;
@@ -82,8 +90,8 @@ public class PromotedDeliveryClient {
       metricsTimeoutMillis = DEFAULT_METRICS_TIMEOUT_MILLIS;
     }
 
-    if (metricsExecutor == null) {
-      metricsExecutor = Executors.newSingleThreadExecutor();
+    if (executor == null) {
+      executor = Executors.newSingleThreadExecutor();
     }
     
     if (apiFactory == null) {
@@ -94,7 +102,17 @@ public class PromotedDeliveryClient {
       maxRequestInsertions = DEFAULT_MAX_REQUEST_INSERTIONS;
     }
     
-    this.metricsExecutor = metricsExecutor;
+    if (shadowTrafficDeliveryRate < 0 || shadowTrafficDeliveryRate > 1) {
+      throw new IllegalArgumentException("shadowTrafficDeliveryRate must be between 0 and 1");
+    }
+    
+    if (sampler == null) {
+      sampler = new SamplerImpl();
+    }
+    this.sampler = sampler;
+    
+    this.executor = executor;
+    this.shadowTrafficDeliveryRate = shadowTrafficDeliveryRate;
     this.applyTreatmentChecker = applyTreatmentChecker;
     this.sdkDelivery = apiFactory.createSdkDelivery();
     this.apiMetrics = apiFactory.createApiMetrics(metricsEndpoint, metricsApiKey, metricsTimeoutMillis);
@@ -119,9 +137,12 @@ public class PromotedDeliveryClient {
 
     ExecutionServer execSrv = ExecutionServer.SDK;
 
+    boolean attemptedDeliveryApi = false;
+    
     if (deliveryRequest.isOnlyLog() || !shouldApplyTreatment(cohortMembership)) {
       response = sdkDelivery.runDelivery(deliveryRequest);
     } else {
+      attemptedDeliveryApi = true;
       try {
         response = apiDelivery.runDelivery(deliveryRequest);
         execSrv = ExecutionServer.API;
@@ -136,7 +157,35 @@ public class PromotedDeliveryClient {
       logToMetrics(deliveryRequest, response, cohortMembership, execSrv);
     }
 
+    // Check to see if we should do shadow traffic.
+    if (!attemptedDeliveryApi && shouldSendShadowTraffic()) {
+      deliverShadowTraffic(deliveryRequest);
+    }
+    
     return new DeliveryResponse(response, request.getClientRequestId(), execSrv);
+  }
+
+  /**
+   * Sends shadow traffic asynchronously.
+   * @param deliveryRequest
+   */
+  private void deliverShadowTraffic(DeliveryRequest deliveryRequest) {
+    executor.execute(() -> {
+      try {
+        // We need a clone here in order to safely modify the ClientInfo.
+        DeliveryRequest requestToSend = deliveryRequest.clone();
+        
+        // We ensured earlier that client info was filled in.
+        assert requestToSend.getRequest().getClientInfo() != null;
+
+        requestToSend.getRequest().getClientInfo().setClientType(ClientType.SERVER);
+        requestToSend.getRequest().getClientInfo().setTrafficType(TrafficType.SHADOW);
+        
+        apiDelivery.runDelivery(requestToSend);
+      } catch (DeliveryException | CloneNotSupportedException ex) {
+        LOGGER.warning("Error calling Delivery API for shadow traffic: " + ex);
+      }
+    });
   }
 
   /**
@@ -157,6 +206,14 @@ public class PromotedDeliveryClient {
     return cohortMembership.getArm() == null || cohortMembership.getArm() != CohortArm.CONTROL;
   }
 
+  /**
+   * Checks whether or not to send shadow traffic when delivery did not occur.
+   * @return true to send shadow traffic, false otherwise.
+   */
+  private boolean shouldSendShadowTraffic() {
+    return (shadowTrafficDeliveryRate > 0 && sampler.sampleRandom(shadowTrafficDeliveryRate));
+  }
+  
   /**
    * Creates a cohort membership from the request, based on the provided experiment.
    * If there isn't one, returns null.
@@ -201,7 +258,7 @@ public class PromotedDeliveryClient {
    */
   private void logToMetrics(final DeliveryRequest deliveryRequest, final Response deliveryResponse,
       CohortMembership cohortMembership, final ExecutionServer execSrv) {
-    metricsExecutor.execute(() -> {
+    executor.execute(() -> {
       LogRequest logRequest =
           createLogRequest(deliveryRequest, deliveryResponse, cohortMembership, execSrv);
       try {
@@ -241,10 +298,11 @@ public class PromotedDeliveryClient {
       logRequest.addDeliveryLogItem(deliveryLog);
     }
 
-    // We promoted a few of the request fields to the log request, so we can clear them out there to save space.
-    request.setUserInfo(null);
-    request.setClientInfo(null);
-    request.setTiming(null);
+    // Some of these request fields are duplicated on the LogRequest, but in practice we
+    // might need them set for shadow traffic:
+    //  userInfo
+    //  clientInfo
+    //  timing
     
     if (cohortMembershipToLog != null) {
       logRequest.addCohortMembershipItem(cohortMembershipToLog);
@@ -262,8 +320,8 @@ public class PromotedDeliveryClient {
     if (request.getClientInfo() == null) {
       request.setClientInfo(new ClientInfo());
     }
-    request.getClientInfo().setClientType(ClientType.SERVER.getValue());
-    request.getClientInfo().setTrafficType(TrafficType.PRODUCTION.getValue());
+    request.getClientInfo().setClientType(ClientType.SERVER);
+    request.getClientInfo().setTrafficType(TrafficType.PRODUCTION);
 
     // If there is no client request id set by the caller, we fill one in.
     ensureClientRequestId(request);
@@ -332,8 +390,8 @@ public class PromotedDeliveryClient {
     /** The warmup. */
     private boolean warmup;
 
-    /** The metrics executor. */
-    private Executor metricsExecutor;
+    /** The executor. */
+    private Executor executor;
 
     /** The apply treatment checker. */
     private ApplyTreatmentChecker applyTreatmentChecker;
@@ -343,6 +401,12 @@ public class PromotedDeliveryClient {
     
     /** Maximum number of request insertions. */
     private int maxRequestInsertions;
+    
+    /** The shadow traffic delivery rate in the range [0, 1] **/
+    private float shadowTrafficDeliveryRate;
+    
+    /** The sampler to use */
+    private Sampler sampler;
     
     /**
      * Instantiates a new builder.
@@ -427,13 +491,13 @@ public class PromotedDeliveryClient {
     }
 
     /**
-     * Sets metrics executor.
+     * Sets executor.
      *
-     * @param metricsExecutor the metrics executor
+     * @param executor the metrics executor
      * @return the builder
      */
-    public Builder withMetricsExecutor(Executor metricsExecutor) {
-      this.metricsExecutor = metricsExecutor;
+    public Builder withExecutor(Executor executor) {
+      this.executor = executor;
       return this;
     }
 
@@ -471,14 +535,37 @@ public class PromotedDeliveryClient {
     }
 
     /**
+     * Sets shadow traffic delivery rate.
+     *
+     * @param shadowTrafficDeliveryRate the shadow traffic delivery rate
+     * @return the builder
+     */
+    public Builder withShadowTrafficDeliveryRate(float shadowTrafficDeliveryRate) {
+      this.shadowTrafficDeliveryRate = shadowTrafficDeliveryRate;
+      return this;
+    }
+
+    /**
+     * Sets sampler, which we use for sampling shadow traffic.
+     *
+     * @param sampler the sampler
+     * @return the builder
+     */
+    public Builder withSampler(Sampler sampler) {
+      this.sampler = sampler;
+      return this;
+    }
+
+    /**
      * Builds the {@link PromotedDeliveryClient}.
      *
      * @return the promoted delivery client
      */
     public PromotedDeliveryClient build() {
       return new PromotedDeliveryClient(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis,
-          metricsEndpoint, metricsApiKey, metricsTimeoutMillis, warmup, metricsExecutor,
-          maxRequestInsertions, applyTreatmentChecker, apiFactory);
+          metricsEndpoint, metricsApiKey, metricsTimeoutMillis, warmup, executor,
+          maxRequestInsertions, applyTreatmentChecker, apiFactory, shadowTrafficDeliveryRate,
+          sampler);
     }
   }
 }

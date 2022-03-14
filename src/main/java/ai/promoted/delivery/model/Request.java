@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     Request.JSON_PROPERTY_SEARCH_QUERY, Request.JSON_PROPERTY_SESSION_ID,
     Request.JSON_PROPERTY_TIMING, Request.JSON_PROPERTY_USE_CASE, Request.JSON_PROPERTY_USER_INFO,
     Request.JSON_PROPERTY_VIEW_ID})
-public class Request {
+public class Request implements Cloneable {
   public static final String JSON_PROPERTY_AUTO_VIEW_ID = "autoViewId";
   private String autoViewId;
 
@@ -578,5 +578,13 @@ public class Request {
     return o.toString().replace("\n", "\n    ");
   }
 
+  /**
+   * Gets a mostly-shallow copy of the Request, but safely modifiable ClientInfo.
+   */
+  public Request clone() throws CloneNotSupportedException {
+    Request requestCopy = (Request) super.clone();
+    requestCopy.setClientInfo(clientInfo.clone());
+    return requestCopy;
+  }
 }
 
