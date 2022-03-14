@@ -45,7 +45,7 @@ public class DeliveryRequest implements Cloneable {
    *
    * @param request the request to process
    * @param experiment the experiment that the user is in, may be null, which means apply the
-   *        treatment =
+   *        treatment
    */
   public DeliveryRequest(Request request, CohortMembership experiment) {
     this(request, experiment, false, InsertionPageType.UNPAGED);

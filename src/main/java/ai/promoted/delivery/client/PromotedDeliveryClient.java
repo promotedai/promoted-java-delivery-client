@@ -74,7 +74,7 @@ public class PromotedDeliveryClient {
    * @param maxRequestInsertions the maximum number of request insertions sent to Delivery API
    * @param applyTreatmentChecker the apply treatment checker
    * @param apiFactory for creating API clients, may be null to use the built-in defaults
-   * @param shadowTrafficDeliveryRate % of traffic not otherwise sent to Delivery API sent as shadow traffic
+   * @param shadowTrafficDeliveryRate rate = [0,1] of traffic not otherwise sent to Delivery API sent as shadow traffic
    * @param sampler the sampler to use
    */
   private PromotedDeliveryClient(String deliveryEndpoint, String deliveryApiKey,
@@ -170,7 +170,6 @@ public class PromotedDeliveryClient {
    * @param deliveryRequest
    */
   private void deliverShadowTraffic(DeliveryRequest deliveryRequest) {
-       
     executor.execute(() -> {
       try {
         // We need a clone here in order to safely modify the ClientInfo.
@@ -403,7 +402,7 @@ public class PromotedDeliveryClient {
     /** Maximum number of request insertions. */
     private int maxRequestInsertions;
     
-    /** The shadow traffic delivery % in the range [0, 1] **/
+    /** The shadow traffic delivery rate in the range [0, 1] **/
     private float shadowTrafficDeliveryRate;
     
     /** The sampler to use */
