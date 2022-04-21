@@ -1,5 +1,7 @@
 package ai.promoted.delivery.client;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.Request;
@@ -22,6 +24,28 @@ public class DeliveryRequest implements Cloneable {
   @Nullable
   private final CohortMembership experiment;
 
+  /** The request validator. */
+  private final DeliveryRequestValidator validator;
+  
+  /**
+   * Instantiates a new delivery request.
+   *
+   * @param request the request to process
+   * @param experiment the experiment that the user is in, may be null, which means apply the
+   *        treatment
+   * @param onlyLog if true, will log to Promoted.ai Metrics but not call Delivery API to re-rank
+   * @param insertionPageType the insertion page type, should be UNPAGED in order for Promoted.ai to
+   *        best rank the results
+   */
+  public DeliveryRequest(Request request, CohortMembership experiment, boolean onlyLog,
+      InsertionPageType insertionPageType, DeliveryRequestValidator validator) {
+    this.request = request;
+    this.onlyLog = onlyLog;
+    this.experiment = experiment;
+    this.insertionPageType = insertionPageType;
+    this.validator = validator;
+  }
+
   /**
    * Instantiates a new delivery request.
    *
@@ -34,10 +58,7 @@ public class DeliveryRequest implements Cloneable {
    */
   public DeliveryRequest(Request request, CohortMembership experiment, boolean onlyLog,
       InsertionPageType insertionPageType) {
-    this.request = request;
-    this.onlyLog = onlyLog;
-    this.experiment = experiment;
-    this.insertionPageType = insertionPageType;
+    this(request, experiment, onlyLog, insertionPageType, DefaultDeliveryRequestValidator.INSTANCE);
   }
 
   /**
@@ -100,5 +121,18 @@ public class DeliveryRequest implements Cloneable {
     DeliveryRequest deliveryRequestCopy = (DeliveryRequest) super.clone();
     deliveryRequestCopy.request = request.clone();
     return deliveryRequestCopy;
+  }
+
+  /**
+   * Checks the state of this delivery requests and collects/returns any validation errors.
+   * @param isShadowTraffic 
+   * 
+   * @return a list of validation errors, which may be empty.
+   */
+  public List<String> validate(boolean isShadowTraffic) {
+    if (validator != null ) {
+      return validator.validate(this, isShadowTraffic);
+    }    
+    return new ArrayList<>();
   }
 }

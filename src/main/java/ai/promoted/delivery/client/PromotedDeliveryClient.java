@@ -1,5 +1,6 @@
 package ai.promoted.delivery.client;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -59,6 +60,9 @@ public class PromotedDeliveryClient {
   /** For sampling use cases. */
   private final Sampler sampler;
   
+  /** Whether to do extra validation and log before sending a delivery request. */
+  private boolean performChecks;
+  
   /**
    * Instantiates a new promoted delivery client.
    * This class is thread-safe and intended to be used as a singleton.
@@ -81,7 +85,8 @@ public class PromotedDeliveryClient {
       long deliveryTimeoutMillis, String metricsEndpoint, String metricsApiKey,
       long metricsTimeoutMillis, boolean warmup, Executor executor,
       int maxRequestInsertions, ApplyTreatmentChecker applyTreatmentChecker,
-      ApiFactory apiFactory, float shadowTrafficDeliveryRate, Sampler sampler) {
+      ApiFactory apiFactory, float shadowTrafficDeliveryRate, Sampler sampler,
+      boolean performChecks) {
 
     if (deliveryTimeoutMillis <= 0) {
       deliveryTimeoutMillis = DEFAULT_DELIVERY_TIMEOUT_MILLIS;
@@ -117,6 +122,7 @@ public class PromotedDeliveryClient {
     this.sdkDelivery = apiFactory.createSdkDelivery();
     this.apiMetrics = apiFactory.createApiMetrics(metricsEndpoint, metricsApiKey, metricsTimeoutMillis);
     this.apiDelivery = apiFactory.createApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis, warmup, maxRequestInsertions);
+    this.performChecks = performChecks;
   }
 
   /**
@@ -127,6 +133,14 @@ public class PromotedDeliveryClient {
    */
   public DeliveryResponse deliver(DeliveryRequest deliveryRequest) throws DeliveryException {
 
+    boolean isShadowTraffic = shouldSendShadowTraffic();
+    
+    if (performChecks) {
+      List<String> validationErrors = deliveryRequest.validate(isShadowTraffic);
+      for (String validationError : validationErrors) {
+        LOGGER.warning("Delivery Request Validation Error: " + validationError);
+      }
+    }
     Response response;
 
     Request request = deliveryRequest.getRequest();
@@ -158,7 +172,7 @@ public class PromotedDeliveryClient {
     }
 
     // Check to see if we should do shadow traffic.
-    if (!attemptedDeliveryApi && shouldSendShadowTraffic()) {
+    if (!attemptedDeliveryApi && isShadowTraffic) {
       deliverShadowTraffic(deliveryRequest);
     }
     
@@ -355,6 +369,14 @@ public class PromotedDeliveryClient {
     }
   }
 
+  public boolean isPerformChecks() {
+    return performChecks;
+  }
+
+  public void setPerformChecks(boolean performChecks) {
+    this.performChecks = performChecks;
+  }
+
   /**
    * Builder access for {@link PromotedDeliveryClient}
    *
@@ -407,6 +429,9 @@ public class PromotedDeliveryClient {
     
     /** The sampler to use */
     private Sampler sampler;
+    
+    /** The perform-checks value. */
+    private boolean performChecks;
     
     /**
      * Instantiates a new builder.
@@ -476,6 +501,17 @@ public class PromotedDeliveryClient {
      */
     public Builder withMetricsTimeoutMillis(long metricsTimoutMillis) {
       this.deliveryTimeoutMillis = metricsTimoutMillis;
+      return this;
+    }
+
+    /**
+     * Sets performChecks, which will optionally cause extra validations to occur on delivery requests.
+     *
+     * @param performChecks the performChecks value
+     * @return the builder
+     */
+    public Builder witPerformChecks(boolean performChecks) {
+      this.performChecks = performChecks;
       return this;
     }
 
@@ -565,7 +601,7 @@ public class PromotedDeliveryClient {
       return new PromotedDeliveryClient(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis,
           metricsEndpoint, metricsApiKey, metricsTimeoutMillis, warmup, executor,
           maxRequestInsertions, applyTreatmentChecker, apiFactory, shadowTrafficDeliveryRate,
-          sampler);
+          sampler, performChecks);
     }
   }
 }
