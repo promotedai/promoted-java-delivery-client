@@ -1,6 +1,7 @@
 package ai.promoted.delivery.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ai.promoted.delivery.model.CohortArm;
 import ai.promoted.delivery.model.CohortMembership;
@@ -32,6 +34,39 @@ class PromotedDeliveryClientTest {
     apiFactory = new TestApiFactory(sdkDelivery, apiDelivery, apiMetrics);
   }
   
+  @Test
+  void testPerformChecksFalseDoesNotCallValidator() throws Exception {
+    PromotedDeliveryClient client = createDefaultClient();
+    
+    DeliveryRequestValidator mockValidator = Mockito.mock(DeliveryRequestValidator.class);
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
+    DeliveryRequest dreq = new DeliveryRequest(req, null, true, null, mockValidator);
+
+    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
+    
+    DeliveryResponse resp = client.deliver(dreq);
+    assertNotNull(resp);
+    
+    verifyNoInteractions(mockValidator);
+  }
+  
+  @Test
+  void testPerformChecksTrueDoesCallValidator() throws Exception {
+    PromotedDeliveryClient client = createDefaultClient();
+    client.setPerformChecks(true);
+    
+    DeliveryRequestValidator mockValidator = Mockito.mock(DeliveryRequestValidator.class);
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
+    DeliveryRequest dreq = new DeliveryRequest(req, null, true, null, mockValidator);
+
+    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
+    
+    DeliveryResponse resp = client.deliver(dreq);
+    assertNotNull(resp);
+    
+    verify(mockValidator, times(1)).validate(dreq, false);
+  }
+
   @Test
   void testOnlyLogCallsSDKDeliveryAndLogs() throws Exception {
     PromotedDeliveryClient client = createDefaultClient();
@@ -54,10 +89,9 @@ class PromotedDeliveryClientTest {
     LogRequest logRequest = logRequestCaptor.getValue();
     
     assertSDKLogRequest(req, resp.getResponse(), logRequest);
-    assertDeliveryResponse(resp, ExecutionServer.SDK);
+    assertDeliveryResponse(resp, ExecutionServer.SDK);    
   }
-
-
+  
   @Test
   void testCustomNotShouldApplyTreatmentCallsSDKDeliveryAndLogs() throws Exception {
     PromotedDeliveryClient client = PromotedDeliveryClient.builder()
