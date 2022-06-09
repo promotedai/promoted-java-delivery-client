@@ -66,7 +66,7 @@ public class DefaultDeliveryRequestValidator implements DeliveryRequestValidator
         }
       }
     }
-    
+
     return validationErrors;
   }
 
