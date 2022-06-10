@@ -13,6 +13,14 @@ import ai.promoted.delivery.model.UserInfo;
 class DeliveryRequestTest {
 
   @Test
+  void testRequestMustBeSet() {
+     DeliveryRequest req = new DeliveryRequest(null);
+     List<String> errors = req.validate(false);
+     assertEquals(1, errors.size());
+     assertEquals("Request must be set", errors.get(0));
+  }
+  
+  @Test
   void testValidatePrepatedInsertionsNotOnlyLogging() {
     DeliveryRequest req = new DeliveryRequest(
         new Request().userInfo(new UserInfo().logUserId("a")).insertion(new ArrayList<>()),
