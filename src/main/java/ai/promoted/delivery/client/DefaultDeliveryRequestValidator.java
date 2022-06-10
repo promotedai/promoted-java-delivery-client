@@ -60,9 +60,6 @@ public class DefaultDeliveryRequestValidator implements DeliveryRequestValidator
       validationErrors.add("Request.insertion should be set");
     } else {
       for (Insertion ins : request.getInsertion()) {
-        if (ins.getRequestId() != null) {
-          validationErrors.add("Insertion.requestId should not be set");
-        }
         if (ins.getInsertionId() != null) {
           validationErrors.add("Insertion.insertionId should not be set");
         }

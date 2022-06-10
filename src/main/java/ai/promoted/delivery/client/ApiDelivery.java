@@ -128,7 +128,7 @@ public class ApiDelivery implements Delivery  {
    * Do warmup.
    */
   private void runWarmup() {
-    String warmupEndpoint = endpoint.replace("/deliver", "/health");
+    String warmupEndpoint = endpoint.replace("/deliver", "/healthz");
     for (int i = 0; i < 20; i++) {
       try {
         HttpRequest httpReq = HttpRequest.newBuilder().uri(URI.create(warmupEndpoint))
