@@ -15,6 +15,9 @@ public class UserInfo {
   public static final String JSON_PROPERTY_IS_INTERNAL_USER = "isInternalUser";
   private Boolean isInternalUser;
 
+  public static final String JSON_PROPERTY_IGNORE_USAGE = "ignoreUsage";
+  private Boolean ignoreUsage;
+
   public static final String JSON_PROPERTY_LOG_USER_ID = "logUserId";
   private String logUserId;
 
@@ -45,6 +48,25 @@ public class UserInfo {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setIsInternalUser(Boolean isInternalUser) {
     this.isInternalUser = isInternalUser;
+  }
+
+  /**
+   * Get ignoreUsage
+   * 
+   * @return ignoreUsage
+   **/
+  @JsonProperty(JSON_PROPERTY_IGNORE_USAGE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Boolean getIgnoreUsage() {
+    return ignoreUsage;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_IGNORE_USAGE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setIgnoreUsage(Boolean ignoreUsage) {
+    this.ignoreUsage = ignoreUsage;
   }
 
 
@@ -111,6 +133,7 @@ public class UserInfo {
     }
     UserInfo userInfo = (UserInfo) o;
     return Objects.equals(this.isInternalUser, userInfo.isInternalUser)
+        && Objects.equals(this.ignoreUsage, userInfo.ignoreUsage)
         && Objects.equals(this.logUserId, userInfo.logUserId)
         && Objects.equals(this.userId, userInfo.userId);
   }
@@ -125,6 +148,7 @@ public class UserInfo {
     StringBuilder sb = new StringBuilder();
     sb.append("class UserInfo {\n");
     sb.append("    isInternalUser: ").append(toIndentedString(isInternalUser)).append("\n");
+    sb.append("    ignoreUsage: ").append(toIndentedString(ignoreUsage)).append("\n");
     sb.append("    logUserId: ").append(toIndentedString(logUserId)).append("\n");
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("}");

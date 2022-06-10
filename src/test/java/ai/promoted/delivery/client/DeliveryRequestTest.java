@@ -1,6 +1,6 @@
 package ai.promoted.delivery.client;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,6 @@ import ai.promoted.delivery.model.CohortArm;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.Request;
-import ai.promoted.delivery.model.Timing;
 import ai.promoted.delivery.model.UserInfo;
 
 class DeliveryRequestTest {
@@ -105,42 +104,6 @@ class DeliveryRequestTest {
         InsertionPageType.UNPAGED);
     List<String> errors = req.validate(false);
     assertEquals(0, errors.size());
-  }
-
-  @Test
-  void testValidateExperimentPlatformIdMustBeUnset() {
-    DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("z")),
-        new CohortMembership().platformId(0),
-        false,
-        InsertionPageType.UNPAGED);
-    List<String> errors = req.validate(false);
-    assertEquals(1, errors.size());
-    assertEquals("Experiment.platformId should not be set", errors.get(0));
-  }
-
-  @Test
-  void testValidateExperimentUserInfoMustBeUnset() {
-    DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("z")),
-        new CohortMembership().userInfo(new UserInfo()),
-        false,
-        InsertionPageType.UNPAGED);
-    List<String> errors = req.validate(false);
-    assertEquals(1, errors.size());
-    assertEquals("Experiment.userInfo should not be set", errors.get(0));
-  }
-
-  @Test
-  void testValidateExperimentTimingMustBeUnset() {
-    DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("z")),
-        new CohortMembership().timing(new Timing()),
-        false,
-        InsertionPageType.UNPAGED);
-    List<String> errors = req.validate(false);
-    assertEquals(1, errors.size());
-    assertEquals("Experiment.timing should not be set", errors.get(0));
   }
 
   @Test

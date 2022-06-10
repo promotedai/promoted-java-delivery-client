@@ -243,22 +243,7 @@ public class PromotedDeliveryClient {
 
     CohortMembership cohortMembership = new CohortMembership()
         .arm(experiment.getArm())
-        .cohortId(experiment.getCohortId())
-        .platformId(experiment.getPlatformId())
-        .userInfo(experiment.getUserInfo())
-        .timing(experiment.getTiming());
-    
-    // Fall back to request values for things not set on the experiment.
-    if (cohortMembership.getPlatformId() == null) {
-      cohortMembership.setPlatformId(deliveryRequest.getRequest().getPlatformId());
-    }
-    if (cohortMembership.getUserInfo() == null) {
-      cohortMembership.setUserInfo(deliveryRequest.getRequest().getUserInfo());
-    }
-    if (cohortMembership.getTiming() == null) {
-      cohortMembership.setTiming(deliveryRequest.getRequest().getTiming());
-    }
-    
+        .cohortId(experiment.getCohortId());    
     return cohortMembership;
   }
 
@@ -312,12 +297,6 @@ public class PromotedDeliveryClient {
       logRequest.addDeliveryLogItem(deliveryLog);
     }
 
-    // Some of these request fields are duplicated on the LogRequest, but in practice we
-    // might need them set for shadow traffic:
-    //  userInfo
-    //  clientInfo
-    //  timing
-    
     if (cohortMembershipToLog != null) {
       logRequest.addCohortMembershipItem(cohortMembershipToLog);
     }

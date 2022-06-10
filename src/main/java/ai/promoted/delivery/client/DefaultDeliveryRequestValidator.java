@@ -67,18 +67,6 @@ public class DefaultDeliveryRequestValidator implements DeliveryRequestValidator
       }
     }
 
-    if (experiment != null) {
-      if (experiment.getPlatformId() != null) {
-        validationErrors.add("Experiment.platformId should not be set");
-      }
-      if (experiment.getUserInfo() != null) {
-        validationErrors.add("Experiment.userInfo should not be set");
-      }
-      if (experiment.getTiming() != null) {
-        validationErrors.add("Experiment.timing should not be set");
-      }
-    }
-
     return validationErrors;
   }
 
