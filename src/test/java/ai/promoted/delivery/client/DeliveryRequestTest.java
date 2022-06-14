@@ -21,7 +21,7 @@ class DeliveryRequestTest {
   }
   
   @Test
-  void testValidatePrepatedInsertionsNotOnlyLogging() {
+  void testValidatePrepagedInsertionsNotOnlyLogging() {
     DeliveryRequest req = new DeliveryRequest(
         new Request().userInfo(new UserInfo().logUserId("a")).insertion(new ArrayList<>()),
         null,
@@ -68,18 +68,6 @@ class DeliveryRequestTest {
   }
 
   @Test
-  void testValidateRequestIdMustBeUnsetOnInsertion() {
-    DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("z").requestId("a")),
-        null,
-        false,
-        InsertionPageType.UNPAGED);
-    List<String> errors = req.validate(false);
-    assertEquals(1, errors.size());
-    assertEquals("Insertion.requestId should not be set", errors.get(0));
-  }
-
-  @Test
   void testValidateInsertionIdMustBeUnset() {
     DeliveryRequest req = new DeliveryRequest(
         new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("z").insertionId("a")),
@@ -94,13 +82,13 @@ class DeliveryRequestTest {
   @Test
   void testValidateContentIdMustBeSet() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("z").insertionId("a")),
+        new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("")),
         null,
         false,
         InsertionPageType.UNPAGED);
     List<String> errors = req.validate(false);
     assertEquals(1, errors.size());
-    assertEquals("Insertion.insertionId should not be set", errors.get(0));
+    assertEquals("Insertion.contentId should be set", errors.get(0));
   }
 
   @Test

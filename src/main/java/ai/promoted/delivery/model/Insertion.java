@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({Insertion.JSON_PROPERTY_AUTO_VIEW_ID, Insertion.JSON_PROPERTY_CLIENT_INFO,
     Insertion.JSON_PROPERTY_CONTENT_ID, Insertion.JSON_PROPERTY_INSERTION_ID,
     Insertion.JSON_PROPERTY_PLATFORM_ID, Insertion.JSON_PROPERTY_POSITION,
-    Insertion.JSON_PROPERTY_PROPERTIES, Insertion.JSON_PROPERTY_REQUEST_ID,
+    Insertion.JSON_PROPERTY_PROPERTIES,
     Insertion.JSON_PROPERTY_RETRIEVAL_RANK, Insertion.JSON_PROPERTY_RETRIEVAL_SCORE,
     Insertion.JSON_PROPERTY_SESSION_ID, Insertion.JSON_PROPERTY_TIMING,
     Insertion.JSON_PROPERTY_USER_INFO, Insertion.JSON_PROPERTY_VIEW_ID})
@@ -37,9 +37,6 @@ public class Insertion {
 
   public static final String JSON_PROPERTY_PROPERTIES = "properties";
   private Properties properties;
-
-  public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
-  private String requestId;
 
   public static final String JSON_PROPERTY_RETRIEVAL_RANK = "retrievalRank";
   private Integer retrievalRank;
@@ -225,39 +222,6 @@ public class Insertion {
     return properties;
   }
 
-
-  @JsonProperty(JSON_PROPERTY_PROPERTIES)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setProperties(Properties properties) {
-    this.properties = properties;
-  }
-
-
-  public Insertion requestId(String requestId) {
-    this.requestId = requestId;
-    return this;
-  }
-
-  /**
-   * Get requestId
-   * 
-   * @return requestId
-   **/
-  @JsonProperty(JSON_PROPERTY_REQUEST_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public String getRequestId() {
-    return requestId;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_REQUEST_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setRequestId(String requestId) {
-    this.requestId = requestId;
-  }
-
-
   public Insertion retrievalRank(Integer retrievalRank) {
     this.retrievalRank = retrievalRank;
     return this;
@@ -427,7 +391,6 @@ public class Insertion {
         && Objects.equals(this.platformId, insertion.platformId)
         && Objects.equals(this.position, insertion.position)
         && Objects.equals(this.properties, insertion.properties)
-        && Objects.equals(this.requestId, insertion.requestId)
         && Objects.equals(this.retrievalRank, insertion.retrievalRank)
         && Objects.equals(this.retrievalScore, insertion.retrievalScore)
         && Objects.equals(this.sessionId, insertion.sessionId)
@@ -439,7 +402,7 @@ public class Insertion {
   @Override
   public int hashCode() {
     return Objects.hash(autoViewId, clientInfo, contentId, insertionId, platformId, position,
-        properties, requestId, retrievalRank, retrievalScore, sessionId, timing, userInfo, viewId);
+        properties, retrievalRank, retrievalScore, sessionId, timing, userInfo, viewId);
   }
 
   @Override
@@ -453,7 +416,6 @@ public class Insertion {
     sb.append("    platformId: ").append(toIndentedString(platformId)).append("\n");
     sb.append("    position: ").append(toIndentedString(position)).append("\n");
     sb.append("    properties: ").append(toIndentedString(properties)).append("\n");
-    sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    retrievalRank: ").append(toIndentedString(retrievalRank)).append("\n");
     sb.append("    retrievalScore: ").append(toIndentedString(retrievalScore)).append("\n");
     sb.append("    sessionId: ").append(toIndentedString(sessionId)).append("\n");
