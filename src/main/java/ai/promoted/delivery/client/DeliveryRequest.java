@@ -17,8 +17,8 @@ public class DeliveryRequest implements Cloneable {
   /** True to only send logs to Metrics API */
   private final boolean onlyLog;
 
-  /** The insertion page type (PREPAGED or UNPAGED). */
-  private final InsertionPageType insertionPageType;
+  /** The start index in the request insertions in the list of ALL insertions. */
+  private final int insertionStart;
 
   /** An experiment (if any) to use for this request. */
   @Nullable
@@ -34,15 +34,14 @@ public class DeliveryRequest implements Cloneable {
    * @param experiment the experiment that the user is in, may be null, which means apply the
    *        treatment
    * @param onlyLog if true, will log to Promoted.ai Metrics but not call Delivery API to re-rank
-   * @param insertionPageType the insertion page type, should be UNPAGED in order for Promoted.ai to
-   *        best rank the results
+   * @param insertionStart start index in the request insertions in the list of ALL insertions
    */
   public DeliveryRequest(Request request, CohortMembership experiment, boolean onlyLog,
-      InsertionPageType insertionPageType, DeliveryRequestValidator validator) {
+      int insertionStart, DeliveryRequestValidator validator) {
     this.request = request;
     this.onlyLog = onlyLog;
     this.experiment = experiment;
-    this.insertionPageType = insertionPageType;
+    this.insertionStart = insertionStart;
     this.validator = validator;
   }
 
@@ -53,12 +52,11 @@ public class DeliveryRequest implements Cloneable {
    * @param experiment the experiment that the user is in, may be null, which means apply the
    *        treatment
    * @param onlyLog if true, will log to Promoted.ai Metrics but not call Delivery API to re-rank
-   * @param insertionPageType the insertion page type, should be UNPAGED in order for Promoted.ai to
-   *        best rank the results
+   * @param insertionStart start index in the request insertions in the list of ALL insertions
    */
   public DeliveryRequest(Request request, CohortMembership experiment, boolean onlyLog,
-      InsertionPageType insertionPageType) {
-    this(request, experiment, onlyLog, insertionPageType, DefaultDeliveryRequestValidator.INSTANCE);
+      int insertionStart) {
+    this(request, experiment, onlyLog, insertionStart, DefaultDeliveryRequestValidator.INSTANCE);
   }
 
   /**
@@ -69,7 +67,7 @@ public class DeliveryRequest implements Cloneable {
    *        treatment
    */
   public DeliveryRequest(Request request, CohortMembership experiment) {
-    this(request, experiment, false, InsertionPageType.UNPAGED);
+    this(request, experiment, false, 0);
   }
 
   /**
@@ -100,12 +98,12 @@ public class DeliveryRequest implements Cloneable {
   }
 
   /**
-   * Gets the insertion page type.
+   * Gets the insertion start.
    *
-   * @return the insertion page type
+   * @return the insertion start
    */
-  public InsertionPageType getInsertionPageType() {
-    return insertionPageType;
+  public int getInsertionStart() {
+    return insertionStart;
   }
 
   /**

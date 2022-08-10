@@ -10,7 +10,7 @@ class DeliveryRequestStateTest {
   @Test
   void testExactlyMaxRequestInsertions() {
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
-    DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
+    DeliveryRequest dreq = new DeliveryRequest(req, null, false, 0);
     
     DeliveryRequestState state = new DeliveryRequestState(dreq);
     Request toSend = state.getRequestToSend(10);
@@ -24,7 +24,7 @@ class DeliveryRequestStateTest {
   @Test
   void testMoreThanMaxRequestInsertions() {
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
-    DeliveryRequest dreq = new DeliveryRequest(req, null, false, null);
+    DeliveryRequest dreq = new DeliveryRequest(req, null, false, 0);
     
     DeliveryRequestState state = new DeliveryRequestState(dreq);
     Request toSend = state.getRequestToSend(5);

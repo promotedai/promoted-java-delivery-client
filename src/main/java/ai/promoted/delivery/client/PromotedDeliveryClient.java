@@ -63,6 +63,9 @@ public class PromotedDeliveryClient {
   /** Whether to do extra validation and log before sending a delivery request. */
   private boolean performChecks;
   
+  /** Flag that indicates whether shadow traffic is blocking (vs background) call. */
+  private boolean blockingShadowTraffic;
+
   /**
    * Instantiates a new promoted delivery client.
    * This class is thread-safe and intended to be used as a singleton.
@@ -80,13 +83,14 @@ public class PromotedDeliveryClient {
    * @param apiFactory for creating API clients, may be null to use the built-in defaults
    * @param shadowTrafficDeliveryRate rate = [0,1] of traffic not otherwise sent to Delivery API sent as shadow traffic
    * @param sampler the sampler to use
+   * @param blockingShadowTraffic flag to make shadow traffic a blocking (instead of background) call
    */
   private PromotedDeliveryClient(String deliveryEndpoint, String deliveryApiKey,
       long deliveryTimeoutMillis, String metricsEndpoint, String metricsApiKey,
       long metricsTimeoutMillis, boolean warmup, Executor executor,
       int maxRequestInsertions, ApplyTreatmentChecker applyTreatmentChecker,
       ApiFactory apiFactory, float shadowTrafficDeliveryRate, Sampler sampler,
-      boolean performChecks) {
+      boolean performChecks, boolean blockingShadowTraffic) {
 
     if (deliveryTimeoutMillis <= 0) {
       deliveryTimeoutMillis = DEFAULT_DELIVERY_TIMEOUT_MILLIS;
@@ -123,6 +127,7 @@ public class PromotedDeliveryClient {
     this.apiMetrics = apiFactory.createApiMetrics(metricsEndpoint, metricsApiKey, metricsTimeoutMillis);
     this.apiDelivery = apiFactory.createApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis, warmup, maxRequestInsertions);
     this.performChecks = performChecks;
+    this.blockingShadowTraffic = blockingShadowTraffic;
   }
 
   /**
@@ -184,22 +189,28 @@ public class PromotedDeliveryClient {
    * @param deliveryRequest
    */
   private void deliverShadowTraffic(DeliveryRequest deliveryRequest) {
-    executor.execute(() -> {
-      try {
-        // We need a clone here in order to safely modify the ClientInfo.
-        DeliveryRequest requestToSend = deliveryRequest.clone();
-        
-        // We ensured earlier that client info was filled in.
-        assert requestToSend.getRequest().getClientInfo() != null;
+    if (blockingShadowTraffic) {
+      doDeliverShadowTraffic(deliveryRequest);
+    } else {
+      executor.execute(() -> doDeliverShadowTraffic(deliveryRequest));
+    }
+  }
 
-        requestToSend.getRequest().getClientInfo().setClientType(ClientType.SERVER);
-        requestToSend.getRequest().getClientInfo().setTrafficType(TrafficType.SHADOW);
-        
-        apiDelivery.runDelivery(requestToSend);
-      } catch (DeliveryException | CloneNotSupportedException ex) {
-        LOGGER.warning("Error calling Delivery API for shadow traffic: " + ex);
-      }
-    });
+  private void doDeliverShadowTraffic(DeliveryRequest deliveryRequest) {
+    try {
+      // We need a clone here in order to safely modify the ClientInfo.
+      DeliveryRequest requestToSend = deliveryRequest.clone();
+      
+      // We ensured earlier that client info was filled in.
+      assert requestToSend.getRequest().getClientInfo() != null;
+
+      requestToSend.getRequest().getClientInfo().setClientType(ClientType.SERVER);
+      requestToSend.getRequest().getClientInfo().setTrafficType(TrafficType.SHADOW);
+      
+      apiDelivery.runDelivery(requestToSend);
+    } catch (DeliveryException | CloneNotSupportedException ex) {
+      LOGGER.warning("Error calling Delivery API for shadow traffic: " + ex);
+    }
   }
 
   /**
@@ -412,6 +423,9 @@ public class PromotedDeliveryClient {
     /** The perform-checks value. */
     private boolean performChecks;
     
+    /** The blocking shadow traffic value */
+    private boolean blockingShadowTraffic;
+
     /**
      * Instantiates a new builder.
      */
@@ -491,6 +505,17 @@ public class PromotedDeliveryClient {
      */
     public Builder witPerformChecks(boolean performChecks) {
       this.performChecks = performChecks;
+      return this;
+    }
+
+    /**
+     * Sets blockingShadowTraffic, which determines whether or not shadow traffic delivery is a blocking call.
+     *
+     * @param blockingShadowTraffic the blockingShadowTraffic value
+     * @return the builder
+     */
+    public Builder withBlockingShadowTraffic(boolean blockingShadowTraffic) {
+      this.blockingShadowTraffic = blockingShadowTraffic;
       return this;
     }
 
@@ -580,7 +605,7 @@ public class PromotedDeliveryClient {
       return new PromotedDeliveryClient(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis,
           metricsEndpoint, metricsApiKey, metricsTimeoutMillis, warmup, executor,
           maxRequestInsertions, applyTreatmentChecker, apiFactory, shadowTrafficDeliveryRate,
-          sampler, performChecks);
+          sampler, performChecks, blockingShadowTraffic);
     }
   }
 }

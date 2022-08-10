@@ -34,7 +34,7 @@ public class IntegrationTest {
         .addInsertionItem(new Insertion().contentId("49550"));
     add100Insertions(req);
     
-    DeliveryResponse resp = client.deliver(new DeliveryRequest(req, null, false, InsertionPageType.UNPAGED));
+    DeliveryResponse resp = client.deliver(new DeliveryRequest(req, null, false, 0));
     System.out.println(resp);
     assertTrue(true);
   }

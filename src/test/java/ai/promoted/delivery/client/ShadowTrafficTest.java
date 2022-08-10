@@ -34,7 +34,7 @@ class ShadowTrafficTest {
     PromotedDeliveryClient client = createDefaultClient(true, 0.5f);
     
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(new ClientInfo().trafficType(TrafficType.PRODUCTION));
-    DeliveryRequest dreq = new DeliveryRequest(req, null, true, null);
+    DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
@@ -55,7 +55,7 @@ class ShadowTrafficTest {
     CohortMembership cm = new CohortMembership().arm(CohortArm.CONTROL).cohortId("testing");
 
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(new ClientInfo().trafficType(TrafficType.PRODUCTION));
-    DeliveryRequest dreq = new DeliveryRequest(req, cm, false, null);
+    DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
@@ -75,7 +75,7 @@ class ShadowTrafficTest {
     PromotedDeliveryClient client = createDefaultClient(false, 0.5f);
     
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(new ClientInfo().trafficType(TrafficType.PRODUCTION));
-    DeliveryRequest dreq = new DeliveryRequest(req, null, true, null);
+    DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
@@ -92,7 +92,7 @@ class ShadowTrafficTest {
     CohortMembership cm = new CohortMembership().arm(CohortArm.TREATMENT).cohortId("testing");
 
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(new ClientInfo().trafficType(TrafficType.PRODUCTION));
-    DeliveryRequest dreq = new DeliveryRequest(req, cm, false, null);
+    DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);
 
     when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
@@ -106,7 +106,7 @@ class ShadowTrafficTest {
     PromotedDeliveryClient client = createDefaultClient(true, 0f);
     
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(new ClientInfo().trafficType(TrafficType.PRODUCTION));
-    DeliveryRequest dreq = new DeliveryRequest(req, null, true, null);
+    DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
     
