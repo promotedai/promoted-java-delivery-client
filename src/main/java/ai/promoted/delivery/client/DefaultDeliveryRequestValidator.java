@@ -29,13 +29,9 @@ public class DefaultDeliveryRequestValidator implements DeliveryRequestValidator
     // Check the ids.
     validationErrors.addAll(validateIds(request.getRequest(), request.getExperiment()));
 
-    // Full delivery requires unpaged insertions.
-    if (request.getInsertionPageType() == InsertionPageType.PREPAGED) {
-      if (!request.isOnlyLog()) {
-        validationErrors.add("Delivery expects unpaged insertions");
-      } else if (isShadowTraffic) {
-        validationErrors.add("Insertions must be unpaged when shadow traffic is on");
-      }
+    // Insertion start should be >= 0.
+    if (request.getInsertionStart() < 0) {
+      validationErrors.add("Insertion start must be greater or equal to 0");
     }
 
     return validationErrors;

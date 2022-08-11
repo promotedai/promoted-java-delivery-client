@@ -19,41 +19,6 @@ class DeliveryRequestTest {
      assertEquals(1, errors.size());
      assertEquals("Request must be set", errors.get(0));
   }
-  
-  @Test
-  void testValidatePrepagedInsertionsNotOnlyLogging() {
-    DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().logUserId("a")).insertion(new ArrayList<>()),
-        null,
-        false,
-        InsertionPageType.PREPAGED);
-    List<String> errors = req.validate(false);
-    assertEquals(1, errors.size());
-    assertEquals("Delivery expects unpaged insertions", errors.get(0));
-  }
-
-  @Test
-  void testValidatePrepagedInsertionsWithShadowTraffic() {
-    DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().logUserId("a")).insertion(new ArrayList<>()),
-        null,
-        true,
-        InsertionPageType.PREPAGED);
-    List<String> errors = req.validate(true);
-    assertEquals(1, errors.size());
-    assertEquals("Insertions must be unpaged when shadow traffic is on", errors.get(0));
-  }
-
-  @Test
-  void testValidatePrepagedInsertionsOnlyLog() {
-    DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().logUserId("a")).insertion(new ArrayList<>()),
-        null,
-        true,
-        InsertionPageType.PREPAGED);
-    List<String> errors = req.validate(false);
-    assertEquals(0, errors.size());
-  }
 
   @Test
   void testValidateRequestIdMustBeUnsetOnRequest() {
@@ -61,7 +26,7 @@ class DeliveryRequestTest {
         new Request().requestId("z").userInfo(new UserInfo().logUserId("a")).insertion(new ArrayList<>()),
         null,
         false,
-        InsertionPageType.UNPAGED);
+        0);
     List<String> errors = req.validate(false);
     assertEquals(1, errors.size());
     assertEquals("Request.requestId should not be set", errors.get(0));
@@ -73,10 +38,22 @@ class DeliveryRequestTest {
         new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("z").insertionId("a")),
         null,
         false,
-        InsertionPageType.UNPAGED);
+        0);
     List<String> errors = req.validate(false);
     assertEquals(1, errors.size());
     assertEquals("Insertion.insertionId should not be set", errors.get(0));
+  }
+
+  @Test
+  void testValidateInsertionStartMustBeNonNeg() {
+    DeliveryRequest req = new DeliveryRequest(
+        new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("z")),
+        null,
+        false,
+        -1);
+    List<String> errors = req.validate(false);
+    assertEquals(1, errors.size());
+    assertEquals("Insertion start must be greater or equal to 0", errors.get(0));
   }
 
   @Test
@@ -85,7 +62,7 @@ class DeliveryRequestTest {
         new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("")),
         null,
         false,
-        InsertionPageType.UNPAGED);
+        0);
     List<String> errors = req.validate(false);
     assertEquals(1, errors.size());
     assertEquals("Insertion.contentId should be set", errors.get(0));
@@ -97,7 +74,7 @@ class DeliveryRequestTest {
         new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("z")),
         null,
         false,
-        InsertionPageType.UNPAGED);
+        0);
     List<String> errors = req.validate(false);
     assertEquals(0, errors.size());
   }
@@ -108,7 +85,7 @@ class DeliveryRequestTest {
         new Request().userInfo(new UserInfo().logUserId("a")).addInsertionItem(new Insertion().contentId("z")),
         new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
         false,
-        InsertionPageType.UNPAGED);
+        0);
     List<String> errors = req.validate(false);
     assertEquals(0, errors.size());
   }
@@ -119,7 +96,7 @@ class DeliveryRequestTest {
         new Request().addInsertionItem(new Insertion().contentId("z")),
         null,
         false,
-        InsertionPageType.UNPAGED);
+        0);
     List<String> errors = req.validate(false);
     assertEquals(1, errors.size());
     assertEquals("Request.userInfo should be set", errors.get(0));
@@ -131,7 +108,7 @@ class DeliveryRequestTest {
         new Request().userInfo(new UserInfo().logUserId("")).addInsertionItem(new Insertion().contentId("z")),
         new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
         false,
-        InsertionPageType.UNPAGED);
+        0);
     List<String> errors = req.validate(false);
     assertEquals(1, errors.size());
     assertEquals("Request.userInfo.logUserId should be set", errors.get(0));
@@ -144,7 +121,7 @@ class DeliveryRequestTest {
         new Request().requestId("a").userInfo(new UserInfo().logUserId("")).addInsertionItem(new Insertion().contentId("z")),
         new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
         false,
-        InsertionPageType.UNPAGED);
+        0);
     List<String> errors = req.validate(false);
     assertEquals(2, errors.size());
     assertEquals("Request.requestId should not be set", errors.get(0));

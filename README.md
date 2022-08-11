@@ -44,6 +44,7 @@ PromotedDeliveryClient client = PromotedDeliveryClient.builder()
 | `applyTreatmentChecker`         | ApplyTreatmentChecker | Optional function interface called during delivery, accepts an experiment and returns a boolean indicating whether the request should be considered part of the control group (false) or in the treatment arm of an experiment (true). If not set, the default behavior of checking the experiement `arm` is applied. |
 | `maxRequestInsertions`        | int                                                         | Maximum number of request insertions that will be passed to (and returned from) Delivery API. Defaults to 1000.                                                                                                                                                                                                                                        |
 | `shadowTrafficDeliveryRate`    | Number between 0 and 1                                         | rate = [0,1] of traffic that gets directed to Delivery API as "shadow traffic". Only applies to cases where Delivery API is not called. Defaults to 0 (no shadow traffic).                                                                                                                                                               |
+| `blockingShadowTraffic`      | boolean                           | Option to make shadow traffic a blocking (as opposed to background) call to delivery API, defaults to False.        
 
 ## Data Types
 
@@ -214,7 +215,7 @@ Field Name | Type | Optional? | Description
 `request` | Request | No | The underlying request for content, including all candidate insertions with content ids.
 `experiment` | CohortMembership | Yes | A cohort to evaluation in experimentation.
 `onlyLog` | Boolean | Yes | Defaults to false. Set to true to log the request as the CONTROL arm of an experiment, not call Delivery API, but rather deliver paged insertions from the request.
-`insertionPageType` | InsertionPageType (enum) | Yes |   When `insertionPageType` is "UNPAGED", the `Request.paging.offset` and `Request.paging.size` parameters are used to log a "window" of insertions. When `insertionPageType` is "PREPAGED", the SDK will not handle pagination of the insertions that are part of the resulting lot request. Requests to Delivery API for ranking should always use "UNPAGED" insertions.
+`insertionStart` | int | Yes |   Start index in the request insertions in the list of ALL insertions. See [Pages of Request Insertions](#pages-of-request-insertions) for more details.
 ---
 
 ### DeliveryResponse
@@ -271,6 +272,23 @@ void getProducts(ProductRequest req) {
   sendSuccessToClient(products);
 }
 ```
+
+## Pages of Request Insertions
+
+Clients can send a subset of all request insertions to Promoted in Delivery API's `request.insertion` array. The `insertionStart` property specifies the start index of the array `request.insertion` in the list of ALL request insertions.
+
+`request.paging.offset` should be set to the zero-based position in ALL request insertions (_not_ the relative position in the `request.insertion` array).
+
+Examples
+
+- If there are 10 items and all 10 items are in `request.insertion`, then insertion_start=0.
+- If there are 10,000 items and the first 500 items are on `request.insertion`, then insertionStart=0.
+- If there are 10,000 items and we want to send items [500,1000) on `request.insertion`, then insertionStart=500.
+- If there are 10,000 items and we want to send the last page [9500,10000) on `request.insertion`, then insertionStart=9500.
+
+`insertionStart` is required to be less than `paging.offset` or else a `ValueError` will result.
+
+Additional details: https://docs.promoted.ai/docs/ranking-requests#sending-even-more-request-insertions
 
 ## Logging only
 You can use `deliver` but add a `onlyLog: true` parameter.

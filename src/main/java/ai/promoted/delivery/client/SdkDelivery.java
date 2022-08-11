@@ -25,11 +25,6 @@ public class SdkDelivery implements Delivery {
   public Response runDelivery(DeliveryRequest deliveryRequest) throws DeliveryException {
     Request request = deliveryRequest.getRequest();
 
-    if (request.getPaging() != null && request.getPaging().getOffset() != null
-        && request.getPaging().getOffset() >= request.getInsertion().size()) {
-      throw new DeliveryException("Invalid paging (offset >= size)");
-    }
-
     // Set a request id.
     request.setRequestId(UUID.randomUUID().toString());
 
@@ -38,13 +33,11 @@ public class SdkDelivery implements Delivery {
       paging = new Paging().offset(0).size(request.getInsertion().size());
     }
 
+    // Adjust offset and size.
     int offset = paging.getOffset() != null ? Math.max(0, paging.getOffset()) : 0;
-    int index = offset;
-    if (deliveryRequest.getInsertionPageType() == InsertionPageType.PREPAGED) {
-      // When insertions are pre-paged, we don't use offset to
-      // window into the provided assertions, although we do use it
-      // when assigning positions.
-      index = 0;
+    int index = offset - deliveryRequest.getInsertionStart();
+    if (offset < deliveryRequest.getInsertionStart()) {
+      throw new DeliveryException("offset should be >= insertion start (specifically, the global position)");
     }
 
     int size = paging.getSize() != null ? paging.getSize() : 0;
