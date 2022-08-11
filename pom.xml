@@ -3,7 +3,7 @@
 	<groupId>ai.promoted</groupId>
 	<artifactId>deliveryclient</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.5-SNAPSHOT</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>A Java Client to contact the Promoted.ai Delivery API.</description>
 	<url>https://github.com/promotedai/promoted-java-delivery-client</url>
@@ -145,7 +145,7 @@
 					<plugin>
 						<groupId>org.sonatype.plugins</groupId>
 						<artifactId>nexus-staging-maven-plugin</artifactId>
-						<version>1.6.7</version>
+						<version>1.6.9</version>
 						<extensions>true</extensions>
 						<configuration>
 							<serverId>ossrh</serverId>

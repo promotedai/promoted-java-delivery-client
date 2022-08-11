@@ -363,5 +363,10 @@ Uses
 - Build and install SNAPSHOT locally: `mvn install`
 
 ## Deploy
+Some background: https://central.sonatype.org/publish/publish-maven/
+- Update the version for a SNAPSHOT or non-SNAPSHOT release: `mvn versions:set -DnewVersion=x.y.z`
 - Sign: `mvn clean verify -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`
 - Deploy to Sonatype: `mvn deploy -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`
+- Send a PR for the updated `pom.xml` file.
+  - After a release, it's useful to update the POM for a snapshot version for the next release and merge that.
+- View the "staging" repo at https://s01.oss.sonatype.org/#view-repositories;staging~browsestorage and release it when ready.
