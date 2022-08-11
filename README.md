@@ -269,7 +269,7 @@ void getProducts(ProductRequest req) {
       rankedProducts.add(productsMap.get(responseInsertion.getContentId());
   }
 
-  sendSuccessToClient(products);
+  sendSuccessToClient(rankedProducts);
 }
 ```
 
