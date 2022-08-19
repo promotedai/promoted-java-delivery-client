@@ -2,9 +2,13 @@ package ai.promoted.delivery.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.Paging;
@@ -89,6 +93,34 @@ class SdkDeliveryTest {
     
     assertTrue(req.getRequestId().length() > 0);
     assertEquals(0, resp.getInsertion().size());
+  }
+
+  @Test
+  void testResponseInsertionsOnlyHaveKeyFields() throws DeliveryException {
+    Map<String, Object> properties = new HashMap<>();
+    properties.put("a", 3.3);
+    Insertion reqIns = InsertionFactory.createInsertionWithProperties("aaa", properties);
+    reqIns.setRetrievalRank(3);
+    reqIns.setRetrievalScore((float) 2.2);
+    List<Insertion> insertions = new ArrayList<>();
+    insertions.add(reqIns);
+
+    Request req = new Request().insertion(insertions).paging(new Paging().size(1).offset(0));
+    DeliveryRequest dreq = new DeliveryRequest(req, null, false, 0);
+    
+    Response resp = new SdkDelivery().runDelivery(dreq);
+    
+    assertTrue(req.getRequestId().length() > 0);
+    Insertion respIns = resp.getInsertion().get(0);
+
+    assertEquals(reqIns.getContentId(), respIns.getContentId());
+    assertNull(respIns.getRetrievalRank());
+    assertNull(respIns.getRetrievalScore());
+    assertNull(respIns.getProperties());
+    
+    assertNotNull(reqIns.getRetrievalRank());
+    assertNotNull(reqIns.getRetrievalScore());
+    assertNotNull(reqIns.getProperties());
   }
 
   @Test
