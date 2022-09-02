@@ -11,13 +11,16 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * Response
  */
-@JsonPropertyOrder({Response.JSON_PROPERTY_INSERTION, Response.JSON_PROPERTY_PAGING_INFO})
+@JsonPropertyOrder({Response.JSON_PROPERTY_INSERTION, Response.JSON_PROPERTY_PAGING_INFO, Response.JSON_PROPERTY_INTROSPECTION_DATA})
 public class Response {
   public static final String JSON_PROPERTY_INSERTION = "insertion";
   private List<Insertion> insertion = null;
 
   public static final String JSON_PROPERTY_PAGING_INFO = "pagingInfo";
   private PagingInfo pagingInfo;
+
+  public static final String JSON_PROPERTY_INTROSPECTION_DATA= "introspectionData";
+  private String introspectionData;
 
   public Response() {}
 
@@ -59,6 +62,31 @@ public class Response {
     return this;
   }
 
+
+  public Response introspectionData(String introspectionData) {
+    this.introspectionData = introspectionData;
+    return this;
+  }
+
+  /**
+   * Get introspection data
+   * 
+   * @return introspectionData
+   **/
+  @JsonProperty(JSON_PROPERTY_INTROSPECTION_DATA)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getIntrospectionData() {
+    return introspectionData;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_INTROSPECTION_DATA)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setIntrospectionData(String introspectionData) {
+    this.introspectionData = introspectionData;
+  }
+
   /**
    * Get pagingInfo
    * 
@@ -92,12 +120,13 @@ public class Response {
     }
     Response response = (Response) o;
     return Objects.equals(this.insertion, response.insertion)
-        && Objects.equals(this.pagingInfo, response.pagingInfo);
+        && Objects.equals(this.pagingInfo, response.pagingInfo)
+        && Objects.equals(this.introspectionData, response.introspectionData);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(insertion, pagingInfo);
+    return Objects.hash(insertion, pagingInfo, introspectionData);
   }
 
   @Override
@@ -105,6 +134,7 @@ public class Response {
     StringBuilder sb = new StringBuilder();
     sb.append("class Response {\n");
     sb.append("    insertion: ").append(toIndentedString(insertion)).append("\n");
+    sb.append("    introspectionData: ").append(toIndentedString(introspectionData)).append("\n");
     sb.append("    pagingInfo: ").append(toIndentedString(pagingInfo)).append("\n");
     sb.append("}");
     return sb.toString();

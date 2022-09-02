@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ai.promoted.delivery.model.Response;
 
@@ -58,6 +59,8 @@ public class ApiDelivery implements Delivery  {
     this.endpoint = endpoint;
     this.apiKey = apiKey;
     this.mapper = new ObjectMapper();
+    this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
     this.timeoutDuration = Duration.of(timeoutMillis, ChronoUnit.MILLIS);
     this.maxRequestInsertions = maxRequestInsertions;
 
