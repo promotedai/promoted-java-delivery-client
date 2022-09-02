@@ -45,7 +45,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
-    assertAllResponseInsertions(insertions, resp);
+    assertAllResponseInsertions(resp);
   }
   
   @Test
@@ -132,7 +132,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
-    assertAllResponseInsertions(insertions, resp);
+    assertAllResponseInsertions(resp);
   }
 
   @Test
@@ -146,7 +146,7 @@ class SdkDeliveryTest {
     assertTrue(req.getRequestId().length() > 0);
     assertEquals(5, resp.getInsertion().size());
     for (int i = 0; i < 5; i++) {
-      Insertion insertion = insertions.get(i);
+      Insertion insertion = resp.getInsertion().get(i);
       assertEquals(i, insertion.getPosition());
     }
   }
@@ -162,7 +162,7 @@ class SdkDeliveryTest {
     assertTrue(req.getRequestId().length() > 0);
     assertEquals(5, resp.getInsertion().size());
     for (int i = 5; i < 10; i++) {
-      Insertion insertion = insertions.get(i);
+      Insertion insertion = resp.getInsertion().get(i-5);
       assertEquals(i, insertion.getPosition());
     }
   }
@@ -176,13 +176,13 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
-    assertAllResponseInsertions(insertions, resp);
+    assertAllResponseInsertions(resp);
   }
 
-  private void assertAllResponseInsertions(List<Insertion> insertions, Response resp) {
+  private void assertAllResponseInsertions(Response resp) {
     assertEquals(10, resp.getInsertion().size());
     for (int i = 0; i < 10; i++) {
-      Insertion insertion = insertions.get(i);
+      Insertion insertion = resp.getInsertion().get(i);
       assertEquals(i, insertion.getPosition());
       assertTrue(insertion.getInsertionId().length() > 0);
     }
