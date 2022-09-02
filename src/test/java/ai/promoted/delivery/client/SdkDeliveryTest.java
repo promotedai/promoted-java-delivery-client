@@ -2,9 +2,13 @@ package ai.promoted.delivery.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.Paging;
@@ -41,7 +45,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
-    assertAllResponseInsertions(insertions, resp);
+    assertAllResponseInsertions(resp);
   }
   
   @Test
@@ -92,6 +96,34 @@ class SdkDeliveryTest {
   }
 
   @Test
+  void testResponseInsertionsOnlyHaveKeyFields() throws DeliveryException {
+    Map<String, Object> properties = new HashMap<>();
+    properties.put("a", 3.3);
+    Insertion reqIns = InsertionFactory.createInsertionWithProperties("aaa", properties);
+    reqIns.setRetrievalRank(3);
+    reqIns.setRetrievalScore((float) 2.2);
+    List<Insertion> insertions = new ArrayList<>();
+    insertions.add(reqIns);
+
+    Request req = new Request().insertion(insertions).paging(new Paging().size(1).offset(0));
+    DeliveryRequest dreq = new DeliveryRequest(req, null, false, 0);
+    
+    Response resp = new SdkDelivery().runDelivery(dreq);
+    
+    assertTrue(req.getRequestId().length() > 0);
+    Insertion respIns = resp.getInsertion().get(0);
+
+    assertEquals(reqIns.getContentId(), respIns.getContentId());
+    assertNull(respIns.getRetrievalRank());
+    assertNull(respIns.getRetrievalScore());
+    assertNull(respIns.getProperties());
+    
+    assertNotNull(reqIns.getRetrievalRank());
+    assertNotNull(reqIns.getRetrievalScore());
+    assertNotNull(reqIns.getProperties());
+  }
+
+  @Test
   void testPagingZeroSizeReturnsAll() throws Exception {
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(10);
     Request req = new Request().paging(new Paging().offset(0).size(0)).insertion(insertions);
@@ -100,7 +132,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
-    assertAllResponseInsertions(insertions, resp);
+    assertAllResponseInsertions(resp);
   }
 
   @Test
@@ -114,7 +146,7 @@ class SdkDeliveryTest {
     assertTrue(req.getRequestId().length() > 0);
     assertEquals(5, resp.getInsertion().size());
     for (int i = 0; i < 5; i++) {
-      Insertion insertion = insertions.get(i);
+      Insertion insertion = resp.getInsertion().get(i);
       assertEquals(i, insertion.getPosition());
     }
   }
@@ -130,7 +162,7 @@ class SdkDeliveryTest {
     assertTrue(req.getRequestId().length() > 0);
     assertEquals(5, resp.getInsertion().size());
     for (int i = 5; i < 10; i++) {
-      Insertion insertion = insertions.get(i);
+      Insertion insertion = resp.getInsertion().get(i-5);
       assertEquals(i, insertion.getPosition());
     }
   }
@@ -144,13 +176,13 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
-    assertAllResponseInsertions(insertions, resp);
+    assertAllResponseInsertions(resp);
   }
 
-  private void assertAllResponseInsertions(List<Insertion> insertions, Response resp) {
+  private void assertAllResponseInsertions(Response resp) {
     assertEquals(10, resp.getInsertion().size());
     for (int i = 0; i < 10; i++) {
-      Insertion insertion = insertions.get(i);
+      Insertion insertion = resp.getInsertion().get(i);
       assertEquals(i, insertion.getPosition());
       assertTrue(insertion.getInsertionId().length() > 0);
     }
