@@ -101,11 +101,11 @@ public class ApiDelivery implements Delivery  {
       }
       else {
         resp = processUncompressedResponse(response);
-      }      
+      }
     } catch (Exception ex) {
       throw new DeliveryException("Error running delivery", ex);
     }
-    
+    validate(resp);
     return state.getResponseToReturn(resp);
   }
 
@@ -125,6 +125,13 @@ public class ApiDelivery implements Delivery  {
       is.transferTo(autoCloseOs);
     }
     return mapper.readValue(os.toByteArray(), Response.class);
+  }
+
+  // @VisibleForTesting
+  static void validate(Response response) throws DeliveryException {
+    if (response.getRequestId() == null || response.getRequestId().equals("")) {
+      throw new DeliveryException("Delivery Response should contain a requestId");
+    }
   }
 
   /**

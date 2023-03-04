@@ -11,10 +11,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * Response
  */
-@JsonPropertyOrder({Response.JSON_PROPERTY_INSERTION, Response.JSON_PROPERTY_PAGING_INFO, Response.JSON_PROPERTY_INTROSPECTION_DATA})
+@JsonPropertyOrder({
+  Response.JSON_PROPERTY_REQUEST_ID,
+  Response.JSON_PROPERTY_INSERTION,
+  Response.JSON_PROPERTY_PAGING_INFO,
+  Response.JSON_PROPERTY_INTROSPECTION_DATA})
 public class Response {
+  public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
+  private String requestId;
+
   public static final String JSON_PROPERTY_INSERTION = "insertion";
-  private List<Insertion> insertion = null;
+  private List<Insertion> insertion = new ArrayList<>();
 
   public static final String JSON_PROPERTY_PAGING_INFO = "pagingInfo";
   private PagingInfo pagingInfo;
@@ -24,15 +31,34 @@ public class Response {
 
   public Response() {}
 
+
+  /**
+   * Get request ID
+   * 
+   * @return requestId
+   **/
+  @JsonProperty(JSON_PROPERTY_REQUEST_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getRequestId() {
+    return requestId;
+  }
+
+  @JsonProperty(JSON_PROPERTY_REQUEST_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setRequestId(String requestId) {
+    this.requestId = requestId;
+  }
+
   public Response insertion(List<Insertion> insertion) {
+    if (insertion == null) {
+      throw new IllegalArgumentException("insertion needs to be non-null");
+    }
     this.insertion = insertion;
     return this;
   }
 
   public Response addInsertionItem(Insertion insertionItem) {
-    if (this.insertion == null) {
-      this.insertion = new ArrayList<>();
-    }
     this.insertion.add(insertionItem);
     return this;
   }
@@ -119,7 +145,8 @@ public class Response {
       return false;
     }
     Response response = (Response) o;
-    return Objects.equals(this.insertion, response.insertion)
+    return Objects.equals(this.requestId, response.requestId)
+        && Objects.equals(this.insertion, response.insertion)
         && Objects.equals(this.pagingInfo, response.pagingInfo)
         && Objects.equals(this.introspectionData, response.introspectionData);
   }
@@ -133,6 +160,7 @@ public class Response {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Response {\n");
+    sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    insertion: ").append(toIndentedString(insertion)).append("\n");
     sb.append("    introspectionData: ").append(toIndentedString(introspectionData)).append("\n");
     sb.append("    pagingInfo: ").append(toIndentedString(pagingInfo)).append("\n");
