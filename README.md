@@ -363,10 +363,15 @@ Uses
 - Build and install SNAPSHOT locally: `mvn install`
 
 ## Deploy
-Follow the auth and gpg instructions on [sonatype.org](https://central.sonatype.org/publish/publish-maven/).  It's a little easier to use the `maven-release-plugin` instructions.
+Follow the auth and gpg instructions on [sonatype.org](https://central.sonatype.org/publish/publish-maven/).  Dan wasn't able to get the `maven-release-plugin` to work.
+
+1. Create a SNAPSHOT release.
 - Update the version for a SNAPSHOT or non-SNAPSHOT release: `mvn versions:set -DnewVersion=x.y.z`
 - Sign: `mvn clean verify -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`
 - Deploy to Sonatype: `mvn deploy -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`
-- Send a PR for the updated `pom.xml` file.
-  - After a release, it's useful to update the POM for a snapshot version for the next release and merge that.
-- View the "staging" repo at https://s01.oss.sonatype.org/#view-repositories;staging~browsestorage and release it when ready.
+- Verify the release looks correct in [Sonatype](https://s01.oss.sonatype.org/#view-repositories;staging~browsestorage)
+
+2. Create a non-SNAPSHOT.
+- Follow similar steps to 1.
+- View the "staging" repo at https://s01.oss.sonatype.org/#view-repositories;staging~browsestorage and release it when ready.  There can be delay in the staging repository showing up in the list.  Also click "Refresh".- Send a PR for the updated `pom.xml` file.
+- After a release, it's useful to update the POM for a snapshot version for the next release and merge that.
