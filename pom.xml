@@ -3,7 +3,7 @@
 	<groupId>ai.promoted</groupId>
 	<artifactId>deliveryclient</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.8-SNAPSHOT</version>
+	<version>0.0.8</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>A Java Client to contact the Promoted.ai Delivery API.</description>
 	<url>https://github.com/promotedai/promoted-java-delivery-client</url>
@@ -25,7 +25,7 @@
 		<connection>scm:git:git@github.com/promotedai/promoted-java-delivery-client.git</connection>
 		<developerConnection>scm:git:git@github.com:promotedai/promoted-java-delivery-client.git</developerConnection>
 		<url>https://github.com/promotedai/promoted-java-delivery-client/tree/main</url>
-	  <tag>deliveryclient-0.0.7</tag>
+	  <tag>deliveryclient-0.0.8</tag>
   </scm>
 
 	<properties>
