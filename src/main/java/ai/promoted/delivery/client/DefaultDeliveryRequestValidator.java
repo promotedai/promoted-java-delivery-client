@@ -47,9 +47,9 @@ public class DefaultDeliveryRequestValidator implements DeliveryRequestValidator
 
     if (request.getUserInfo() == null) {
       validationErrors.add("Request.userInfo should be set");
-    } else if (request.getUserInfo().getLogUserId() == null
-        || request.getUserInfo().getLogUserId().isBlank()) {
-      validationErrors.add("Request.userInfo.logUserId should be set");
+    } else if (request.getUserInfo().getAnonUserId() == null
+        || request.getUserInfo().getAnonUserId().isBlank()) {
+      validationErrors.add("Request.userInfo.anonUserId should be set");
     }
 
     if (request.getInsertion() == null) {

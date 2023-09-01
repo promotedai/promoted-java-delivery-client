@@ -28,7 +28,7 @@ public class IntegrationTest {
     searchProps.put("lng", -122.3);
     myProps.put("search", searchProps);
     
-    Request req = new Request().userInfo(new UserInfo().logUserId("12355")).platformId(0)
+    Request req = new Request().userInfo(new UserInfo().anonUserId("12355")).platformId(0)
         .paging(new Paging().size(100).offset(0))
         .addInsertionItem(InsertionFactory.createInsertionWithProperties("28835", myProps))
         .addInsertionItem(new Insertion().contentId("49550"));

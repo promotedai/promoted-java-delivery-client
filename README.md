@@ -54,7 +54,7 @@ Basic information about the request user.
 Field Name | Type | Optional? | Description
 ---------- | ---- | --------- | -----------
 `userId` | String | Yes | The platform user id, cleared from Promoted logs.
-`logUserId` | String | Yes | A different user id (presumably a UUID) disconnected from the platform user id (e.g. an "anonymous user id"), good for working with unauthenticated users or implementing right-to-be-forgotten.
+`anonUserId` | String | Yes | A different user id (presumably a UUID) disconnected from the platform user id (e.g. an "anonymous user id"), good for working with unauthenticated users or implementing right-to-be-forgotten.
 `isInternalUser` | boolean | Yes | If this user is a test user or not, defaults to false.
 
 ---
@@ -254,7 +254,7 @@ We might modify to something like this:
 void getProducts(ProductRequest req) {
   List<Product> products = ...;
   Request req = new Request().userInfo(new UserInfo()
-      .logUserId("12355")
+      .anonUserId("12355")
       .paging(new Paging().size(100).offset(0)));
   DeliveryRequest deliveryRequest = new DeliveryRequest(req);
   Map<String, Product> productsMap = new HashMap<>();
@@ -309,11 +309,11 @@ void getProducts(ProductRequest req) {
   List<Product> products = //...;
 
   // This gets the anonymous user id from the request.
-  String logUserId = getLogUserId(req);
-  CohortMembership experimentMembership = experimentConfig.checkMembership(logUserId);
+  String anonUserId = getAnonUserId(req);
+  CohortMembership experimentMembership = experimentConfig.checkMembership(anonUserId);
 
   Request req = new Request().userInfo(new UserInfo()
-      .logUserId("12355")
+      .anonUserId("12355")
       .paging(new Paging().size(100).offset(0)));
 
   // If experimentActivated can be false (e.g. only 5% of users get put into an experiment) and
@@ -337,8 +337,8 @@ Here's an example using custom arm assignment logic (not using `twoArmExperiment
   // (2) which arm to perform.
   //
   CohortMembership experimentMembership = null;
-  if (isUserActivated(experimentName, logUserId)) {
-  	boolean inTreatment = isUserInTreatmentArm(experimentName, logUserId);
+  if (isUserActivated(experimentName, anonUserId)) {
+  	boolean inTreatment = isUserInTreatmentArm(experimentName, anonUserId);
   	
     // Only log if the user is activated into the experiment.
     experimentMembership = new CohortMembership().cohortId(experimentName)
