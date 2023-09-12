@@ -366,12 +366,12 @@ Uses
 Follow the auth and gpg instructions on [sonatype.org](https://central.sonatype.org/publish/publish-maven/).  Dan wasn't able to get the `maven-release-plugin` to work.
 
 1. Create a SNAPSHOT release.
-- Update the version for a SNAPSHOT or non-SNAPSHOT release: `mvn versions:set -DnewVersion=x.y.z`
-- Sign: `mvn clean verify -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`
-- Deploy to Sonatype: `mvn deploy -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`
+- Update the version for a SNAPSHOT or non-SNAPSHOT release: `mvn versions:set -DnewVersion=x.y.z-SNAPSHOT`.
+- Sign: `mvn clean verify -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`.  For the GPG Key, use this command to get the hex version: `gpg --list-signatures --keyid-format 0xshort`.  It's fine to create a new GPG key if needed.
+- Deploy to Sonatype: `mvn deploy -P release -Dgpg.keyname=0x<EIGHT HEX DIGITS OF YOUR GPG KEY>`.
 - Verify the release looks correct in [Sonatype](https://s01.oss.sonatype.org/#view-repositories;staging~browsestorage)
 
 2. Create a non-SNAPSHOT.
-- Follow similar steps to 1.
-- View the "staging" repo at https://s01.oss.sonatype.org/#view-repositories;staging~browsestorage and release it when ready.  There can be delay in the staging repository showing up in the list.  Also click "Refresh".- Send a PR for the updated `pom.xml` file.
-- After a release, it's useful to update the POM for a snapshot version for the next release and merge that.
+- Follow similar steps to 1.  Change to `mvn versions:set -DnewVersion=x.y.z`
+- Go to [Sonatype](https://s01.oss.sonatype.org/#view-repositories;staging~browsestorage).  In the left nav, click on "Staging Repositories" under "Build Promotion" section.  Use "Close" and "Release" steps for deploying.  There can be delay in the staging repository showing up in the list.  Also click "Refresh".
+- Send a PR for the updated `pom.xml` file to the next patched SNAPSHOT version.  This can be a little misleading and confusing if the next release is not a patch change.
