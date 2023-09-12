@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * UserInfo
  */
-@JsonPropertyOrder({UserInfo.JSON_PROPERTY_IS_INTERNAL_USER, UserInfo.JSON_PROPERTY_LOG_USER_ID,
+@JsonPropertyOrder({UserInfo.JSON_PROPERTY_IS_INTERNAL_USER, UserInfo.JSON_PROPERTY_ANON_USER_ID,
     UserInfo.JSON_PROPERTY_USER_ID})
 public class UserInfo {
   public static final String JSON_PROPERTY_IS_INTERNAL_USER = "isInternalUser";
@@ -18,8 +18,8 @@ public class UserInfo {
   public static final String JSON_PROPERTY_IGNORE_USAGE = "ignoreUsage";
   private Boolean ignoreUsage;
 
-  public static final String JSON_PROPERTY_LOG_USER_ID = "logUserId";
-  private String logUserId;
+  public static final String JSON_PROPERTY_ANON_USER_ID = "anonUserId";
+  private String anonUserId;
 
   public static final String JSON_PROPERTY_USER_ID = "userId";
   private String userId;
@@ -70,28 +70,28 @@ public class UserInfo {
   }
 
 
-  public UserInfo logUserId(String logUserId) {
-    this.logUserId = logUserId;
+  public UserInfo anonUserId(String anonUserId) {
+    this.anonUserId = anonUserId;
     return this;
   }
 
   /**
-   * Get logUserId
+   * Get anonUserId
    * 
-   * @return logUserId
+   * @return anonUserId
    **/
-  @JsonProperty(JSON_PROPERTY_LOG_USER_ID)
+  @JsonProperty(JSON_PROPERTY_ANON_USER_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public String getLogUserId() {
-    return logUserId;
+  public String getAnonUserId() {
+    return anonUserId;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_LOG_USER_ID)
+  @JsonProperty(JSON_PROPERTY_ANON_USER_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setLogUserId(String logUserId) {
-    this.logUserId = logUserId;
+  public void setAnonUserId(String anonUserId) {
+    this.anonUserId = anonUserId;
   }
 
 
@@ -134,13 +134,13 @@ public class UserInfo {
     UserInfo userInfo = (UserInfo) o;
     return Objects.equals(this.isInternalUser, userInfo.isInternalUser)
         && Objects.equals(this.ignoreUsage, userInfo.ignoreUsage)
-        && Objects.equals(this.logUserId, userInfo.logUserId)
+        && Objects.equals(this.anonUserId, userInfo.anonUserId)
         && Objects.equals(this.userId, userInfo.userId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(isInternalUser, logUserId, userId);
+    return Objects.hash(isInternalUser, anonUserId, userId);
   }
 
   @Override
@@ -149,7 +149,7 @@ public class UserInfo {
     sb.append("class UserInfo {\n");
     sb.append("    isInternalUser: ").append(toIndentedString(isInternalUser)).append("\n");
     sb.append("    ignoreUsage: ").append(toIndentedString(ignoreUsage)).append("\n");
-    sb.append("    logUserId: ").append(toIndentedString(logUserId)).append("\n");
+    sb.append("    anonUserId: ").append(toIndentedString(anonUserId)).append("\n");
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("}");
     return sb.toString();
