@@ -18,7 +18,7 @@ public class DeliveryRequest implements Cloneable {
   private final boolean onlyLog;
 
   /** The start index in the request insertions in the list of ALL insertions. */
-  private final int insertionStart;
+  private final int retrievalInsertionOffset;
 
   /** An experiment (if any) to use for this request. */
   @Nullable
@@ -34,14 +34,14 @@ public class DeliveryRequest implements Cloneable {
    * @param experiment the experiment that the user is in, may be null, which means apply the
    *        treatment
    * @param onlyLog if true, will log to Promoted.ai Metrics but not call Delivery API to re-rank
-   * @param insertionStart start index in the request insertions in the list of ALL insertions
+   * @param retrievalInsertionOffset start index in the request insertions in the list of ALL insertions
    */
   public DeliveryRequest(Request request, CohortMembership experiment, boolean onlyLog,
-      int insertionStart, DeliveryRequestValidator validator) {
+      int retrievalInsertionOffset, DeliveryRequestValidator validator) {
     this.request = request;
     this.onlyLog = onlyLog;
     this.experiment = experiment;
-    this.insertionStart = insertionStart;
+    this.retrievalInsertionOffset = retrievalInsertionOffset;
     this.validator = validator;
   }
 
@@ -52,11 +52,11 @@ public class DeliveryRequest implements Cloneable {
    * @param experiment the experiment that the user is in, may be null, which means apply the
    *        treatment
    * @param onlyLog if true, will log to Promoted.ai Metrics but not call Delivery API to re-rank
-   * @param insertionStart start index in the request insertions in the list of ALL insertions
+   * @param retrievalInsertionOffset start index in the request insertions in the list of ALL insertions
    */
   public DeliveryRequest(Request request, CohortMembership experiment, boolean onlyLog,
-      int insertionStart) {
-    this(request, experiment, onlyLog, insertionStart, DefaultDeliveryRequestValidator.INSTANCE);
+      int retrievalInsertionOffset) {
+    this(request, experiment, onlyLog, retrievalInsertionOffset, DefaultDeliveryRequestValidator.INSTANCE);
   }
 
   /**
@@ -102,8 +102,8 @@ public class DeliveryRequest implements Cloneable {
    *
    * @return the insertion start
    */
-  public int getInsertionStart() {
-    return insertionStart;
+  public int getRetrievalInsertionOffset() {
+    return retrievalInsertionOffset;
   }
 
   /**
