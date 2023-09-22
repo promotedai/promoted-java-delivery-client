@@ -20,6 +20,7 @@ It is thread-safe and intended to be used as a singleton, leveraging `java.net.h
 
 ```java
 PromotedDeliveryClient client = PromotedDeliveryClient.builder()
+    .withExecutor(Executors.newFixedThreadPool(10))
     .withMetricsExecutor(ExecutorService.newFixedThreadPool(10))
     .withDeliveryEndpoint("<get this from Promoted.ai>")
     .withDeliveryApiKey("<get this from Promoted.ai>")
