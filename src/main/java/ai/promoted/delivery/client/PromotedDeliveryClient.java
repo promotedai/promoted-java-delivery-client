@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import ai.promoted.delivery.model.ClientInfo;
 import ai.promoted.delivery.model.ClientType;
@@ -143,7 +144,7 @@ public class PromotedDeliveryClient {
     if (performChecks) {
       List<String> validationErrors = deliveryRequest.validate(isShadowTraffic);
       for (String validationError : validationErrors) {
-        LOGGER.warning("Delivery Request Validation Error: " + validationError);
+        LOGGER.log(Level.WARNING, "Delivery Request Validation Error", validationError);
       }
     }
     Response response;
@@ -166,7 +167,7 @@ public class PromotedDeliveryClient {
         response = apiDelivery.runDelivery(deliveryRequest);
         execSrv = ExecutionServer.API;
       } catch (DeliveryException ex) {
-        LOGGER.warning("Error calling Delivery API, falling back: " + ex);
+        LOGGER.log(Level.WARNING, "Error calling Delivery API, falling back", ex);
         response = sdkDelivery.runDelivery(deliveryRequest);
       }
     }
@@ -209,7 +210,7 @@ public class PromotedDeliveryClient {
       
       apiDelivery.runDelivery(requestToSend);
     } catch (DeliveryException | CloneNotSupportedException ex) {
-      LOGGER.warning("Error calling Delivery API for shadow traffic: " + ex);
+      LOGGER.log(Level.WARNING, "Error calling Delivery API for shadow traffic", ex);
     }
   }
 
@@ -274,7 +275,7 @@ public class PromotedDeliveryClient {
       try {
         apiMetrics.runMetricsLogging(logRequest);
       } catch (DeliveryException ex) {
-        LOGGER.warning("Error calling Metrics API: " + ex);
+        LOGGER.log(Level.WARNING, "Error calling Metrics API", ex);
       }
     });
   }
@@ -481,7 +482,7 @@ public class PromotedDeliveryClient {
      * @param metricsApiKey the metrics api key
      * @return the builder
      */
-    public Builder withMetricsAoiKey(String metricsApiKey) {
+    public Builder withMetricsApiKey(String metricsApiKey) {
       this.deliveryApiKey = metricsApiKey;
       return this;
     }
