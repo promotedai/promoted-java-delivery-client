@@ -472,7 +472,7 @@ public class PromotedDeliveryClient {
      * @return the builder
      */
     public Builder withMetricsEndpoint(String metricsEndpoint) {
-      this.deliveryEndpoint = metricsEndpoint;
+      this.metricsEndpoint = metricsEndpoint;
       return this;
     }
 
@@ -483,7 +483,7 @@ public class PromotedDeliveryClient {
      * @return the builder
      */
     public Builder withMetricsApiKey(String metricsApiKey) {
-      this.deliveryApiKey = metricsApiKey;
+      this.metricsApiKey = metricsApiKey;
       return this;
     }
 
