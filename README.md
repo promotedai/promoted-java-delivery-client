@@ -215,7 +215,7 @@ Field Name | Type | Optional? | Description
 `request` | Request | No | The underlying request for content, including all candidate insertions with content ids.
 `experiment` | CohortMembership | Yes | A cohort to evaluation in experimentation.
 `onlyLog` | Boolean | Yes | Defaults to false. Set to true to log the request as the CONTROL arm of an experiment, not call Delivery API, but rather deliver paged insertions from the request.
-`insertionStart` | int | Yes |   Start index in the request insertions in the list of ALL insertions. See [Pages of Request Insertions](#pages-of-request-insertions) for more details.
+`retrievalInsertionOffset` | int | Yes |   Start index in the request insertions in the list of ALL insertions. See [Pages of Request Insertions](#pages-of-request-insertions) for more details.
 ---
 
 ### DeliveryResponse
@@ -275,18 +275,18 @@ void getProducts(ProductRequest req) {
 
 ## Pages of Request Insertions
 
-Clients can send a subset of all request insertions to Promoted in Delivery API's `request.insertion` array. The `insertionStart` property specifies the start index of the array `request.insertion` in the list of ALL request insertions.
+Clients can send a subset of all request insertions to Promoted in Delivery API's `request.insertion` array. The `retrievalInsertionOffset` property specifies the start index of the array `request.insertion` in the list of ALL request insertions.
 
 `request.paging.offset` should be set to the zero-based position in ALL request insertions (_not_ the relative position in the `request.insertion` array).
 
 Examples
 
 - If there are 10 items and all 10 items are in `request.insertion`, then insertion_start=0.
-- If there are 10,000 items and the first 500 items are on `request.insertion`, then insertionStart=0.
-- If there are 10,000 items and we want to send items [500,1000) on `request.insertion`, then insertionStart=500.
-- If there are 10,000 items and we want to send the last page [9500,10000) on `request.insertion`, then insertionStart=9500.
+- If there are 10,000 items and the first 500 items are on `request.insertion`, then retrievalInsertionOffset=0.
+- If there are 10,000 items and we want to send items [500,1000) on `request.insertion`, then retrievalInsertionOffset=500.
+- If there are 10,000 items and we want to send the last page [9500,10000) on `request.insertion`, then retrievalInsertionOffset=9500.
 
-`insertionStart` is required to be less than `paging.offset` or else a `ValueError` will result.
+`retrievalInsertionOffset` is required to be less than `paging.offset` or else a `ValueError` will result.
 
 Additional details: https://docs.promoted.ai/docs/ranking-requests#sending-even-more-request-insertions
 

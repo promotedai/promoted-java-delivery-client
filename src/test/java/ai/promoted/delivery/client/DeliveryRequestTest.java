@@ -45,7 +45,7 @@ class DeliveryRequestTest {
   }
 
   @Test
-  void testValidateInsertionStartMustBeNonNeg() {
+  void testValidateRetrievalInsertionOffsetMustBeNonNeg() {
     DeliveryRequest req = new DeliveryRequest(
         new Request().userInfo(new UserInfo().anonUserId("a")).addInsertionItem(new Insertion().contentId("z")),
         null,

@@ -30,7 +30,7 @@ public class DefaultDeliveryRequestValidator implements DeliveryRequestValidator
     validationErrors.addAll(validateIds(request.getRequest(), request.getExperiment()));
 
     // Insertion start should be >= 0.
-    if (request.getInsertionStart() < 0) {
+    if (request.getRetrievalInsertionOffset() < 0) {
       validationErrors.add("Insertion start must be greater or equal to 0");
     }
 

@@ -35,8 +35,8 @@ public class SdkDelivery implements Delivery {
 
     // Adjust offset and size.
     int offset = paging.getOffset() != null ? Math.max(0, paging.getOffset()) : 0;
-    int index = offset - deliveryRequest.getInsertionStart();
-    if (offset < deliveryRequest.getInsertionStart()) {
+    int index = offset - deliveryRequest.getRetrievalInsertionOffset();
+    if (offset < deliveryRequest.getRetrievalInsertionOffset()) {
       throw new DeliveryException("offset should be >= insertion start (specifically, the global position)");
     }
 

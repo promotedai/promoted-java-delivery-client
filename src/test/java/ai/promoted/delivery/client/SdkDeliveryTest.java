@@ -18,7 +18,7 @@ import ai.promoted.delivery.model.Response;
 class SdkDeliveryTest {
 
   @Test
-  void testInvalidPagingOffsetAndInsertionStart() {
+  void testInvalidPagingOffsetAndRetrievalInsertionOffset() {
     Request req = new Request().paging(new Paging().offset(10).size(5)).insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, 100);
     Exception exception = assertThrows(
@@ -29,7 +29,7 @@ class SdkDeliveryTest {
   }
 
   @Test
-  void testValidPagingOffsetAndInsertionStart() throws DeliveryException {
+  void testValidPagingOffsetAndRetrievalInsertionOffset() throws DeliveryException {
     Request req = new Request().paging(new Paging().offset(10).size(5)).insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, 5);
     Response resp = new SdkDelivery().runDelivery(dreq);
@@ -49,11 +49,11 @@ class SdkDeliveryTest {
   }
   
   @Test
-  void testInsertionStartSetToOffset() throws DeliveryException {
-    int insertionStart = 5;
+  void testRetrievalInsertionOffsetSetToOffset() throws DeliveryException {
+    int retrievalInsertionOffset = 5;
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(3);
     Request req = new Request().insertion(insertions).paging(new Paging().size(2).offset(5));
-    DeliveryRequest dreq = new DeliveryRequest(req, null, false, insertionStart);
+    DeliveryRequest dreq = new DeliveryRequest(req, null, false, retrievalInsertionOffset);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
     
@@ -62,12 +62,12 @@ class SdkDeliveryTest {
   }
 
   @Test
-  void testInsertionStartLessThanOffset() throws DeliveryException {
-    int insertionStart = 5;
+  void testRetrievalInsertionOffsetLessThanOffset() throws DeliveryException {
+    int retrievalInsertionOffset = 5;
     int offsetDiff = 1;
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(3);
     Request req = new Request().insertion(insertions).paging(new Paging().size(2).offset(6));
-    DeliveryRequest dreq = new DeliveryRequest(req, null, false, insertionStart);
+    DeliveryRequest dreq = new DeliveryRequest(req, null, false, retrievalInsertionOffset);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
     
@@ -77,17 +77,17 @@ class SdkDeliveryTest {
     // Returns positions 1 and 2 since we want an offset one past the request insertion start.
     for (int i = 0; i < resp.getInsertion().size(); i++) {
       Insertion ins = resp.getInsertion().get(i);
-      assertEquals(insertionStart + offsetDiff + i, ins.getPosition());
+      assertEquals(retrievalInsertionOffset + offsetDiff + i, ins.getPosition());
       assertEquals("" + (i + offsetDiff), ins.getContentId());
     }
   }
 
   @Test
-  void testInsertionStartWithOffsetOutsideSize() throws DeliveryException {
-    int insertionStart = 5;
+  void testRetrievalInsertionOffsetWithOffsetOutsideSize() throws DeliveryException {
+    int retrievalInsertionOffset = 5;
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(3);
     Request req = new Request().insertion(insertions).paging(new Paging().size(2).offset(8));
-    DeliveryRequest dreq = new DeliveryRequest(req, null, false, insertionStart);
+    DeliveryRequest dreq = new DeliveryRequest(req, null, false, retrievalInsertionOffset);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
     
