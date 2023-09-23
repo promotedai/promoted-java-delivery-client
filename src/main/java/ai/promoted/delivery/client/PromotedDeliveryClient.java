@@ -85,13 +85,14 @@ public class PromotedDeliveryClient {
    * @param shadowTrafficDeliveryRate rate = [0,1] of traffic not otherwise sent to Delivery API sent as shadow traffic
    * @param sampler the sampler to use
    * @param blockingShadowTraffic flag to make shadow traffic a blocking (instead of background) call
+   * @param acceptGzip whether the client accepts gzip
    */
   private PromotedDeliveryClient(String deliveryEndpoint, String deliveryApiKey,
       long deliveryTimeoutMillis, String metricsEndpoint, String metricsApiKey,
       long metricsTimeoutMillis, boolean warmup, Executor executor,
       int maxRequestInsertions, ApplyTreatmentChecker applyTreatmentChecker,
       ApiFactory apiFactory, float shadowTrafficDeliveryRate, Sampler sampler,
-      boolean performChecks, boolean blockingShadowTraffic) {
+      boolean performChecks, boolean blockingShadowTraffic, boolean acceptGzip) {
 
     if (deliveryTimeoutMillis <= 0) {
       deliveryTimeoutMillis = DEFAULT_DELIVERY_TIMEOUT_MILLIS;
@@ -126,7 +127,7 @@ public class PromotedDeliveryClient {
     this.applyTreatmentChecker = applyTreatmentChecker;
     this.sdkDelivery = apiFactory.createSdkDelivery();
     this.apiMetrics = apiFactory.createApiMetrics(metricsEndpoint, metricsApiKey, metricsTimeoutMillis);
-    this.apiDelivery = apiFactory.createApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis, warmup, maxRequestInsertions);
+    this.apiDelivery = apiFactory.createApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis, warmup, maxRequestInsertions, acceptGzip);
     this.performChecks = performChecks;
     this.blockingShadowTraffic = blockingShadowTraffic;
   }
@@ -427,6 +428,9 @@ public class PromotedDeliveryClient {
     /** The blocking shadow traffic value */
     private boolean blockingShadowTraffic;
 
+    /** The acceptsGzip value. */
+    private boolean acceptGzip = true;
+
     /**
      * Instantiates a new builder.
      */
@@ -598,6 +602,17 @@ public class PromotedDeliveryClient {
     }
 
     /**
+     * Sets accept gzip encoding header.  Defauls to true.
+     *
+     * @param acceptGzip accepts gzip
+     * @return the builder
+     */
+    public Builder withAcceptGzip(boolean acceptGzip) {
+      this.acceptGzip = acceptGzip;
+      return this;
+    }
+
+    /**
      * Builds the {@link PromotedDeliveryClient}.
      *
      * @return the promoted delivery client
@@ -606,7 +621,7 @@ public class PromotedDeliveryClient {
       return new PromotedDeliveryClient(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis,
           metricsEndpoint, metricsApiKey, metricsTimeoutMillis, warmup, executor,
           maxRequestInsertions, applyTreatmentChecker, apiFactory, shadowTrafficDeliveryRate,
-          sampler, performChecks, blockingShadowTraffic);
+          sampler, performChecks, blockingShadowTraffic, acceptGzip);
     }
   }
 }

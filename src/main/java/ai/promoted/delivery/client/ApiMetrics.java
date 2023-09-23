@@ -63,6 +63,7 @@ public class ApiMetrics implements Metrics {
       String requestBody = mapper.writeValueAsString(logRequest);
       // TODO: Compression (does metrics accept that?).
       HttpRequest httpReq = HttpRequest.newBuilder().uri(URI.create(endpoint))
+          .header("Content-Type", "application/json")
           .header("x-api-key", apiKey).timeout(timeoutDuration)
           .POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
 

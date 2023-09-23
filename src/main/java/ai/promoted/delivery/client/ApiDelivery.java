@@ -49,15 +49,21 @@ public class ApiDelivery implements Delivery  {
   private final int maxRequestInsertions;
 
   /**
+   * Whether to accept gzip.
+   */
+  private final boolean acceptGzip;
+
+  /**
    * Instantiates a new Delivery API client.
    *
    * @param endpoint the endpoint
    * @param apiKey the api key
    * @param timeoutMillis the timeout in millis
    * @param maxRequestInsertions the max number of request insertions
+   * @param acceptGzip whether to accept gzip
    * @param warmup 
    */
-  public ApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions) {
+  public ApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions, boolean acceptGzip) {
     this.endpoint = endpoint;
     this.apiKey = apiKey;
     this.mapper = new ObjectMapper();
@@ -66,6 +72,7 @@ public class ApiDelivery implements Delivery  {
 
     this.timeoutDuration = Duration.of(timeoutMillis, ChronoUnit.MILLIS);
     this.maxRequestInsertions = maxRequestInsertions;
+    this.acceptGzip = acceptGzip;
 
     this.httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
     
@@ -89,11 +96,16 @@ public class ApiDelivery implements Delivery  {
     try {
       String requestBody = mapper.writeValueAsString(state.getRequestToSend(maxRequestInsertions));
       
-      HttpRequest httpReq = HttpRequest.newBuilder().uri(URI.create(endpoint))
-          .header("Accept-Encoding", "gzip")
-          .header("x-api-key", apiKey)
+      HttpRequest.Builder httpReqBuilder = HttpRequest.newBuilder().uri(URI.create(endpoint))
+          .header("Content-Type", "application/json")
+          .header("x-api-key", apiKey);
+      if (acceptGzip) {
+        httpReqBuilder.header("Accept-Encoding", "gzip");
+      }
+      httpReqBuilder
           .timeout(timeoutDuration)
-          .POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
+          .POST(HttpRequest.BodyPublishers.ofString(requestBody));
+      HttpRequest httpReq = httpReqBuilder.build();
 
       HttpResponse<InputStream> response =
           httpClient.send(httpReq, HttpResponse.BodyHandlers.ofInputStream());
