@@ -139,7 +139,7 @@ public class ApiDelivery implements Delivery  {
    * Do warmup.
    */
   private void runWarmup() {
-    String warmupEndpoint = endpoint.replace("/deliver", "/healthz");
+    String warmupEndpoint = replaceSuffix(endpoint, "/deliver", "/healthz");
     for (int i = 0; i < 20; i++) {
       try {
         HttpRequest httpReq = HttpRequest.newBuilder().uri(URI.create(warmupEndpoint))
@@ -150,4 +150,12 @@ public class ApiDelivery implements Delivery  {
       }
     }
   }
+
+  static String replaceSuffix(String original, String target, String replacement) {
+    if (!original.endsWith(target)) {
+       return original;
+    }
+
+    return original.substring(0, original.length() - target.length()) + replacement;
+}
 }
