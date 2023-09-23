@@ -9,6 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import com.fasterxml.jackson.core.exc.StreamReadException;
@@ -145,7 +146,7 @@ public class ApiDelivery implements Delivery  {
             .header("x-api-key", apiKey).GET().build();
         httpClient.send(httpReq, HttpResponse.BodyHandlers.ofString());
       } catch (Exception ex) {
-        LOGGER.warning("Error during warmup");
+        LOGGER.log(Level.WARNING, "Error during warmup", ex);
       }
     }
   }
