@@ -12,6 +12,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -61,6 +62,7 @@ public class ApiDelivery implements Delivery  {
     this.apiKey = apiKey;
     this.mapper = new ObjectMapper();
     this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    this.mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     this.timeoutDuration = Duration.of(timeoutMillis, ChronoUnit.MILLIS);
     this.maxRequestInsertions = maxRequestInsertions;
