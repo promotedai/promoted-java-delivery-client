@@ -45,6 +45,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
+    assertTrue(resp.getRequestId().length() > 0);
     assertAllResponseInsertions(resp);
   }
   
@@ -58,6 +59,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
+    assertTrue(resp.getRequestId().length() > 0);
     assertEquals(2, resp.getInsertion().size());
   }
 
@@ -72,6 +74,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
+    assertTrue(resp.getRequestId().length() > 0);
     assertEquals(2, resp.getInsertion().size());
 
     // Returns positions 1 and 2 since we want an offset one past the request insertion start.
@@ -92,6 +95,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
+    assertTrue(resp.getRequestId().length() > 0);
     assertEquals(0, resp.getInsertion().size());
   }
 
@@ -111,6 +115,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
+    assertTrue(resp.getRequestId().length() > 0);
     Insertion respIns = resp.getInsertion().get(0);
 
     assertEquals(reqIns.getContentId(), respIns.getContentId());
@@ -132,6 +137,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
+    assertTrue(resp.getRequestId().length() > 0);
     assertAllResponseInsertions(resp);
   }
 
@@ -144,6 +150,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
+    assertTrue(resp.getRequestId().length() > 0);
     assertEquals(5, resp.getInsertion().size());
     for (int i = 0; i < 5; i++) {
       Insertion insertion = resp.getInsertion().get(i);
@@ -160,6 +167,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
+    assertTrue(resp.getRequestId().length() > 0);
     assertEquals(5, resp.getInsertion().size());
     for (int i = 5; i < 10; i++) {
       Insertion insertion = resp.getInsertion().get(i-5);
@@ -176,6 +184,7 @@ class SdkDeliveryTest {
     Response resp = new SdkDelivery().runDelivery(dreq);
     
     assertTrue(req.getRequestId().length() > 0);
+    assertTrue(resp.getRequestId().length() > 0);
     assertAllResponseInsertions(resp);
   }
 

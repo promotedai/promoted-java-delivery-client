@@ -56,6 +56,9 @@ public class SdkDelivery implements Delivery {
       offset++;
     }
 
-    return new Response().insertion(insertionPage);
+    Response response = new Response();
+    response.setRequestId(request.getRequestId());
+    response.insertion(insertionPage);
+    return response;
   }
 }
