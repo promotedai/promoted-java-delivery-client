@@ -5,6 +5,6 @@ package ai.promoted.delivery.client;
  */
 public interface ApiFactory {
   Delivery createSdkDelivery();
-  Delivery createApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions);
+  Delivery createApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions, boolean acceptGzip);
   Metrics createApiMetrics(String endpoint, String apiKey, long timeoutMillis);
 }
