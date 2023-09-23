@@ -24,7 +24,7 @@ import ai.promoted.delivery.model.TrafficType;
  */
 public class PromotedDeliveryClient {
 
-  private static final String SERVER_VERSION = "java.1.0.1";
+  private static final String SERVER_VERSION = "java.2.0.3";
 
   private static final Logger LOGGER = Logger.getLogger(PromotedDeliveryClient.class.getName());
 
