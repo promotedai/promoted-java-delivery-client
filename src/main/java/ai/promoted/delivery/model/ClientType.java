@@ -4,7 +4,7 @@
 package ai.promoted.delivery.model;
 
 public enum ClientType {
-  UNKNOWN(0), SERVER(1), CLIENT(2);
+  UNKNOWN(0), PLATFORM_SERVER(1), PLATFORM_CLIENT(2);
 
   private final int value;
 
