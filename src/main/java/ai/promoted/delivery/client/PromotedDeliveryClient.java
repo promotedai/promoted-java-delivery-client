@@ -602,7 +602,7 @@ public class PromotedDeliveryClient {
     }
 
     /**
-     * Sets accept gzip encoding header.
+     * Sets accept gzip encoding header.  Defauls to true.
      *
      * @param acceptGzip accepts gzip
      * @return the builder
