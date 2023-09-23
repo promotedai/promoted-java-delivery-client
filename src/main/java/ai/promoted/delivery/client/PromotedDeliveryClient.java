@@ -206,7 +206,7 @@ public class PromotedDeliveryClient {
       // We ensured earlier that client info was filled in.
       assert requestToSend.getRequest().getClientInfo() != null;
 
-      requestToSend.getRequest().getClientInfo().setClientType(ClientType.SERVER);
+      requestToSend.getRequest().getClientInfo().setClientType(ClientType.PLATFORM_SERVER);
       requestToSend.getRequest().getClientInfo().setTrafficType(TrafficType.SHADOW);
       
       apiDelivery.runDelivery(requestToSend);
@@ -326,7 +326,7 @@ public class PromotedDeliveryClient {
     if (request.getClientInfo() == null) {
       request.setClientInfo(new ClientInfo());
     }
-    request.getClientInfo().setClientType(ClientType.SERVER);
+    request.getClientInfo().setClientType(ClientType.PLATFORM_SERVER);
     request.getClientInfo().setTrafficType(TrafficType.PRODUCTION);
 
     // If there is no client request id set by the caller, we fill one in.

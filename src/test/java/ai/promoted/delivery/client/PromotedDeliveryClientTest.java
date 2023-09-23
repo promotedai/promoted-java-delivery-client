@@ -206,7 +206,7 @@ class PromotedDeliveryClientTest {
     verify(apiFactory.getApiDelivery(), times(1)).runDelivery(shadowRequestRequestCaptor.capture());
     DeliveryRequest shadowRequest = shadowRequestRequestCaptor.getValue();
     assertEquals(TrafficType.SHADOW, shadowRequest.getRequest().getClientInfo().getTrafficType());
-    assertEquals(ClientType.SERVER, shadowRequest.getRequest().getClientInfo().getClientType());
+    assertEquals(ClientType.PLATFORM_SERVER, shadowRequest.getRequest().getClientInfo().getClientType());
     assertSame(dreq.getRequest().getInsertion(), shadowRequest.getRequest().getInsertion());
 
     // Cohort membership and server side delivery -> follow-up logging.
