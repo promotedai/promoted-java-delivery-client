@@ -69,7 +69,7 @@ public class ApiMetrics implements Metrics {
 
       HttpResponse<String> response =
           httpClient.send(httpReq, HttpResponse.BodyHandlers.ofString());
-      if (response.statusCode() != 200) {
+      if (response.statusCode() < 200 || 300 <= response.statusCode()) {
         LOGGER.warning(() -> "Failure calling Metrics API; statusCode="  + response.statusCode()
           + ", body=" + response.body());
       }
