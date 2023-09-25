@@ -67,10 +67,11 @@ public class ApiMetrics implements Metrics {
           .header("x-api-key", apiKey).timeout(timeoutDuration)
           .POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
 
-      HttpResponse<Void> response =
-          httpClient.send(httpReq, HttpResponse.BodyHandlers.discarding());
+      HttpResponse<String> response =
+          httpClient.send(httpReq, HttpResponse.BodyHandlers.ofString());
       if (response.statusCode() != 200) {
-        LOGGER.warning("Failure calling Metrics API");
+        LOGGER.warning(() -> "Failure calling Metrics API; statusCode="  + response.statusCode()
+          + ", body=" + response.body());
       }
     } catch (Exception ex) {
       throw new DeliveryException("Error logging to metrics", ex);
