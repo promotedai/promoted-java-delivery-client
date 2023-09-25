@@ -11,6 +11,10 @@ The promoted-java-delivery-client library attempts to minimize dependencies to e
 - Demonstrates and implements the recommended practices and data types for calling Promoted.ai's Delivery API.
 - Client-side position assignment and paging when not using results from Delivery API, for example when logging only or as part of an experiment control.
 
+## Full example
+
+[promotedai/promoted-java-delivery-client-example GitHub Repository](https://github.com/promotedai/promoted-java-delivery-client-example).
+
 ## Creating a PromotedDelieryClient
 
 We recommend creating a `PromotedDeliveryClient` in a separate file so it can be reused.
