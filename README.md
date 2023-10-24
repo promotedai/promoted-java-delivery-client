@@ -351,8 +351,52 @@ Here's an example using custom arm assignment logic (not using `twoArmExperiment
   }
 ```
 
+## When there is ranking logic after the SDK's `deliver` method.
+
+Note: It is strongly discouraged to have ranking logic after the `deliver` method.  The results will likely be worse.
+
+For optimal results with Promoted's SDK, all ranking logic should be done before the `deliver` method.  Here's an example flow in a listing API call:
+1. The Controller retrieves candidates.
+2. It ranks the results and formulates ML features.
+3. It invokes the `deliver` method from Delivery SDK. This method takes care of when the Delivery API should be called.  If Delivery API is not called, the SDK pages the input candidate list.  The call handles experiments, logging and shadow traffic.
+4. The Controller enriches the paged response with detailed listing information.
+5. Finally, the Controller sends the enriched SDK response back to the client.
+
+However, in some scenarios, the ideal flow may not be followed due to reasons such as:
+- The Delivery API is being employed for partial ranking, and there's further ranking logic after its call. Nevertheless, Promoted still requires the final positions to be recorded as an SDK DeliveryLog.
+- The Controller doesn't possess a uniform code path through the ranking system. For instance, embedding the Delivery API call within conditional logic might mean that the SDK DeliveryLog isn't consistently invoked.
+
+Promoted works best when Promoted knows the final ranking.  When the actual response differs, the client should send fallback SDK `DeliveryLog`.  The inner methods can be accessed and called directly:
+1. `plan(...)` and `prepareRequest(...)` can be used to set up the request.
+2. `if (plan.useApiResponse()) { callDeliveryAPI(...) }` can be used to optionally call Delivery API.
+3. `handleSdkAndLog(...)` handles logging the final ranking, handles paging, and shadow traffic.
+
+Example
+```java
+DeliveryRequest deliveryRequest = ...;
+DeliveryPlan plan = client.plan(deliveryRequest);
+client.prepareRequest(deliveryRequest, plan);
+
+// The following could happen in a different method or server.
+Response apiResponse = null;
+if (plan.useApiResponse()) {
+  try {
+    apiResponse = client.callDeliveryAPI(deliveryRequest);
+  } catch (DeliveryException ex) {
+    LOGGER.log(Level.WARNING, "Error calling Delivery API, falling back", ex);
+  }
+}
+
+// ... Extra ranking logic.  This is strongly discouraged.
+
+DeliveryRequest modifiedDeliveryRequest = ... /* with a different insertion ordering. */;
+return client.handleSdkAndLog(modifiedDeliveryRequest, plan, apiResponse);
+```
+
+See the main `deliver` method for another example.
+
 # Improving this library
-- Source code follwoing the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
+- Source code following the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 
 ## Tech used
 
