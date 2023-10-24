@@ -146,7 +146,7 @@ public class PromotedDeliveryClient {
     Response apiResponse = null;
     if (plan.useApiResponse()) {
       try {
-        apiResponse = apiDelivery.runDelivery(deliveryRequest);
+        apiResponse = callDeliveryAPI(deliveryRequest);
       } catch (DeliveryException ex) {
         LOGGER.log(Level.WARNING, "Error calling Delivery API, falling back", ex);
       }
@@ -189,6 +189,19 @@ public class PromotedDeliveryClient {
     }
     ensureClientRequestId(deliveryRequest.getRequest(), plan.getClientRequestId());
     fillInRequestFields(deliveryRequest.getRequest());
+  }
+
+  /**
+   * Runs a blocking call to Delivery API.
+   *
+   * <p>This method provides support for reusing/overriding parts of
+   * {@link #deliver(DeliveryRequest) }.  Most users should use the {@code deliver} method instead.
+   * </p>
+   *
+   * @see #deliver
+   */
+  public Response callDeliveryAPI(DeliveryRequest deliveryRequest) throws DeliveryException {
+    return apiDelivery.runDelivery(deliveryRequest);
   }
 
   /**
