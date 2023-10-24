@@ -282,23 +282,13 @@ public class PromotedDeliveryClient {
     return (shadowTrafficDeliveryRate > 0 && sampler.sampleRandom(shadowTrafficDeliveryRate));
   }
   
-  /**
-   * Clone CohortMembership from the request, based on the provided experiment.
-   * If there isn't one, returns null.
-   *
-   * @param deliveryRequest the delivery request
-   * @return the cohort membership to use, or null if none
-   */
-  private CohortMembership cloneCohortMembership(CohortMembership experiment) {
-    if (experiment == null) {
+  private CohortMembership cloneCohortMembership(CohortMembership cohortMembership) {
+    if (cohortMembership == null) {
       return null;
     }
-
-    // Q - why does this copy the record?  I'm guessing this is to strip out other fields.
-    CohortMembership cohortMembership = new CohortMembership()
-        .arm(experiment.getArm())
-        .cohortId(experiment.getCohortId());    
-    return cohortMembership;
+    return new CohortMembership()
+        .arm(cohortMembership.getArm())
+        .cohortId(cohortMembership.getCohortId());
   }
 
   /**
