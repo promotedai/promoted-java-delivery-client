@@ -18,6 +18,7 @@ import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 import ai.promoted.delivery.model.Timing;
 import ai.promoted.delivery.model.TrafficType;
+import javax.annotation.Nullable;
 
 /**
  * PromotedDeliveryClient is the main class for interacting with the Promoted.ai Delivery API.
@@ -133,57 +134,97 @@ public class PromotedDeliveryClient {
   }
 
   /**
-   * Used to call Delivery API. Takes the given list of Content and ranks it.
+   * Used to call Delivery API. Ranks the given list of Content.
    *
    * @param deliveryRequest the delivery request
    * @throws DeliveryException when any exception occurs
    */
   public DeliveryResponse deliver(DeliveryRequest deliveryRequest) throws DeliveryException {
+    DeliveryPlan plan = plan(deliveryRequest.isOnlyLog(), deliveryRequest.getExperiment());
+    prepareRequest(deliveryRequest, plan);
 
-    boolean isShadowTraffic = shouldSendShadowTraffic();
-    
+    Response apiResponse = null;
+    if (plan.useApiResponse()) {
+      try {
+        apiResponse = apiDelivery.runDelivery(deliveryRequest);
+      } catch (DeliveryException ex) {
+        LOGGER.log(Level.WARNING, "Error calling Delivery API, falling back", ex);
+      }
+    }
+    return handleSdkAndLog(deliveryRequest, plan, apiResponse);
+  }
+
+  /**
+   * Returns a {@code DeliveryPlan} that determines SDK execution for
+   * {@link #deliver(DeliveryRequest) }.
+   *
+   * <p>This method provides support for reusing/overriding parts of
+   * {@link #deliver(DeliveryRequest) }.  Most users should use the {@code deliver} method instead.
+   * </p>
+   *
+   * @param onlyLog if true, the SDK Response will use the SDK-side paged response
+   * @see #deliver
+   */
+  public DeliveryPlan plan(boolean onlyLog, @Nullable CohortMembership experiment) {
+    boolean useApiResponse = !onlyLog && shouldApplyTreatment(experiment);
+    // TODO - why does checkCohortMembership copy?
+    return new DeliveryPlan(generateClientRequestId(), useApiResponse);
+  }
+
+  /**
+   * Prepares the {@code deliveryRequest} using the {@code plan}.
+   *
+   * <p>This method provides support for reusing/overriding parts of
+   * {@link #deliver(DeliveryRequest) }.  Most users should use the {@code deliver} method instead.
+   * </p>
+   *
+   * @see #deliver
+   */
+  public void prepareRequest(DeliveryRequest deliveryRequest, DeliveryPlan plan) {
     if (performChecks) {
-      List<String> validationErrors = deliveryRequest.validate(isShadowTraffic);
+      List<String> validationErrors = deliveryRequest.validate();
       for (String validationError : validationErrors) {
         LOGGER.log(Level.WARNING, "Delivery Request Validation Error", validationError);
       }
     }
+    ensureClientRequestId(deliveryRequest.getRequest(), plan.getClientRequestId());
+    fillInRequestFields(deliveryRequest.getRequest());
+  }
+
+  /**
+   * Optionally handles SDK Delivery, logs and does shadow traffic.
+   *
+   * <p>This method provides support for reusing/overriding parts of
+   * {@link #deliver(DeliveryRequest) }.  Most users should use the {@code deliver} method instead.
+   * </p>
+   *
+   * @see #deliver
+   */
+  public DeliveryResponse handleSdkAndLog(DeliveryRequest deliveryRequest, DeliveryPlan plan,
+      @Nullable Response apiResponse) throws DeliveryException {
+    CohortMembership cohortMembership = cloneCohortMembership(deliveryRequest.getExperiment());
+
     Response response;
-
-    Request request = deliveryRequest.getRequest();
-
-    fillInRequestFields(request);
-
-    CohortMembership cohortMembership = checkCohortMembership(deliveryRequest);
-
-    ExecutionServer execSrv = ExecutionServer.SDK;
-
-    boolean attemptedDeliveryApi = false;
-    
-    if (deliveryRequest.isOnlyLog() || !shouldApplyTreatment(cohortMembership)) {
-      response = sdkDelivery.runDelivery(deliveryRequest);
+    ExecutionServer execSrv;
+    if (apiResponse != null) {
+      response = apiResponse;
+      execSrv = ExecutionServer.API;
     } else {
-      attemptedDeliveryApi = true;
-      try {
-        response = apiDelivery.runDelivery(deliveryRequest);
-        execSrv = ExecutionServer.API;
-      } catch (DeliveryException ex) {
-        LOGGER.log(Level.WARNING, "Error calling Delivery API, falling back", ex);
-        response = sdkDelivery.runDelivery(deliveryRequest);
-      }
+      response = sdkDelivery.runDelivery(deliveryRequest);
+      execSrv = ExecutionServer.SDK;
     }
 
-    // If delivery happened client-side, log the insertions to metrics API.
+    // Log SDK DeliveryLog to Metrics API.
     if (execSrv != ExecutionServer.API || cohortMembership != null) {
       logToMetrics(deliveryRequest, response, cohortMembership, execSrv);
     }
 
-    // Check to see if we should do shadow traffic.
-    if (!attemptedDeliveryApi && isShadowTraffic) {
+    // Do not send shadow traffic even if an API call was already attempted.
+    if (!plan.useApiResponse() && shouldSendShadowTraffic()) {
       deliverShadowTraffic(deliveryRequest);
     }
-    
-    return new DeliveryResponse(response, request.getClientRequestId(), execSrv);
+
+    return new DeliveryResponse(response, deliveryRequest.getRequest().getClientRequestId(), execSrv);
   }
 
   /**
@@ -242,18 +283,18 @@ public class PromotedDeliveryClient {
   }
   
   /**
-   * Creates a cohort membership from the request, based on the provided experiment.
+   * Clone CohortMembership from the request, based on the provided experiment.
    * If there isn't one, returns null.
    *
    * @param deliveryRequest the delivery request
    * @return the cohort membership to use, or null if none
    */
-  private CohortMembership checkCohortMembership(DeliveryRequest deliveryRequest) {
-    CohortMembership experiment = deliveryRequest.getExperiment();
+  private CohortMembership cloneCohortMembership(CohortMembership experiment) {
     if (experiment == null) {
       return null;
     }
 
+    // Q - why does this copy the record?  I'm guessing this is to strip out other fields.
     CohortMembership cohortMembership = new CohortMembership()
         .arm(experiment.getArm())
         .cohortId(experiment.getCohortId());    
@@ -329,9 +370,6 @@ public class PromotedDeliveryClient {
     request.getClientInfo().setClientType(ClientType.PLATFORM_SERVER);
     request.getClientInfo().setTrafficType(TrafficType.PRODUCTION);
 
-    // If there is no client request id set by the caller, we fill one in.
-    ensureClientRequestId(request);
-
     // If there is no client timestamp set by the caller, we fill in the current time.
     ensureClientTimestamp(request);
   }
@@ -354,11 +392,16 @@ public class PromotedDeliveryClient {
    * Ensure client request id is set on the request.
    *
    * @param request the request
+   * @param clientRequestId
    */
-  private void ensureClientRequestId(Request request) {
+  private void ensureClientRequestId(Request request, String clientRequestId) {
     if (request.getClientRequestId() == null || request.getClientRequestId().isBlank()) {
-      request.setClientRequestId(UUID.randomUUID().toString());
+      request.setClientRequestId(clientRequestId);
     }
+  }
+
+  private String generateClientRequestId() {
+    return UUID.randomUUID().toString();
   }
 
   public boolean isPerformChecks() {

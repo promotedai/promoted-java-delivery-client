@@ -69,7 +69,7 @@ class PromotedDeliveryClientTest {
     DeliveryResponse resp = client.deliver(dreq);
     assertNotNull(resp);
 
-    verify(mockValidator, times(1)).validate(dreq, false);
+    verify(mockValidator, times(1)).validate(dreq);
   }
 
   @Test

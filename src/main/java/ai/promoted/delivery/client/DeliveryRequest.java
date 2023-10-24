@@ -123,13 +123,12 @@ public class DeliveryRequest implements Cloneable {
 
   /**
    * Checks the state of this delivery requests and collects/returns any validation errors.
-   * @param isShadowTraffic 
-   * 
+   *
    * @return a list of validation errors, which may be empty.
    */
-  public List<String> validate(boolean isShadowTraffic) {
+  public List<String> validate() {
     if (validator != null ) {
-      return validator.validate(this, isShadowTraffic);
+      return validator.validate(this);
     }    
     return new ArrayList<>();
   }
