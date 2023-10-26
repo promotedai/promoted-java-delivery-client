@@ -167,7 +167,6 @@ public class PromotedDeliveryClient {
    */
   public DeliveryPlan plan(boolean onlyLog, @Nullable CohortMembership experiment) {
     boolean useApiResponse = !onlyLog && shouldApplyTreatment(experiment);
-    // TODO - why does checkCohortMembership copy?
     return new DeliveryPlan(generateClientRequestId(), useApiResponse);
   }
 

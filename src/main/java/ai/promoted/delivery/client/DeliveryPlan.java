@@ -1,7 +1,7 @@
 package ai.promoted.delivery.client;
 
 /**
- * A plan object that can indicates how to execute delivery.
+ * A plan object that can indicate how to execute delivery.
  */
 class DeliveryPlan {
 
