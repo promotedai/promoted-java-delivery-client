@@ -353,7 +353,10 @@ Here's an example using custom arm assignment logic (not using `twoArmExperiment
 
 ## When there is ranking logic after the SDK's `deliver` method.
 
-It is strongly advised against implementing ranking logic after the deliver method. Using this approach may result in suboptimal rankings from Promoted. Furthermore, the Delivery API will not have access to the final position, which can affect the performance of the Blender and third-stage ranking. While asynchronous logging of positions back to Promoted is supported, the join rate is not guaranteed to be 100%. This makes addressing position biases challenging.  Introspection reports will not be accurate.
+It is strongly advised against implementing ranking logic after the deliver method.  Promoted will perform suboptimally and certain production functions will be broken:
+- The Delivery API will not have access to the final position, which can affect the performance of third-stage ranking and the Blender.
+- While asynchronous logging of positions back to Promoted is supported, the join rate is not guaranteed to be 100%. This makes addressing position biases challenging.
+- Introspection reports will not be accurate.
 
 For optimal results with Promoted's SDK, all ranking logic should be done before the `deliver` method.  Here's an example flow in a listing API call:
 1. The Controller retrieves candidates.
