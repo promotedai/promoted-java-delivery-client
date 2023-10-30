@@ -28,3 +28,4 @@ hs_err_pid*
 
 .vscode/
 pom.xml.versionsBackup
+.idea

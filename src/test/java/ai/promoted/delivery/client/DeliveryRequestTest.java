@@ -15,7 +15,7 @@ class DeliveryRequestTest {
   @Test
   void testRequestMustBeSet() {
      DeliveryRequest req = new DeliveryRequest(null);
-     List<String> errors = req.validate(false);
+     List<String> errors = req.validate();
      assertEquals(1, errors.size());
      assertEquals("Request must be set", errors.get(0));
   }
@@ -27,7 +27,7 @@ class DeliveryRequestTest {
         null,
         false,
         0);
-    List<String> errors = req.validate(false);
+    List<String> errors = req.validate();
     assertEquals(1, errors.size());
     assertEquals("Request.requestId should not be set", errors.get(0));
   }
@@ -39,7 +39,7 @@ class DeliveryRequestTest {
         null,
         false,
         0);
-    List<String> errors = req.validate(false);
+    List<String> errors = req.validate();
     assertEquals(1, errors.size());
     assertEquals("Insertion.insertionId should not be set", errors.get(0));
   }
@@ -51,7 +51,7 @@ class DeliveryRequestTest {
         null,
         false,
         -1);
-    List<String> errors = req.validate(false);
+    List<String> errors = req.validate();
     assertEquals(1, errors.size());
     assertEquals("Insertion start must be greater or equal to 0", errors.get(0));
   }
@@ -63,7 +63,7 @@ class DeliveryRequestTest {
         null,
         false,
         0);
-    List<String> errors = req.validate(false);
+    List<String> errors = req.validate();
     assertEquals(1, errors.size());
     assertEquals("Insertion.contentId should be set", errors.get(0));
   }
@@ -75,7 +75,7 @@ class DeliveryRequestTest {
         null,
         false,
         0);
-    List<String> errors = req.validate(false);
+    List<String> errors = req.validate();
     assertEquals(0, errors.size());
   }
 
@@ -86,7 +86,7 @@ class DeliveryRequestTest {
         new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
         false,
         0);
-    List<String> errors = req.validate(false);
+    List<String> errors = req.validate();
     assertEquals(0, errors.size());
   }
 
@@ -97,7 +97,7 @@ class DeliveryRequestTest {
         null,
         false,
         0);
-    List<String> errors = req.validate(false);
+    List<String> errors = req.validate();
     assertEquals(1, errors.size());
     assertEquals("Request.userInfo should be set", errors.get(0));
   }
@@ -109,7 +109,7 @@ class DeliveryRequestTest {
         new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
         false,
         0);
-    List<String> errors = req.validate(false);
+    List<String> errors = req.validate();
     assertEquals(1, errors.size());
     assertEquals("Request.userInfo.anonUserId should be set", errors.get(0));
   }
@@ -122,7 +122,7 @@ class DeliveryRequestTest {
         new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
         false,
         0);
-    List<String> errors = req.validate(false);
+    List<String> errors = req.validate();
     assertEquals(2, errors.size());
     assertEquals("Request.requestId should not be set", errors.get(0));
     assertEquals("Request.userInfo.anonUserId should be set", errors.get(1));

@@ -15,9 +15,9 @@ public class DefaultDeliveryRequestValidator implements DeliveryRequestValidator
       new DefaultDeliveryRequestValidator();
 
   /**
-   * @see DeliveryRequestValidator#validate(DeliveryRequest, boolean)
+   * @see DeliveryRequestValidator#validate(DeliveryRequest)
    */
-  public List<String> validate(DeliveryRequest request, boolean isShadowTraffic) {
+  public List<String> validate(DeliveryRequest request) {
     List<String> validationErrors = new ArrayList<>();
 
     Request req = request.getRequest();
