@@ -13,7 +13,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonPropertyOrder({Request.JSON_PROPERTY_AUTO_VIEW_ID, Request.JSON_PROPERTY_BLENDER_CONFIG,
     Request.JSON_PROPERTY_CLIENT_INFO, Request.JSON_PROPERTY_CLIENT_REQUEST_ID,
-    Request.JSON_PROPERTY_DEBUG, Request.JSON_PROPERTY_DEVICE, Request.JSON_PROPERTY_INSERTION,
+    Request.JSON_PROPERTY_DEBUG, Request.JSON_PROPERTY_DEVICE,
+    Request.JSON_PROPERTY_DISABLE_PERSONALIZATION, Request.JSON_PROPERTY_INSERTION,
     Request.JSON_PROPERTY_PAGING, Request.JSON_PROPERTY_PLATFORM_ID,
     Request.JSON_PROPERTY_PROPERTIES, Request.JSON_PROPERTY_REQUEST_ID,
     Request.JSON_PROPERTY_SEARCH_QUERY, Request.JSON_PROPERTY_SESSION_ID,
@@ -37,6 +38,9 @@ public class Request implements Cloneable {
 
   public static final String JSON_PROPERTY_DEVICE = "device";
   private Device device;
+
+  public static final String JSON_PROPERTY_DISABLE_PERSONALIZATION = "disablePersonalization";
+  private Boolean disablePersonalization;
 
   public static final String JSON_PROPERTY_INSERTION = "insertion";
   private List<Insertion> insertion = null;
@@ -220,6 +224,31 @@ public class Request implements Cloneable {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setDevice(Device device) {
     this.device = device;
+  }
+
+
+  public Request disablePersonalization(Boolean disablePersonalization) {
+    this.disablePersonalization = disablePersonalization;
+    return this;
+  }
+
+  /**
+   * Get disablePersonalization
+   * 
+   * @return disablePersonalization
+   **/
+  @JsonProperty(JSON_PROPERTY_DISABLE_PERSONALIZATION)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Boolean getDisablePersonalization() {
+    return disablePersonalization;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DISABLE_PERSONALIZATION)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDisablePersonalization(Boolean disablePersonalization) {
+    this.disablePersonalization = disablePersonalization;
   }
 
 
@@ -522,7 +551,9 @@ public class Request implements Cloneable {
         && Objects.equals(this.blenderConfig, request.blenderConfig)
         && Objects.equals(this.clientInfo, request.clientInfo)
         && Objects.equals(this.clientRequestId, request.clientRequestId)
-        && Objects.equals(this.debug, request.debug) && Objects.equals(this.device, request.device)
+        && Objects.equals(this.debug, request.debug)
+        && Objects.equals(this.device, request.device)
+        && Objects.equals(this.disablePersonalization, request.disablePersonalization)
         && Objects.equals(this.insertion, request.insertion)
         && Objects.equals(this.paging, request.paging)
         && Objects.equals(this.platformId, request.platformId)
@@ -538,9 +569,9 @@ public class Request implements Cloneable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(autoViewId, blenderConfig, clientInfo, clientRequestId, debug, device,
-        insertion, paging, platformId, properties, requestId, searchQuery, sessionId, timing,
-        useCase, userInfo, viewId);
+    return Objects.hash(autoViewId, blenderConfig, clientInfo, clientRequestId, debug,
+        device, disablePersonalization, insertion, paging, platformId, properties,
+        requestId, searchQuery, sessionId, timing, useCase, userInfo, viewId);
   }
 
   @Override
@@ -552,6 +583,7 @@ public class Request implements Cloneable {
     sb.append("    clientInfo: ").append(toIndentedString(clientInfo)).append("\n");
     sb.append("    clientRequestId: ").append(toIndentedString(clientRequestId)).append("\n");
     sb.append("    debug: ").append(toIndentedString(debug)).append("\n");
+    sb.append("    disablePersonalization: ").append(toIndentedString(disablePersonalization)).append("\n");
     sb.append("    device: ").append(toIndentedString(device)).append("\n");
     sb.append("    insertion: ").append(toIndentedString(insertion)).append("\n");
     sb.append("    paging: ").append(toIndentedString(paging)).append("\n");
