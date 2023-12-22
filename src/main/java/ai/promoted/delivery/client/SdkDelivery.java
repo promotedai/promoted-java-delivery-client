@@ -49,7 +49,7 @@ public class SdkDelivery implements Delivery {
     List<Insertion> insertionPage = new ArrayList<>(finalInsertionSize);
     for (int i = 0; i < finalInsertionSize; i++) {
       Insertion reqIns = request.getInsertion().get(index);
-      Insertion respIns = new Insertion().contentId(reqIns.getContentId());
+      Insertion respIns = new Insertion().contentId(reqIns.getContentId()).insertionId(reqIns.getInsertionId());
       InsertionFactory.prepareResponseInsertion(respIns, offset);
       insertionPage.add(respIns);
       index++;
