@@ -33,18 +33,6 @@ class DeliveryRequestTest {
   }
 
   @Test
-  void testValidateInsertionIdMustBeUnset() {
-    DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().anonUserId("a")).addInsertionItem(new Insertion().contentId("z").insertionId("a")),
-        null,
-        false,
-        0);
-    List<String> errors = req.validate();
-    assertEquals(1, errors.size());
-    assertEquals("Insertion.insertionId should not be set", errors.get(0));
-  }
-
-  @Test
   void testValidateRetrievalInsertionOffsetMustBeNonNeg() {
     DeliveryRequest req = new DeliveryRequest(
         new Request().userInfo(new UserInfo().anonUserId("a")).addInsertionItem(new Insertion().contentId("z")),

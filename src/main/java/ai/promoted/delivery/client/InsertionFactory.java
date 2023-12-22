@@ -27,6 +27,9 @@ public class InsertionFactory {
    */
   public static void prepareResponseInsertion(Insertion ins, int position) {
     ins.setPosition(position);
-    ins.setInsertionId(UUID.randomUUID().toString());
+    // If the Request Insertion insertionId is set, pass through the insertion ID.
+    if (ins.getInsertionId() == null || ins.getInsertionId().isEmpty()) {
+      ins.setInsertionId(UUID.randomUUID().toString());
+    }
   }
 }
