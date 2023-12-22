@@ -22,6 +22,7 @@ import ai.promoted.delivery.model.CohortArm;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.DeliveryLog;
 import ai.promoted.delivery.model.ExecutionServer;
+import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.LogRequest;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
@@ -290,6 +291,39 @@ class PromotedDeliveryClientTest {
     assertEquals(10, resp.getResponse().getInsertion().size());
     verify(apiFactory.getApiDelivery(), times(1)).runDelivery(dreq);
     verify(apiFactory.getSdkDelivery(), times(1)).runDelivery(dreq);
+
+    ArgumentCaptor<LogRequest> logRequestCaptor = ArgumentCaptor.forClass(LogRequest.class);
+    verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
+    LogRequest logRequest = logRequestCaptor.getValue();
+
+    assertSDKLogRequest(req, resp.getResponse(), logRequest);
+    assertDeliveryResponse(resp, ExecutionServer.SDK);
+  }
+
+  @Test
+  void testPassThroughSdkInsertionIds() throws Exception {
+    PromotedDeliveryClient client = createDefaultClient();
+
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
+    int i = 0;
+    for (Insertion reqIns : req.getInsertion()) {
+      reqIns.insertionId("ins" + i);
+      i++;
+    }
+    DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
+
+    when(apiFactory.getSdkDelivery().runDelivery(any()))
+        .thenReturn(new Response().insertion(req.getInsertion()));
+
+    DeliveryResponse resp = client.deliver(dreq);
+    assertTrue(req.getClientRequestId().length() > 0);
+
+    assertEquals(10, resp.getResponse().getInsertion().size());
+    assertEquals("ins0", resp.getResponse().getInsertion().get(0).getInsertionId());
+    assertEquals("ins1", resp.getResponse().getInsertion().get(1).getInsertionId());
+    verify(apiFactory.getSdkDelivery(), times(1)).runDelivery(dreq);
+    verifyNoInteractions(apiFactory.getApiDelivery());
+    verify(apiFactory.getApiMetrics(), times(1)).runMetricsLogging(any());
 
     ArgumentCaptor<LogRequest> logRequestCaptor = ArgumentCaptor.forClass(LogRequest.class);
     verify(apiFactory.getApiMetrics()).runMetricsLogging(logRequestCaptor.capture());
