@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
  */
 public class PromotedDeliveryClient {
 
-  private static final String SERVER_VERSION = "java.2.2.0";
+  private static final String SERVER_VERSION = "java.2.4.0";
 
   private static final Logger LOGGER = Logger.getLogger(PromotedDeliveryClient.class.getName());
 
