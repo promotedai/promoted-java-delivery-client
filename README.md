@@ -329,7 +329,7 @@ void getProducts(ProductRequest req) {
   //
   // Example:
   // `onlyLog: experimentMembership == null`
-  DeliveryRequest deliveryRequest = new DeliveryRequest(req).experiment(experimentMembership);
+  DeliveryRequest deliveryRequest = new DeliveryRequest(req, experimentMembership);
 
   DeliveryResponse response = promotedDeliveryClient.deliver(deliveryRequest);
   //...
