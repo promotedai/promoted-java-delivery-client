@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import ai.promoted.delivery.model.CohortArm;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.UserInfo;
+import ai.promoted.proto.event.CohortArm;
 
 class DeliveryRequestTest {
 

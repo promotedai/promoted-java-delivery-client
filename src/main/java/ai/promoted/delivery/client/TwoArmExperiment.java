@@ -1,7 +1,7 @@
 package ai.promoted.delivery.client;
 
-import ai.promoted.delivery.model.CohortArm;
 import ai.promoted.delivery.model.CohortMembership;
+import ai.promoted.proto.event.CohortArm;
 
 /**
  * Represents a two arm Experiment configuration.

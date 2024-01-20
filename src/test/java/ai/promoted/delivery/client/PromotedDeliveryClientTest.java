@@ -17,16 +17,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ai.promoted.delivery.model.ClientType;
-import ai.promoted.delivery.model.CohortArm;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.DeliveryLog;
-import ai.promoted.delivery.model.ExecutionServer;
 import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.LogRequest;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
-import ai.promoted.delivery.model.TrafficType;
+import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.common.ClientInfo.ClientType;
+import ai.promoted.proto.common.ClientInfo.TrafficType;
+import ai.promoted.proto.delivery.ExecutionServer;
 
 @ExtendWith(MockitoExtension.class)
 class PromotedDeliveryClientTest {

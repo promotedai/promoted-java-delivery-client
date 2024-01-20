@@ -1,0 +1,3 @@
+[submodule "submodules/schema"]
+	path = submodules/schema
+	url = git@github.com:promotedai/schema.git

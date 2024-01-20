@@ -1,7 +1,7 @@
 package ai.promoted.delivery.client;
 
-import ai.promoted.delivery.model.ExecutionServer;
 import ai.promoted.delivery.model.Response;
+import ai.promoted.proto.delivery.ExecutionServer;
 
 /**
  * Delivery response is the output from delivery.
