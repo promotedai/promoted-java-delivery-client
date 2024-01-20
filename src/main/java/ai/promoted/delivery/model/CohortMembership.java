@@ -4,6 +4,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import ai.promoted.proto.event.CohortArm;
 
 @JsonPropertyOrder({CohortMembership.JSON_PROPERTY_COHORT_ID, CohortMembership.JSON_PROPERTY_ARM})
 public class CohortMembership {

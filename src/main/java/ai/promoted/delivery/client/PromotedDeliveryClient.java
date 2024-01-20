@@ -7,18 +7,18 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ai.promoted.delivery.model.ClientInfo;
-import ai.promoted.delivery.model.ClientType;
-import ai.promoted.delivery.model.CohortArm;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.DeliveryExecution;
 import ai.promoted.delivery.model.DeliveryLog;
-import ai.promoted.delivery.model.ExecutionServer;
 import ai.promoted.delivery.model.LogRequest;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 import ai.promoted.delivery.model.Timing;
-import ai.promoted.delivery.model.TrafficType;
 import javax.annotation.Nullable;
+import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.common.ClientInfo.ClientType;
+import ai.promoted.proto.common.ClientInfo.TrafficType;
+import ai.promoted.proto.delivery.ExecutionServer;
 
 /**
  * PromotedDeliveryClient is the main class for interacting with the Promoted.ai Delivery API.

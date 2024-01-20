@@ -13,11 +13,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ai.promoted.delivery.model.ClientInfo;
-import ai.promoted.delivery.model.CohortArm;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
-import ai.promoted.delivery.model.TrafficType;
+import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.common.ClientInfo.TrafficType;
 
 @ExtendWith(MockitoExtension.class)
 class ShadowTrafficTest {
