@@ -260,8 +260,7 @@ public class PromotedDeliveryClient {
       // We ensured earlier that client info was filled in.
       assert request.getClientInfo() != null;
 
-      request.setClientInfo(request.getClientInfo().toBuilder().setClientType(ClientType.PLATFORM_SERVER).build());
-      request.setClientInfo(request.getClientInfo().toBuilder().setTrafficType(TrafficType.SHADOW).build());
+      request.setClientInfo(request.getClientInfo().toBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.SHADOW).build());
       
       apiDelivery.runDelivery(requestToSend);
     } catch (DeliveryException | CloneNotSupportedException ex) {
@@ -370,8 +369,7 @@ public class PromotedDeliveryClient {
     if (request.getClientInfo() == null) {
       request.setClientInfo(ClientInfo.newBuilder().build());
     }
-    request.setClientInfo(request.getClientInfo().toBuilder().setClientType(ClientType.PLATFORM_SERVER).build());
-    request.setClientInfo(request.getClientInfo().toBuilder().setTrafficType(TrafficType.SHADOW).build());
+    request.setClientInfo(request.getClientInfo().toBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.SHADOW).build());
 
     // If there is no client timestamp set by the caller, we fill in the current time.
     ensureClientTimestamp(request);
