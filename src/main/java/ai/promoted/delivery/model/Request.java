@@ -11,7 +11,7 @@ import ai.promoted.proto.delivery.UseCase;
 /**
  * Request
  */
-@JsonPropertyOrder({Request.JSON_PROPERTY_AUTO_VIEW_ID, Request.JSON_PROPERTY_BLENDER_CONFIG,
+@JsonPropertyOrder({Request.JSON_PROPERTY_AUTO_VIEW_ID,
     Request.JSON_PROPERTY_CLIENT_INFO, Request.JSON_PROPERTY_CLIENT_REQUEST_ID,
     Request.JSON_PROPERTY_DEBUG, Request.JSON_PROPERTY_DEVICE,
     Request.JSON_PROPERTY_DISABLE_PERSONALIZATION, Request.JSON_PROPERTY_INSERTION,
@@ -23,9 +23,6 @@ import ai.promoted.proto.delivery.UseCase;
 public class Request implements Cloneable {
   public static final String JSON_PROPERTY_AUTO_VIEW_ID = "autoViewId";
   private String autoViewId;
-
-  public static final String JSON_PROPERTY_BLENDER_CONFIG = "blenderConfig";
-  private BlenderConfig blenderConfig;
 
   public static final String JSON_PROPERTY_CLIENT_INFO = "clientInfo";
   private ClientInfo clientInfo;
@@ -99,31 +96,6 @@ public class Request implements Cloneable {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setAutoViewId(String autoViewId) {
     this.autoViewId = autoViewId;
-  }
-
-
-  public Request blenderConfig(BlenderConfig blenderConfig) {
-    this.blenderConfig = blenderConfig;
-    return this;
-  }
-
-  /**
-   * Get blenderConfig
-   * 
-   * @return blenderConfig
-   **/
-  @JsonProperty(JSON_PROPERTY_BLENDER_CONFIG)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public BlenderConfig getBlenderConfig() {
-    return blenderConfig;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_BLENDER_CONFIG)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setBlenderConfig(BlenderConfig blenderConfig) {
-    this.blenderConfig = blenderConfig;
   }
 
 
@@ -548,7 +520,6 @@ public class Request implements Cloneable {
     }
     Request request = (Request) o;
     return Objects.equals(this.autoViewId, request.autoViewId)
-        && Objects.equals(this.blenderConfig, request.blenderConfig)
         && Objects.equals(this.clientInfo, request.clientInfo)
         && Objects.equals(this.clientRequestId, request.clientRequestId)
         && Objects.equals(this.debug, request.debug)
@@ -569,7 +540,7 @@ public class Request implements Cloneable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(autoViewId, blenderConfig, clientInfo, clientRequestId, debug,
+    return Objects.hash(autoViewId, clientInfo, clientRequestId, debug,
         device, disablePersonalization, insertion, paging, platformId, properties,
         requestId, searchQuery, sessionId, timing, useCase, userInfo, viewId);
   }
@@ -579,7 +550,6 @@ public class Request implements Cloneable {
     StringBuilder sb = new StringBuilder();
     sb.append("class Request {\n");
     sb.append("    autoViewId: ").append(toIndentedString(autoViewId)).append("\n");
-    sb.append("    blenderConfig: ").append(toIndentedString(blenderConfig)).append("\n");
     sb.append("    clientInfo: ").append(toIndentedString(clientInfo)).append("\n");
     sb.append("    clientRequestId: ").append(toIndentedString(clientRequestId)).append("\n");
     sb.append("    debug: ").append(toIndentedString(debug)).append("\n");
