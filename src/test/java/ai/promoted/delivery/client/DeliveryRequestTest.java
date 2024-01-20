@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.Request;
-import ai.promoted.delivery.model.UserInfo;
 import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.common.UserInfo;
 
 class DeliveryRequestTest {
 
@@ -23,7 +23,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateRequestIdMustBeUnsetOnRequest() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().requestId("z").userInfo(new UserInfo().anonUserId("a")).insertion(new ArrayList<>()),
+        new Request().requestId("z").userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).insertion(new ArrayList<>()),
         null,
         false,
         0);
@@ -35,7 +35,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateRetrievalInsertionOffsetMustBeNonNeg() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().anonUserId("a")).addInsertionItem(new Insertion().contentId("z")),
+        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(new Insertion().contentId("z")),
         null,
         false,
         -1);
@@ -47,7 +47,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateContentIdMustBeSet() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().anonUserId("a")).addInsertionItem(new Insertion().contentId("")),
+        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(new Insertion().contentId("")),
         null,
         false,
         0);
@@ -59,7 +59,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateWithValidInsertion() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().anonUserId("a")).addInsertionItem(new Insertion().contentId("z")),
+        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(new Insertion().contentId("z")),
         null,
         false,
         0);
@@ -70,7 +70,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateExperimentValid() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().anonUserId("a")).addInsertionItem(new Insertion().contentId("z")),
+        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(new Insertion().contentId("z")),
         new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
         false,
         0);
@@ -93,7 +93,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateAnonUserIdOnRequest() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(new UserInfo().anonUserId("")).addInsertionItem(new Insertion().contentId("z")),
+        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("").build()).addInsertionItem(new Insertion().contentId("z")),
         new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
         false,
         0);
@@ -106,7 +106,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateCapturesMultipleErrors() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().requestId("a").userInfo(new UserInfo().anonUserId("")).addInsertionItem(new Insertion().contentId("z")),
+        new Request().requestId("a").userInfo(UserInfo.newBuilder().setAnonUserId("").build()).addInsertionItem(new Insertion().contentId("z")),
         new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
         false,
         0);

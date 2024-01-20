@@ -11,7 +11,7 @@ import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.Paging;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
-import ai.promoted.delivery.model.UserInfo;
+import ai.promoted.proto.common.UserInfo;
 
 @Disabled("only runs locally for interactive debugging")
 public class IntegrationTest {
@@ -28,7 +28,7 @@ public class IntegrationTest {
     searchProps.put("lng", -122.3);
     myProps.put("search", searchProps);
     
-    Request req = new Request().userInfo(new UserInfo().anonUserId("12355")).platformId(0)
+    Request req = new Request().userInfo(UserInfo.newBuilder().setAnonUserId("12355").build()).platformId(0)
         .paging(new Paging().size(100).offset(0))
         .addInsertionItem(InsertionFactory.createInsertionWithProperties("28835", myProps))
         .addInsertionItem(new Insertion().contentId("49550"));
