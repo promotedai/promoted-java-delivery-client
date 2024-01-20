@@ -12,11 +12,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ai.promoted.delivery.model.ClientInfo;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.common.ClientInfo;
 import ai.promoted.proto.common.ClientInfo.TrafficType;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +33,7 @@ class ShadowTrafficTest {
   void testSendShadowTrafficForOnlyLogSampledIn() throws Exception {
     PromotedDeliveryClient client = createDefaultClient(true, 0.5f);
     
-    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(new ClientInfo().trafficType(TrafficType.PRODUCTION));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
     DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
@@ -54,7 +54,7 @@ class ShadowTrafficTest {
     PromotedDeliveryClient client = createDefaultClient(true, 0.5f);
     CohortMembership cm = new CohortMembership().arm(CohortArm.CONTROL).cohortId("testing");
 
-    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(new ClientInfo().trafficType(TrafficType.PRODUCTION));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
     DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
@@ -74,7 +74,7 @@ class ShadowTrafficTest {
   void testDontSendShadowTrafficForOnlyLogSampledOut() throws Exception {
     PromotedDeliveryClient client = createDefaultClient(false, 0.5f);
     
-    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(new ClientInfo().trafficType(TrafficType.PRODUCTION));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
     DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
@@ -91,7 +91,7 @@ class ShadowTrafficTest {
     PromotedDeliveryClient client = createDefaultClient(false, 0.5f);
     CohortMembership cm = new CohortMembership().arm(CohortArm.TREATMENT).cohortId("testing");
 
-    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(new ClientInfo().trafficType(TrafficType.PRODUCTION));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
     DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);
 
     when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
@@ -105,7 +105,7 @@ class ShadowTrafficTest {
   void testDontSendShadowTrafficForOnlyLogWhenTurnedOff() throws Exception {
     PromotedDeliveryClient client = createDefaultClient(true, 0f);
     
-    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(new ClientInfo().trafficType(TrafficType.PRODUCTION));
+    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
     DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
 
     when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));

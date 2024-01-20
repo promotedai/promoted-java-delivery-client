@@ -6,18 +6,18 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ai.promoted.delivery.model.ClientInfo;
 import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.DeliveryExecution;
 import ai.promoted.delivery.model.DeliveryLog;
 import ai.promoted.delivery.model.LogRequest;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
-import ai.promoted.delivery.model.Timing;
 import javax.annotation.Nullable;
 import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.common.ClientInfo;
 import ai.promoted.proto.common.ClientInfo.ClientType;
 import ai.promoted.proto.common.ClientInfo.TrafficType;
+import ai.promoted.proto.common.Timing;
 import ai.promoted.proto.delivery.ExecutionServer;
 
 /**
@@ -256,11 +256,11 @@ public class PromotedDeliveryClient {
       // We need a clone here in order to safely modify the ClientInfo.
       DeliveryRequest requestToSend = deliveryRequest.clone();
       
+      Request request = requestToSend.getRequest();
       // We ensured earlier that client info was filled in.
-      assert requestToSend.getRequest().getClientInfo() != null;
+      assert request.getClientInfo() != null;
 
-      requestToSend.getRequest().getClientInfo().setClientType(ClientType.PLATFORM_SERVER);
-      requestToSend.getRequest().getClientInfo().setTrafficType(TrafficType.SHADOW);
+      request.setClientInfo(request.getClientInfo().toBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.SHADOW).build());
       
       apiDelivery.runDelivery(requestToSend);
     } catch (DeliveryException | CloneNotSupportedException ex) {
@@ -367,10 +367,9 @@ public class PromotedDeliveryClient {
    */
   private void fillInRequestFields(Request request) {
     if (request.getClientInfo() == null) {
-      request.setClientInfo(new ClientInfo());
+      request.setClientInfo(ClientInfo.newBuilder().build());
     }
-    request.getClientInfo().setClientType(ClientType.PLATFORM_SERVER);
-    request.getClientInfo().setTrafficType(TrafficType.PRODUCTION);
+    request.setClientInfo(request.getClientInfo().toBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.SHADOW).build());
 
     // If there is no client timestamp set by the caller, we fill in the current time.
     ensureClientTimestamp(request);
@@ -383,10 +382,10 @@ public class PromotedDeliveryClient {
    */
   private void ensureClientTimestamp(Request request) {
     if (request.getTiming() == null) {
-      request.setTiming(new Timing());
+      request.setTiming(Timing.newBuilder().build());
     }
-    if (request.getTiming().getClientLogTimestamp() == null) {
-      request.getTiming().setClientLogTimestamp(System.currentTimeMillis());
+    if (request.getTiming().getClientLogTimestamp() == 0) {
+      request.setTiming(request.getTiming().toBuilder().setClientLogTimestamp(System.currentTimeMillis()).build());
     }
   }
 

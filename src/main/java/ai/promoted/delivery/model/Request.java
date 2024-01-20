@@ -7,6 +7,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import ai.promoted.proto.delivery.UseCase;
+import ai.promoted.proto.common.ClientInfo;
+import ai.promoted.proto.common.Device;
+import ai.promoted.proto.common.Timing;
+import ai.promoted.proto.common.UserInfo;
 
 /**
  * Request
@@ -585,7 +589,7 @@ public class Request implements Cloneable {
    */
   public Request clone() throws CloneNotSupportedException {
     Request requestCopy = (Request) super.clone();
-    requestCopy.setClientInfo(clientInfo.clone());
+    requestCopy.setClientInfo(clientInfo.toBuilder().build());
     return requestCopy;
   }
 }

@@ -9,6 +9,9 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import ai.promoted.proto.common.ClientInfo;
+import ai.promoted.proto.common.Timing;
+import ai.promoted.proto.common.UserInfo;
 
 @JsonPropertyOrder({LogRequest.JSON_PROPERTY_DELIVERY_LOG,
     LogRequest.JSON_PROPERTY_COHORT_MEMBERSHIP,
