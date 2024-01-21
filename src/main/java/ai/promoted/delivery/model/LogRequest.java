@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import ai.promoted.proto.common.ClientInfo;
 import ai.promoted.proto.common.Timing;
 import ai.promoted.proto.common.UserInfo;
+import ai.promoted.proto.event.CohortMembership;
 
 @JsonPropertyOrder({LogRequest.JSON_PROPERTY_DELIVERY_LOG,
     LogRequest.JSON_PROPERTY_COHORT_MEMBERSHIP,

@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import ai.promoted.delivery.model.CohortMembership;
-import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.event.CohortMembership;
 import ai.promoted.proto.common.UserInfo;
+import ai.promoted.proto.delivery.Insertion;
 
 class DeliveryRequestTest {
 
@@ -35,7 +35,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateRetrievalInsertionOffsetMustBeNonNeg() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(new Insertion().contentId("z")),
+        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
         null,
         false,
         -1);
@@ -47,7 +47,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateContentIdMustBeSet() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(new Insertion().contentId("")),
+        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(Insertion.newBuilder().setContentId("").build()),
         null,
         false,
         0);
@@ -59,7 +59,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateWithValidInsertion() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(new Insertion().contentId("z")),
+        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
         null,
         false,
         0);
@@ -70,8 +70,8 @@ class DeliveryRequestTest {
   @Test
   void testValidateExperimentValid() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(new Insertion().contentId("z")),
-        new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
+        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
+        CohortMembership.newBuilder().setArm(CohortArm.TREATMENT).setCohortId("my cohort").build(),
         false,
         0);
     List<String> errors = req.validate();
@@ -81,7 +81,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateUserInfoOnRequest() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().addInsertionItem(new Insertion().contentId("z")),
+        new Request().addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
         null,
         false,
         0);
@@ -93,8 +93,8 @@ class DeliveryRequestTest {
   @Test
   void testValidateAnonUserIdOnRequest() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("").build()).addInsertionItem(new Insertion().contentId("z")),
-        new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
+        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("").build()).addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
+        CohortMembership.newBuilder().setArm(CohortArm.TREATMENT).setCohortId("my cohort").build(),
         false,
         0);
     List<String> errors = req.validate();
@@ -106,8 +106,8 @@ class DeliveryRequestTest {
   @Test
   void testValidateCapturesMultipleErrors() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().requestId("a").userInfo(UserInfo.newBuilder().setAnonUserId("").build()).addInsertionItem(new Insertion().contentId("z")),
-        new CohortMembership().arm(CohortArm.TREATMENT).cohortId("my cohort"),
+        new Request().requestId("a").userInfo(UserInfo.newBuilder().setAnonUserId("").build()).addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
+        CohortMembership.newBuilder().setArm(CohortArm.TREATMENT).setCohortId("my cohort").build(),
         false,
         0);
     List<String> errors = req.validate();

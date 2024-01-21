@@ -1,7 +1,7 @@
 package ai.promoted.delivery.client;
 
-import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.event.CohortMembership;
 
 /**
  * Represents a two arm Experiment configuration.
@@ -130,11 +130,11 @@ public class TwoArmExperiment {
     int hash = combineHash(userId.hashCode(), cohortIdHash);
     int bucket = Math.abs(hash) % numTotalBuckets;
     if (bucket < numActiveControlBuckets) {
-      return new CohortMembership().cohortId(cohortId).arm(CohortArm.CONTROL);
+      return CohortMembership.newBuilder().setCohortId(cohortId).setArm(CohortArm.CONTROL).build();
     }
 
     if (numControlBuckets <= bucket && bucket < numControlBuckets + numActiveTreatmentBuckets) {
-      return new CohortMembership().cohortId(cohortId).arm(CohortArm.TREATMENT);
+      return CohortMembership.newBuilder().setCohortId(cohortId).setArm(CohortArm.TREATMENT).build();
     }
     return null;
   }

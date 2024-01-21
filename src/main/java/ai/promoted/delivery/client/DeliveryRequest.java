@@ -3,8 +3,8 @@ package ai.promoted.delivery.client;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.Request;
+import ai.promoted.proto.event.CohortMembership;
 
 /**
  * DeliveryRequest is the input into delivery.

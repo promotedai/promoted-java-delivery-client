@@ -7,10 +7,10 @@ import java.util.UUID;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 import ai.promoted.proto.common.UserInfo;
+import ai.promoted.proto.delivery.Insertion;
 import ai.promoted.proto.delivery.Paging;
 
 @Disabled("only runs locally for interactive debugging")
@@ -31,7 +31,7 @@ public class IntegrationTest {
     Request req = new Request().userInfo(UserInfo.newBuilder().setAnonUserId("12355").build()).platformId(0)
         .paging(Paging.newBuilder().setOffset(0).setSize(100).build())
         .addInsertionItem(InsertionFactory.createInsertionWithProperties("28835", myProps))
-        .addInsertionItem(new Insertion().contentId("49550"));
+        .addInsertionItem(Insertion.newBuilder().setContentId("49550").build());
     add100Insertions(req);
     
     DeliveryResponse resp = client.deliver(new DeliveryRequest(req, null, false, 0));
@@ -41,7 +41,7 @@ public class IntegrationTest {
 
   private void add100Insertions(Request req) {
     for (int i = 0; i < 1000; i++) {
-      req.addInsertionItem(new Insertion().contentId(UUID.randomUUID().toString()));
+      req.addInsertionItem(Insertion.newBuilder().setContentId(UUID.randomUUID().toString()).build());
     }
   }
 
