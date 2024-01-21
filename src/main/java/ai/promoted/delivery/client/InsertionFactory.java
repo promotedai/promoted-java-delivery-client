@@ -48,6 +48,10 @@ public class InsertionFactory {
       return com.google.protobuf.util.Values.of((Double) object);
     } else if (object instanceof String) {
       return com.google.protobuf.util.Values.of((String) object);
+    } else if (object instanceof Map) {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> map = (Map<String, Object>) object;
+      return com.google.protobuf.util.Values.of(convertMapToStruct(map));
     } else if (object instanceof Iterable) {
       Iterable<?> iterable = (Iterable<?>) object;
       ListValue.Builder listBuilder = ListValue.newBuilder();
@@ -55,12 +59,10 @@ public class InsertionFactory {
         listBuilder.addValues(convertObjectToValue(item));
       }
       return com.google.protobuf.util.Values.of(listBuilder.build());
-    } else if (object instanceof Map) {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> map = (Map<String, Object>) object;
-      return com.google.protobuf.util.Values.of(convertMapToStruct(map));
+    } else if (object == null) {
+      return com.google.protobuf.Value.newBuilder().setNullValue(NullValue.NULL_VALUE).build();
     }
-    return com.google.protobuf.Value.newBuilder().setNullValue(NullValue.NULL_VALUE).build();
+    throw new UnsupportedOperationException("property value class=" + object.getClass());
   }
 
   /**
