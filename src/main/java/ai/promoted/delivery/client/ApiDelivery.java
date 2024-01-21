@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.logging.Level;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.util.JsonFormat;
 import ai.promoted.proto.delivery.Response;
 
 /**
@@ -94,7 +96,7 @@ public class ApiDelivery implements Delivery  {
     Response resp;
     
     try {
-      String requestBody = mapper.writeValueAsString(state.getRequestToSend(maxRequestInsertions));
+      String requestBody = JsonFormat.printer().print(state.getRequestToSend(maxRequestInsertions));
       
       HttpRequest.Builder httpReqBuilder = HttpRequest.newBuilder().uri(URI.create(endpoint))
           .header("Content-Type", "application/json")
@@ -130,7 +132,10 @@ public class ApiDelivery implements Delivery  {
     try (var is = response.body(); var autoCloseOs = os) {
       is.transferTo(autoCloseOs);
     }
-    return mapper.readValue(os.toByteArray(), Response.class);
+    String json = new String(os.toByteArray(), StandardCharsets.UTF_8);
+    Response.Builder respBuilder = Response.newBuilder();
+    JsonFormat.parser().ignoringUnknownFields().merge(json, respBuilder);
+    return respBuilder.build();
   }
 
   private Response processCompressedResponse(HttpResponse<InputStream> response)
@@ -139,7 +144,10 @@ public class ApiDelivery implements Delivery  {
     try (InputStream is = new GZIPInputStream(response.body()); var autoCloseOs = os) {
       is.transferTo(autoCloseOs);
     }
-    return mapper.readValue(os.toByteArray(), Response.class);
+    String json = new String(os.toByteArray(), StandardCharsets.UTF_8);
+    Response.Builder respBuilder = Response.newBuilder();
+    JsonFormat.parser().ignoringUnknownFields().merge(json, respBuilder);
+    return respBuilder.build();
   }
 
   // @VisibleForTesting

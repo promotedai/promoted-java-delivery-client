@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.util.JsonFormat;
 import ai.promoted.proto.common.UserInfo;
 import ai.promoted.proto.delivery.Insertion;
 import ai.promoted.proto.delivery.Paging;
@@ -47,12 +47,11 @@ public class IntegrationTest {
 
   @Test
   public void testObjectMapping() throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
-
     String json =
         "{\"insertion\":[{\"insertionId\":\"29a0e667-e99f-4b0b-b4dd-9cc0ace62093\",\"contentId\":\"28835\",\"position\":\"0\"},{\"insertionId\":\"f598dc54-69d1-4453-83d3-7c38f1f2043a\",\"contentId\":\"49550\",\"position\":\"1\"}],\"pagingInfo\":{\"pagingId\":\"MTUwNzk1NzI0MTM3OTM1OTM2NDFfYWxsb2Nz\",\"cursor\":\"2\"}}\n"
             + "";
-    Object result = mapper.readValue(json, Response.class);
-    System.out.println(result);
+    Response.Builder respBuilder = Response.newBuilder();
+    JsonFormat.parser().ignoringUnknownFields().merge(json, respBuilder);
+    System.out.println(respBuilder.build());
   }
 }
