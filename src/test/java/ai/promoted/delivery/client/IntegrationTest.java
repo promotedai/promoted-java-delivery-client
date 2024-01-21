@@ -13,7 +13,7 @@ import ai.promoted.proto.delivery.Paging;
 import ai.promoted.proto.delivery.Request;
 import ai.promoted.proto.delivery.Response;
 
-@Disabled("only runs locally for interactive debugging")
+// @Disabled("only runs locally for interactive debugging")
 public class IntegrationTest {
 
   @Test

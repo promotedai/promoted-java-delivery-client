@@ -60,9 +60,10 @@ public class ApiDelivery implements Delivery  {
    * @param timeoutMillis the timeout in millis
    * @param maxRequestInsertions the max number of request insertions
    * @param acceptGzip whether to accept gzip
+   * @param useGrpc whether to use gRPC instead of HTTP for delivery
    * @param warmup 
    */
-  public ApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions, boolean acceptGzip) {
+  public ApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions, boolean acceptGzip, boolean useGrpc) {
     this.baseEndpoint = removeDeliverSuffix(endpoint);
     this.deliverEndpoint = this.baseEndpoint + DELIVER_SUFFIX;
     this.healthzEndpoint = this.baseEndpoint + HEALTHZ_SUFFIX;
