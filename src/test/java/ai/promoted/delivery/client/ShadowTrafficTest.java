@@ -12,10 +12,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.event.CohortMembership;
 import ai.promoted.proto.common.ClientInfo;
 import ai.promoted.proto.common.ClientInfo.TrafficType;
 
@@ -52,7 +52,7 @@ class ShadowTrafficTest {
   @Test
   void testSendShadowTrafficForUserInControl() throws Exception {
     PromotedDeliveryClient client = createDefaultClient(true, 0.5f);
-    CohortMembership cm = new CohortMembership().arm(CohortArm.CONTROL).cohortId("testing");
+    CohortMembership cm = CohortMembership.newBuilder().setArm(CohortArm.CONTROL).setCohortId("testing").build();
 
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
     DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);
@@ -89,7 +89,7 @@ class ShadowTrafficTest {
   void testDontSendShadowTrafficForUserInTreatment() throws Exception {
     // This case calls normal delivery successfully.
     PromotedDeliveryClient client = createDefaultClient(false, 0.5f);
-    CohortMembership cm = new CohortMembership().arm(CohortArm.TREATMENT).cohortId("testing");
+    CohortMembership cm = CohortMembership.newBuilder().setArm(CohortArm.TREATMENT).setCohortId("testing").build();
 
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
     DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);

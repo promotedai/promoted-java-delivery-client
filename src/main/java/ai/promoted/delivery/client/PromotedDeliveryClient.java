@@ -6,18 +6,18 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ai.promoted.delivery.model.CohortMembership;
-import ai.promoted.delivery.model.DeliveryExecution;
 import ai.promoted.delivery.model.DeliveryLog;
 import ai.promoted.delivery.model.LogRequest;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 import javax.annotation.Nullable;
 import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.event.CohortMembership;
 import ai.promoted.proto.common.ClientInfo;
 import ai.promoted.proto.common.ClientInfo.ClientType;
 import ai.promoted.proto.common.ClientInfo.TrafficType;
 import ai.promoted.proto.common.Timing;
+import ai.promoted.proto.delivery.DeliveryExecution;
 import ai.promoted.proto.delivery.ExecutionServer;
 
 /**
@@ -298,9 +298,8 @@ public class PromotedDeliveryClient {
     if (cohortMembership == null) {
       return null;
     }
-    return new CohortMembership()
-        .arm(cohortMembership.getArm())
-        .cohortId(cohortMembership.getCohortId());
+    return CohortMembership.newBuilder().setArm(cohortMembership.getArm()).setCohortId(cohortMembership.getCohortId())
+        .build();
   }
 
   /**
@@ -347,7 +346,7 @@ public class PromotedDeliveryClient {
     // If delivery was done API-side, we don't need to follow up with a delivery log.
     if (execSvr != ExecutionServer.API) {    
       DeliveryLog deliveryLog = new DeliveryLog()
-          .execution(new DeliveryExecution().executionServer(execSvr).serverVersion(SERVER_VERSION))
+          .execution(DeliveryExecution.newBuilder().setExecutionServer(execSvr).setServerVersion(SERVER_VERSION).build())
           .request(request)
           .response(response);
       logRequest.addDeliveryLogItem(deliveryLog);

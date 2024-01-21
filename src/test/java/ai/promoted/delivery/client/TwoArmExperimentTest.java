@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
-import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.event.CohortMembership;
 
 class TwoArmExperimentTest {
 

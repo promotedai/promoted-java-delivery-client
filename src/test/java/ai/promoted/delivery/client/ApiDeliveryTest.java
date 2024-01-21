@@ -2,7 +2,6 @@ package ai.promoted.delivery.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 
 class ApiDeliveryTest {

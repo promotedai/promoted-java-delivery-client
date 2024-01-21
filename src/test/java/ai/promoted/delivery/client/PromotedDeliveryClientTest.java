@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,16 +18,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ai.promoted.delivery.model.CohortMembership;
 import ai.promoted.delivery.model.DeliveryLog;
-import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.LogRequest;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 import ai.promoted.proto.event.CohortArm;
+import ai.promoted.proto.event.CohortMembership;
 import ai.promoted.proto.common.ClientInfo.ClientType;
 import ai.promoted.proto.common.ClientInfo.TrafficType;
 import ai.promoted.proto.delivery.ExecutionServer;
+import ai.promoted.proto.delivery.Insertion;
 
 @ExtendWith(MockitoExtension.class)
 class PromotedDeliveryClientTest {
@@ -153,7 +154,7 @@ class PromotedDeliveryClientTest {
   void testHasTreatmentCohortMembershipCallsAPIDeliveryAndLogs() throws Exception {
     PromotedDeliveryClient client = createDefaultClient();
 
-    CohortMembership cm = new CohortMembership().arm(CohortArm.TREATMENT).cohortId("testing");
+    CohortMembership cm = CohortMembership.newBuilder().setArm(CohortArm.TREATMENT).setCohortId("testing").build();
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);
 
@@ -223,7 +224,7 @@ class PromotedDeliveryClientTest {
   void testNullCohortMembershipArmIsTreatment() throws Exception {
     PromotedDeliveryClient client = createDefaultClient();
 
-    CohortMembership cm = new CohortMembership().cohortId("testing");
+    CohortMembership cm = CohortMembership.newBuilder().setCohortId("testing").build();
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);
 
@@ -251,7 +252,7 @@ class PromotedDeliveryClientTest {
   void testHasControlCohortMembershipCallsSDKDeliveryAndLogs() throws Exception {
     PromotedDeliveryClient client = createDefaultClient();
 
-    CohortMembership cm = new CohortMembership().arm(CohortArm.CONTROL).cohortId("testing");
+    CohortMembership cm = CohortMembership.newBuilder().setArm(CohortArm.CONTROL).setCohortId("testing").build();
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);
 
@@ -305,10 +306,9 @@ class PromotedDeliveryClientTest {
     PromotedDeliveryClient client = createDefaultClient();
 
     Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10));
-    int i = 0;
-    for (Insertion reqIns : req.getInsertion()) {
-      reqIns.insertionId("ins" + i);
-      i++;
+    List<Insertion> insertions = req.getInsertion();
+    for (int i = 0; i < insertions.size(); i++) {
+      insertions.set(i, insertions.get(i).toBuilder().setInsertionId("ins" + i).build());
     }
     DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
 
