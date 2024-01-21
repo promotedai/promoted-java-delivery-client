@@ -7,9 +7,8 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.logging.Logger;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.util.JsonFormat;
+
 import ai.promoted.proto.event.LogRequest;
 
 /**
@@ -27,9 +26,6 @@ public class ApiMetrics implements Metrics {
   /** The http client. */
   private final HttpClient httpClient;
 
-  /** JSON mapper. */
-  private final ObjectMapper mapper;
-
   /** The timeout duration. */
   private final Duration timeoutDuration;
 
@@ -43,9 +39,6 @@ public class ApiMetrics implements Metrics {
   public ApiMetrics(String endpoint, String apiKey, long timeoutMillis) {
     this.endpoint = endpoint;
     this.apiKey = apiKey;
-    this.mapper = new ObjectMapper();
-    this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    this.mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     this.timeoutDuration = Duration.of(timeoutMillis, ChronoUnit.MILLIS);
 
     this.httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
@@ -60,7 +53,7 @@ public class ApiMetrics implements Metrics {
   @Override
   public void runMetricsLogging(LogRequest logRequest) throws DeliveryException {
     try {
-      String requestBody = mapper.writeValueAsString(logRequest);
+      String requestBody = JsonFormat.printer().print(logRequest);
       // TODO: Compression (does metrics accept that?).
       HttpRequest httpReq = HttpRequest.newBuilder().uri(URI.create(endpoint))
           .header("Content-Type", "application/json")

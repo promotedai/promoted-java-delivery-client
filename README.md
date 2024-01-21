@@ -3,8 +3,10 @@
 A Java Client to contact the Promoted.ai Delivery API.
 
 The promoted-java-delivery-client library attempts to minimize dependencies to ease integration into large projects. At runtime, it requires:
-* `jackson` version 2.3.1
 * Java 11
+* Protobuf 3.15.3
+* gRPC 1.60.0
+* Javax 1.3.2
 
 ## Features
 

@@ -13,11 +13,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.util.JsonFormat;
 import ai.promoted.proto.delivery.Response;
 
@@ -36,9 +31,6 @@ public class ApiDelivery implements Delivery  {
 
   /** The http client. */
   private final HttpClient httpClient;
-
-  /** JSON mapper. */
-  private final ObjectMapper mapper;
 
   /** The timeout duration. */
   private final Duration timeoutDuration;
@@ -68,9 +60,6 @@ public class ApiDelivery implements Delivery  {
   public ApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions, boolean acceptGzip) {
     this.endpoint = endpoint;
     this.apiKey = apiKey;
-    this.mapper = new ObjectMapper();
-    this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    this.mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     this.timeoutDuration = Duration.of(timeoutMillis, ChronoUnit.MILLIS);
     this.maxRequestInsertions = maxRequestInsertions;
@@ -126,8 +115,7 @@ public class ApiDelivery implements Delivery  {
     return state.getResponseToReturn(resp);
   }
 
-  private Response processUncompressedResponse(HttpResponse<InputStream> response)
-      throws IOException, StreamReadException, DatabindException {
+  private Response processUncompressedResponse(HttpResponse<InputStream> response) throws IOException {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     try (var is = response.body(); var autoCloseOs = os) {
       is.transferTo(autoCloseOs);
@@ -138,8 +126,7 @@ public class ApiDelivery implements Delivery  {
     return respBuilder.build();
   }
 
-  private Response processCompressedResponse(HttpResponse<InputStream> response)
-      throws IOException, StreamReadException, DatabindException {
+  private Response processCompressedResponse(HttpResponse<InputStream> response) throws IOException {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     try (InputStream is = new GZIPInputStream(response.body()); var autoCloseOs = os) {
       is.transferTo(autoCloseOs);
