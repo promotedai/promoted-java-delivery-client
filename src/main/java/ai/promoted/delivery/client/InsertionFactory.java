@@ -21,7 +21,7 @@ public class InsertionFactory {
   public static Insertion createInsertionWithProperties(String contentId, Map<String, Object> properties) {
     Insertion.Builder ins = Insertion.newBuilder().setContentId(contentId);
     if (!properties.isEmpty()) {
-      ins.setProperties(Properties.newBuilder().setStruct(convertMapToStruct(properties)).build());
+      ins.setProperties(Properties.newBuilder().setStruct(convertMapToStruct(properties)));
     }
     return ins.build();
   }

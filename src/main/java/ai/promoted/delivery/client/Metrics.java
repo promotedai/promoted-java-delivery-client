@@ -1,6 +1,6 @@
 package ai.promoted.delivery.client;
 
-import ai.promoted.delivery.model.LogRequest;
+import ai.promoted.proto.event.LogRequest;
 
 public interface Metrics {
 
