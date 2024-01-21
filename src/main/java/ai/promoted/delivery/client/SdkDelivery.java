@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import ai.promoted.delivery.model.Insertion;
-import ai.promoted.delivery.model.Paging;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
+import ai.promoted.proto.delivery.Paging;
 
 /**
  * Implements SDK-side delivery, which does not call Promoted.ai but rather applies paging paramters
@@ -30,17 +30,17 @@ public class SdkDelivery implements Delivery {
 
     Paging paging = request.getPaging();
     if (paging == null) {
-      paging = new Paging().offset(0).size(request.getInsertion().size());
+      paging = Paging.newBuilder().setOffset(0).setSize(request.getInsertion().size()).build();
     }
 
     // Adjust offset and size.
-    int offset = paging.getOffset() != null ? Math.max(0, paging.getOffset()) : 0;
+    int offset = Math.max(0, paging.getOffset());
     int index = offset - deliveryRequest.getRetrievalInsertionOffset();
     if (offset < deliveryRequest.getRetrievalInsertionOffset()) {
       throw new DeliveryException("offset should be >= insertion start (specifically, the global position)");
     }
 
-    int size = paging.getSize() != null ? paging.getSize() : 0;
+    int size = paging.getSize();
     if (size <= 0) {
       size = request.getInsertion().size();
     }

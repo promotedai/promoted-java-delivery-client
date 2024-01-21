@@ -11,15 +11,15 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import ai.promoted.delivery.model.Insertion;
-import ai.promoted.delivery.model.Paging;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
+import ai.promoted.proto.delivery.Paging;
 
 class SdkDeliveryTest {
 
   @Test
   void testInvalidPagingOffsetAndRetrievalInsertionOffset() {
-    Request req = new Request().paging(new Paging().offset(10).size(5)).insertion(TestUtils.createTestRequestInsertions(10));
+    Request req = new Request().paging(Paging.newBuilder().setOffset(10).setSize(5).build()).insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, 100);
     Exception exception = assertThrows(
         DeliveryException.class, 
@@ -30,7 +30,7 @@ class SdkDeliveryTest {
 
   @Test
   void testValidPagingOffsetAndRetrievalInsertionOffset() throws DeliveryException {
-    Request req = new Request().paging(new Paging().offset(10).size(5)).insertion(TestUtils.createTestRequestInsertions(10));
+    Request req = new Request().paging(Paging.newBuilder().setOffset(10).setSize(5).build()).insertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, 5);
     Response resp = new SdkDelivery().runDelivery(dreq);
     assertNotNull(resp);
@@ -53,7 +53,7 @@ class SdkDeliveryTest {
   void testRetrievalInsertionOffsetSetToOffset() throws DeliveryException {
     int retrievalInsertionOffset = 5;
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(3);
-    Request req = new Request().insertion(insertions).paging(new Paging().size(2).offset(5));
+    Request req = new Request().insertion(insertions).paging(Paging.newBuilder().setOffset(5).setSize(2).build());
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, retrievalInsertionOffset);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
@@ -68,7 +68,7 @@ class SdkDeliveryTest {
     int retrievalInsertionOffset = 5;
     int offsetDiff = 1;
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(3);
-    Request req = new Request().insertion(insertions).paging(new Paging().size(2).offset(6));
+    Request req = new Request().insertion(insertions).paging(Paging.newBuilder().setOffset(6).setSize(2).build());
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, retrievalInsertionOffset);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
@@ -89,7 +89,7 @@ class SdkDeliveryTest {
   void testRetrievalInsertionOffsetWithOffsetOutsideSize() throws DeliveryException {
     int retrievalInsertionOffset = 5;
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(3);
-    Request req = new Request().insertion(insertions).paging(new Paging().size(2).offset(8));
+    Request req = new Request().insertion(insertions).paging(Paging.newBuilder().setOffset(8).setSize(2).build());
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, retrievalInsertionOffset);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
@@ -109,7 +109,7 @@ class SdkDeliveryTest {
     List<Insertion> insertions = new ArrayList<>();
     insertions.add(reqIns);
 
-    Request req = new Request().insertion(insertions).paging(new Paging().size(1).offset(0));
+    Request req = new Request().insertion(insertions).paging(Paging.newBuilder().setOffset(0).setSize(1).build());
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, 0);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
@@ -131,7 +131,7 @@ class SdkDeliveryTest {
   @Test
   void testPagingZeroSizeReturnsAll() throws Exception {
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(10);
-    Request req = new Request().paging(new Paging().offset(0).size(0)).insertion(insertions);
+    Request req = new Request().paging(Paging.newBuilder().setOffset(0).setSize(0).build()).insertion(insertions);
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, 0);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
@@ -144,7 +144,7 @@ class SdkDeliveryTest {
   @Test
   void testPagingZeroOffset() throws Exception {
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(10);
-    Request req = new Request().paging(new Paging().offset(0).size(5)).insertion(insertions);
+    Request req = new Request().paging(Paging.newBuilder().setOffset(0).setSize(5).build()).insertion(insertions);
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, 0);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
@@ -161,7 +161,7 @@ class SdkDeliveryTest {
   @Test
   void testPagingNonZeroOffset() throws Exception {
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(10);
-    Request req = new Request().paging(new Paging().offset(5).size(5)).insertion(insertions);
+    Request req = new Request().paging(Paging.newBuilder().setOffset(5).setSize(5).build()).insertion(insertions);
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, 0);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
@@ -178,7 +178,7 @@ class SdkDeliveryTest {
   @Test
   void testPagingSizeMoreThanInsertions() throws Exception {
     List<Insertion> insertions = TestUtils.createTestRequestInsertions(10);
-    Request req = new Request().paging(new Paging().offset(0).size(11)).insertion(insertions);
+    Request req = new Request().paging(Paging.newBuilder().setOffset(0).setSize(11).build()).insertion(insertions);
     DeliveryRequest dreq = new DeliveryRequest(req, null, false, 0);
     
     Response resp = new SdkDelivery().runDelivery(dreq);
