@@ -5,8 +5,8 @@ import java.util.UUID;
 import com.google.protobuf.ListValue;
 import com.google.protobuf.NullValue;
 
-import ai.promoted.delivery.model.Insertion;
 import ai.promoted.proto.common.Properties;
+import ai.promoted.proto.delivery.Insertion;
 
 /**
  * Helper method to create Insertions.
@@ -19,11 +19,11 @@ public class InsertionFactory {
    * @return a populated Insertion
    */
   public static Insertion createInsertionWithProperties(String contentId, Map<String, Object> properties) {
-    Insertion ins = new Insertion().contentId(contentId);
+    Insertion.Builder ins = Insertion.newBuilder().setContentId(contentId);
     if (!properties.isEmpty()) {
-      ins.properties(Properties.newBuilder().setStruct(convertMapToStruct(properties)).build());
+      ins.setProperties(Properties.newBuilder().setStruct(convertMapToStruct(properties)).build());
     }
-    return ins;
+    return ins.build();
   }
 
   private static com.google.protobuf.Struct convertMapToStruct(Map<String, Object> map) {
@@ -70,7 +70,7 @@ public class InsertionFactory {
    * @param ins the insertion
    * @param position the position to set
    */
-  public static void prepareResponseInsertion(Insertion ins, int position) {
+  public static void prepareResponseInsertion(Insertion.Builder ins, int position) {
     ins.setPosition(position);
     // If the Request Insertion insertionId is set, pass through the insertion ID.
     if (ins.getInsertionId() == null || ins.getInsertionId().isEmpty()) {

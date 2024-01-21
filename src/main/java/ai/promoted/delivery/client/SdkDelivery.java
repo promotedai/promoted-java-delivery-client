@@ -3,9 +3,9 @@ package ai.promoted.delivery.client;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
+import ai.promoted.proto.delivery.Insertion;
 import ai.promoted.proto.delivery.Paging;
 
 /**
@@ -49,9 +49,9 @@ public class SdkDelivery implements Delivery {
     List<Insertion> insertionPage = new ArrayList<>(finalInsertionSize);
     for (int i = 0; i < finalInsertionSize; i++) {
       Insertion reqIns = request.getInsertion().get(index);
-      Insertion respIns = new Insertion().contentId(reqIns.getContentId()).insertionId(reqIns.getInsertionId());
-      InsertionFactory.prepareResponseInsertion(respIns, offset);
-      insertionPage.add(respIns);
+      Insertion.Builder respInsBuilder = Insertion.newBuilder().setContentId(reqIns.getContentId()).setInsertionId(reqIns.getInsertionId());
+      InsertionFactory.prepareResponseInsertion(respInsBuilder, offset);
+      insertionPage.add(respInsBuilder.build());
       index++;
       offset++;
     }

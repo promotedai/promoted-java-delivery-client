@@ -12,6 +12,7 @@ import ai.promoted.proto.common.Device;
 import ai.promoted.proto.common.Properties;
 import ai.promoted.proto.common.Timing;
 import ai.promoted.proto.common.UserInfo;
+import ai.promoted.proto.delivery.Insertion;
 import ai.promoted.proto.delivery.Paging;
 
 /**

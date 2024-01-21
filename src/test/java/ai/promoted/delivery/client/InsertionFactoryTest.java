@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import ai.promoted.delivery.model.Insertion;
+import ai.promoted.proto.delivery.Insertion;
 
 class InsertionFactoryTest {
 
@@ -54,7 +54,7 @@ class InsertionFactoryTest {
 
   @Test
   void testPrepareResponseInsertion_insertionIdUnset() {
-    Insertion emptyIns = new Insertion();
+    Insertion.Builder emptyIns = Insertion.newBuilder();
     InsertionFactory.prepareResponseInsertion(emptyIns, 6);
     assertNotNull(emptyIns.getInsertionId());
     assertTrue(emptyIns.getInsertionId().length() > 0);
@@ -63,7 +63,7 @@ class InsertionFactoryTest {
 
   @Test
   void testPrepareResponseInsertion_insertionIdSet() {
-    Insertion ins = new Insertion();
+    Insertion.Builder ins = Insertion.newBuilder();
     ins.setInsertionId("uuid");
     InsertionFactory.prepareResponseInsertion(ins, 6);
     assertNotNull(ins.getInsertionId());

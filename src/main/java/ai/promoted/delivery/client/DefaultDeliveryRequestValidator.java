@@ -2,9 +2,9 @@ package ai.promoted.delivery.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import ai.promoted.delivery.model.CohortMembership;
-import ai.promoted.delivery.model.Insertion;
 import ai.promoted.delivery.model.Request;
+import ai.promoted.proto.delivery.Insertion;
+import ai.promoted.proto.event.CohortMembership;
 
 /**
  * Implements the default delivery request validation logic.
