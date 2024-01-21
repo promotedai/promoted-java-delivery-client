@@ -266,14 +266,14 @@ void getProducts(ProductRequest req) {
   DeliveryRequest deliveryRequest = new DeliveryRequest(req);
   Map<String, Product> productsMap = new HashMap<>();
   for (Product product : products) {
-      deliveryRequest.getRequest().addInsertion(new Insertion().contentId(product.getProductId());
+      deliveryRequest.getRequest().addInsertion(new Insertion().contentId(product.getProductId()));
       productsMap.put(product.getProductId(), product);
   }
 
   DeliveryResponse response = promotedDeliveryClient.deliver(deliveryRequest);
   List<Product> rankedProducts = new ArrayList<>();
   for (Insertion responseInsertion : response.getResponse().getInsertion()) {
-      rankedProducts.add(productsMap.get(responseInsertion.getContentId());
+      rankedProducts.add(productsMap.get(responseInsertion.getContentId()));
   }
 
   sendSuccessToClient(rankedProducts);
