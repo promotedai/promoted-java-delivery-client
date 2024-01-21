@@ -9,8 +9,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import ai.promoted.proto.delivery.UseCase;
 import ai.promoted.proto.common.ClientInfo;
 import ai.promoted.proto.common.Device;
+import ai.promoted.proto.common.Properties;
 import ai.promoted.proto.common.Timing;
 import ai.promoted.proto.common.UserInfo;
+import ai.promoted.proto.delivery.Paging;
 
 /**
  * Request

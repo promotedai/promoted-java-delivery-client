@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ai.promoted.delivery.model.Insertion;
-import ai.promoted.delivery.model.Paging;
 import ai.promoted.delivery.model.Request;
 import ai.promoted.delivery.model.Response;
 import ai.promoted.proto.common.UserInfo;
+import ai.promoted.proto.delivery.Paging;
 
 @Disabled("only runs locally for interactive debugging")
 public class IntegrationTest {
@@ -29,7 +29,7 @@ public class IntegrationTest {
     myProps.put("search", searchProps);
     
     Request req = new Request().userInfo(UserInfo.newBuilder().setAnonUserId("12355").build()).platformId(0)
-        .paging(new Paging().size(100).offset(0))
+        .paging(Paging.newBuilder().setOffset(0).setSize(100).build())
         .addInsertionItem(InsertionFactory.createInsertionWithProperties("28835", myProps))
         .addInsertionItem(new Insertion().contentId("49550"));
     add100Insertions(req);
