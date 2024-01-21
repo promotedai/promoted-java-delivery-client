@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,14 +17,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ai.promoted.delivery.model.DeliveryLog;
-import ai.promoted.delivery.model.LogRequest;
 import ai.promoted.proto.event.CohortArm;
 import ai.promoted.proto.event.CohortMembership;
+import ai.promoted.proto.event.LogRequest;
 import ai.promoted.proto.common.ClientInfo.ClientType;
 import ai.promoted.proto.common.ClientInfo.TrafficType;
+import ai.promoted.proto.delivery.DeliveryLog;
 import ai.promoted.proto.delivery.ExecutionServer;
-import ai.promoted.proto.delivery.Insertion;
 import ai.promoted.proto.delivery.Request;
 import ai.promoted.proto.delivery.Response;
 
@@ -174,7 +172,7 @@ class PromotedDeliveryClientTest {
     LogRequest logRequest = logRequestCaptor.getValue();
 
     // No need to send a delivery log since delivery happened server-side.
-    assertNull(logRequest.getDeliveryLog());
+    assertEquals(0, logRequest.getDeliveryLogCount());
     assertDeliveryResponse(resp, ExecutionServer.API);
   }
 
@@ -244,7 +242,7 @@ class PromotedDeliveryClientTest {
     LogRequest logRequest = logRequestCaptor.getValue();
 
     // No need to send a delivery log since delivery happened server-side.
-    assertNull(logRequest.getDeliveryLog());
+    assertEquals(0, logRequest.getDeliveryLogCount());
     assertDeliveryResponse(resp, ExecutionServer.API);
   }
 
@@ -339,8 +337,8 @@ class PromotedDeliveryClientTest {
   }
 
   private void assertSDKLogRequest(Request.Builder reqBuilder, Response resp, LogRequest logRequest) {
-    assertEquals(1, logRequest.getDeliveryLog().size());
-    DeliveryLog deliveryLog = logRequest.getDeliveryLog().get(0);
+    assertEquals(1, logRequest.getDeliveryLogCount());
+    DeliveryLog deliveryLog = logRequest.getDeliveryLog(0);
     assertEquals(reqBuilder.build(), deliveryLog.getRequest());
     assertEquals(resp, deliveryLog.getResponse());
     assertEquals(ExecutionServer.SDK, deliveryLog.getExecution().getExecutionServer());

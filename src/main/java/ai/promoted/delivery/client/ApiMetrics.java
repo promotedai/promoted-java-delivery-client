@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ai.promoted.delivery.model.LogRequest;
+import ai.promoted.proto.event.LogRequest;
 
 /**
  * Client for Promoted.ai's Metrics API.

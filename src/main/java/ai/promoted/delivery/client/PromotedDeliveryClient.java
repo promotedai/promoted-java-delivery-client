@@ -6,8 +6,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ai.promoted.delivery.model.DeliveryLog;
-import ai.promoted.delivery.model.LogRequest;
 import javax.annotation.Nullable;
 import ai.promoted.proto.event.CohortArm;
 import ai.promoted.proto.event.CohortMembership;
@@ -16,9 +14,11 @@ import ai.promoted.proto.common.ClientInfo.ClientType;
 import ai.promoted.proto.common.ClientInfo.TrafficType;
 import ai.promoted.proto.common.Timing;
 import ai.promoted.proto.delivery.DeliveryExecution;
+import ai.promoted.proto.delivery.DeliveryLog;
 import ai.promoted.proto.delivery.ExecutionServer;
 import ai.promoted.proto.delivery.Request;
 import ai.promoted.proto.delivery.Response;
+import ai.promoted.proto.event.LogRequest;
 
 /**
  * PromotedDeliveryClient is the main class for interacting with the Promoted.ai Delivery API.
@@ -336,27 +336,28 @@ public class PromotedDeliveryClient {
       CohortMembership cohortMembershipToLog, ExecutionServer execSvr) {
 
     Request.Builder requestBuilder = deliveryRequest.getRequestBuilder();
-    
-    LogRequest logRequest = new LogRequest()
-        .userInfo(requestBuilder.getUserInfo())
-        .clientInfo(requestBuilder.getClientInfo())
-        .platformId(requestBuilder.getPlatformId())
-        .timing(requestBuilder.getTiming());
 
-    // If delivery was done API-side, we don't need to follow up with a delivery log.
-    if (execSvr != ExecutionServer.API) {    
-      DeliveryLog deliveryLog = new DeliveryLog()
-          .execution(DeliveryExecution.newBuilder().setExecutionServer(execSvr).setServerVersion(SERVER_VERSION).build())
-          .request(requestBuilder.build())
-          .response(response);
-      logRequest.addDeliveryLogItem(deliveryLog);
+    LogRequest.Builder logRequestBuilder = LogRequest.newBuilder()
+        .setUserInfo(requestBuilder.getUserInfo())
+        .setClientInfo(requestBuilder.getClientInfo())
+        .setPlatformId(requestBuilder.getPlatformId())
+        .setTiming(requestBuilder.getTiming());
+
+    // If delivery was done API-side, we don't need to follow up with a delivery
+    // log.
+    if (execSvr != ExecutionServer.API) {
+      DeliveryLog.Builder deliveryLogBuilder = DeliveryLog.newBuilder()
+          .setExecution(DeliveryExecution.newBuilder().setExecutionServer(execSvr).setServerVersion(SERVER_VERSION))
+          .setRequest(requestBuilder)
+          .setResponse(response);
+      logRequestBuilder.addDeliveryLog(deliveryLogBuilder);
     }
 
     if (cohortMembershipToLog != null) {
-      logRequest.addCohortMembershipItem(cohortMembershipToLog);
+      logRequestBuilder.addCohortMembership(cohortMembershipToLog);
     }
 
-    return logRequest;
+    return logRequestBuilder.build();
   }
 
   /**
