@@ -17,13 +17,8 @@ class ApiDeliveryTest {
   }
 
   @Test
-  void replaceSuffix() {
-    assertEquals("test", ApiDelivery.replaceSuffix("test", "not", "there"));
-    assertEquals("test", ApiDelivery.replaceSuffix("test", "", ""));
-    assertEquals("tess", ApiDelivery.replaceSuffix("test", "t", "s"));
-    assertEquals("take", ApiDelivery.replaceSuffix("test", "est", "ake"));
-    assertEquals("test", ApiDelivery.replaceSuffix("test", "abtest", "actess"));
-    assertEquals("testtake", ApiDelivery.replaceSuffix("testtest", "est", "ake"));
-    assertEquals("http://delivery.example.com/healthz", ApiDelivery.replaceSuffix("http://delivery.example.com/deliver", "/deliver", "/healthz"));
+  void removeDeliverSuffix() {
+    assertEquals("http://delivery.example.com", ApiDelivery.removeDeliverSuffix("http://delivery.example.com/deliver"));
+    assertEquals("http://delivery.example.com", ApiDelivery.removeDeliverSuffix("http://delivery.example.com"));
   }
 }

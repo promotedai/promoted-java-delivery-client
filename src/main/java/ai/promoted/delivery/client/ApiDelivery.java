@@ -23,8 +23,13 @@ public class ApiDelivery implements Delivery  {
 
   private static final Logger LOGGER = Logger.getLogger(ApiDelivery.class.getName());
 
+  private static final String DELIVER_SUFFIX = "/deliver";
+  private static final String HEALTHZ_SUFFIX = "/healthz";
+
   /** The Delivery API endpoint (get this from Promoted.ai). */
-  private final String endpoint;
+  private final String baseEndpoint;
+  private final String deliverEndpoint;
+  private final String healthzEndpoint;
 
   /** The api key (get this from Promoted.ai). */
   private final String apiKey;
@@ -58,7 +63,10 @@ public class ApiDelivery implements Delivery  {
    * @param warmup 
    */
   public ApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions, boolean acceptGzip) {
-    this.endpoint = endpoint;
+    this.baseEndpoint = removeDeliverSuffix(endpoint);
+    this.deliverEndpoint = this.baseEndpoint + DELIVER_SUFFIX;
+    this.healthzEndpoint = this.baseEndpoint + HEALTHZ_SUFFIX;
+
     this.apiKey = apiKey;
 
     this.timeoutDuration = Duration.of(timeoutMillis, ChronoUnit.MILLIS);
@@ -87,7 +95,7 @@ public class ApiDelivery implements Delivery  {
     try {
       String requestBody = JsonFormat.printer().print(state.getRequestToSend(maxRequestInsertions));
       
-      HttpRequest.Builder httpReqBuilder = HttpRequest.newBuilder().uri(URI.create(endpoint))
+      HttpRequest.Builder httpReqBuilder = HttpRequest.newBuilder().uri(URI.create(deliverEndpoint))
           .header("Content-Type", "application/json")
           .header("x-api-key", apiKey);
       if (acceptGzip) {
@@ -148,10 +156,9 @@ public class ApiDelivery implements Delivery  {
    * Do warmup.
    */
   private void runWarmup() {
-    String warmupEndpoint = replaceSuffix(endpoint, "/deliver", "/healthz");
     for (int i = 0; i < 20; i++) {
       try {
-        HttpRequest httpReq = HttpRequest.newBuilder().uri(URI.create(warmupEndpoint))
+        HttpRequest httpReq = HttpRequest.newBuilder().uri(URI.create(healthzEndpoint))
             .header("x-api-key", apiKey).GET().build();
         httpClient.send(httpReq, HttpResponse.BodyHandlers.ofString());
       } catch (Exception ex) {
@@ -160,11 +167,10 @@ public class ApiDelivery implements Delivery  {
     }
   }
 
-  static String replaceSuffix(String original, String target, String replacement) {
-    if (!original.endsWith(target)) {
-       return original;
+  static String removeDeliverSuffix(String endpoint) {
+    if (endpoint.endsWith(DELIVER_SUFFIX)) {
+      return endpoint.substring(0, endpoint.length() - DELIVER_SUFFIX.length());
     }
-
-    return original.substring(0, original.length() - target.length()) + replacement;
+    return endpoint;
 }
 }
