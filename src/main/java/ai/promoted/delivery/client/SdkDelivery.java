@@ -1,12 +1,10 @@
 package ai.promoted.delivery.client;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
-import ai.promoted.delivery.model.Request;
-import ai.promoted.delivery.model.Response;
 import ai.promoted.proto.delivery.Insertion;
 import ai.promoted.proto.delivery.Paging;
+import ai.promoted.proto.delivery.Request;
+import ai.promoted.proto.delivery.Response;
 
 /**
  * Implements SDK-side delivery, which does not call Promoted.ai but rather applies paging paramters
@@ -23,14 +21,14 @@ public class SdkDelivery implements Delivery {
    */
   @Override
   public Response runDelivery(DeliveryRequest deliveryRequest) throws DeliveryException {
-    Request request = deliveryRequest.getRequest();
+    Request.Builder requestBuilder = deliveryRequest.getRequestBuilder();
 
     // Set a request id.
-    request.setRequestId(UUID.randomUUID().toString());
+    requestBuilder.setRequestId(UUID.randomUUID().toString());
 
-    Paging paging = request.getPaging();
-    if (paging == null) {
-      paging = Paging.newBuilder().setOffset(0).setSize(request.getInsertion().size()).build();
+    Paging paging = requestBuilder.getPaging();
+    if (!requestBuilder.hasPaging()) {
+      paging = Paging.newBuilder().setOffset(0).setSize(requestBuilder.getInsertionCount()).build();
     }
 
     // Adjust offset and size.
@@ -42,23 +40,20 @@ public class SdkDelivery implements Delivery {
 
     int size = paging.getSize();
     if (size <= 0) {
-      size = request.getInsertion().size();
+      size = requestBuilder.getInsertionCount();
     }
 
-    int finalInsertionSize = Math.min(size, request.getInsertion().size() - index);
-    List<Insertion> insertionPage = new ArrayList<>(finalInsertionSize);
+    int finalInsertionSize = Math.min(size, requestBuilder.getInsertionCount() - index);
+    Response.Builder respBuilder = Response.newBuilder().setRequestId(requestBuilder.getRequestId());
     for (int i = 0; i < finalInsertionSize; i++) {
-      Insertion reqIns = request.getInsertion().get(index);
-      Insertion.Builder respInsBuilder = Insertion.newBuilder().setContentId(reqIns.getContentId()).setInsertionId(reqIns.getInsertionId());
+      Insertion reqIns = requestBuilder.getInsertion(index);
+      Insertion.Builder respInsBuilder = Insertion.newBuilder().setContentId(reqIns.getContentId())
+          .setInsertionId(reqIns.getInsertionId());
       InsertionFactory.prepareResponseInsertion(respInsBuilder, offset);
-      insertionPage.add(respInsBuilder.build());
+      respBuilder.addInsertion(respInsBuilder);
       index++;
       offset++;
     }
-
-    Response response = new Response();
-    response.setRequestId(request.getRequestId());
-    response.insertion(insertionPage);
-    return response;
+    return respBuilder.build();
   }
 }

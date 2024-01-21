@@ -1,6 +1,6 @@
 package ai.promoted.delivery.client;
 
-import ai.promoted.delivery.model.Response;
+import ai.promoted.proto.delivery.Response;
 
 
 public interface Delivery {

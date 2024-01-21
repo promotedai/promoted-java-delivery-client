@@ -12,12 +12,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ai.promoted.delivery.model.Request;
-import ai.promoted.delivery.model.Response;
 import ai.promoted.proto.event.CohortArm;
 import ai.promoted.proto.event.CohortMembership;
 import ai.promoted.proto.common.ClientInfo;
 import ai.promoted.proto.common.ClientInfo.TrafficType;
+import ai.promoted.proto.delivery.Request;
+import ai.promoted.proto.delivery.Response;
 
 @ExtendWith(MockitoExtension.class)
 class ShadowTrafficTest {
@@ -33,10 +33,10 @@ class ShadowTrafficTest {
   void testSendShadowTrafficForOnlyLogSampledIn() throws Exception {
     PromotedDeliveryClient client = createDefaultClient(true, 0.5f);
     
-    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
-    DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
+    Request.Builder reqBuilder = Request.newBuilder().addAllInsertion(TestUtils.createTestRequestInsertions(10)).setClientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION));
+    DeliveryRequest dreq = new DeliveryRequest(reqBuilder, null, true, 0);
 
-    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
+    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(Response.newBuilder().addAllInsertion(reqBuilder.getInsertionList()).build());
     
     client.deliver(dreq);
     
@@ -46,7 +46,7 @@ class ShadowTrafficTest {
     ArgumentCaptor<DeliveryRequest> shadowTrafficRequestCaptor = ArgumentCaptor.forClass(DeliveryRequest.class);
     verify(apiFactory.getApiDelivery()).runDelivery(shadowTrafficRequestCaptor.capture());
     DeliveryRequest shadowTrafficRequest = shadowTrafficRequestCaptor.getValue();
-    assertEquals(TrafficType.SHADOW, shadowTrafficRequest.getRequest().getClientInfo().getTrafficType());
+    assertEquals(TrafficType.SHADOW, shadowTrafficRequest.getRequestBuilder().getClientInfo().getTrafficType());
   }  
   
   @Test
@@ -54,10 +54,10 @@ class ShadowTrafficTest {
     PromotedDeliveryClient client = createDefaultClient(true, 0.5f);
     CohortMembership cm = CohortMembership.newBuilder().setArm(CohortArm.CONTROL).setCohortId("testing").build();
 
-    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
-    DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);
+    Request.Builder reqBuilder = Request.newBuilder().addAllInsertion(TestUtils.createTestRequestInsertions(10)).setClientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION));
+    DeliveryRequest dreq = new DeliveryRequest(reqBuilder, cm, false, 0);
 
-    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
+    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(Response.newBuilder().addAllInsertion(reqBuilder.getInsertionList()).build());
     
     client.deliver(dreq);
     
@@ -67,17 +67,17 @@ class ShadowTrafficTest {
     ArgumentCaptor<DeliveryRequest> shadowTrafficRequestCaptor = ArgumentCaptor.forClass(DeliveryRequest.class);
     verify(apiFactory.getApiDelivery()).runDelivery(shadowTrafficRequestCaptor.capture());
     DeliveryRequest shadowTrafficRequest = shadowTrafficRequestCaptor.getValue();
-    assertEquals(TrafficType.SHADOW, shadowTrafficRequest.getRequest().getClientInfo().getTrafficType());
+    assertEquals(TrafficType.SHADOW, shadowTrafficRequest.getRequestBuilder().getClientInfo().getTrafficType());
   }  
   
   @Test
   void testDontSendShadowTrafficForOnlyLogSampledOut() throws Exception {
     PromotedDeliveryClient client = createDefaultClient(false, 0.5f);
     
-    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
-    DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
+    Request.Builder reqBuilder = Request.newBuilder().addAllInsertion(TestUtils.createTestRequestInsertions(10)).setClientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION));
+    DeliveryRequest dreq = new DeliveryRequest(reqBuilder, null, true, 0);
 
-    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
+    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(Response.newBuilder().addAllInsertion(reqBuilder.getInsertionList()).build());
     
     client.deliver(dreq);
     
@@ -91,10 +91,10 @@ class ShadowTrafficTest {
     PromotedDeliveryClient client = createDefaultClient(false, 0.5f);
     CohortMembership cm = CohortMembership.newBuilder().setArm(CohortArm.TREATMENT).setCohortId("testing").build();
 
-    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
-    DeliveryRequest dreq = new DeliveryRequest(req, cm, false, 0);
+    Request.Builder reqBuilder = Request.newBuilder().addAllInsertion(TestUtils.createTestRequestInsertions(10)).setClientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION));
+    DeliveryRequest dreq = new DeliveryRequest(reqBuilder, cm, false, 0);
 
-    when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
+    when(apiFactory.getApiDelivery().runDelivery(any())).thenReturn(Response.newBuilder().addAllInsertion(reqBuilder.getInsertionList()).build());
     
     client.deliver(dreq);
     
@@ -105,10 +105,10 @@ class ShadowTrafficTest {
   void testDontSendShadowTrafficForOnlyLogWhenTurnedOff() throws Exception {
     PromotedDeliveryClient client = createDefaultClient(true, 0f);
     
-    Request req = new Request().insertion(TestUtils.createTestRequestInsertions(10)).clientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION).build());
-    DeliveryRequest dreq = new DeliveryRequest(req, null, true, 0);
+    Request.Builder reqBuilder = Request.newBuilder().addAllInsertion(TestUtils.createTestRequestInsertions(10)).setClientInfo(ClientInfo.newBuilder().setTrafficType(TrafficType.PRODUCTION));
+    DeliveryRequest dreq = new DeliveryRequest(reqBuilder, null, true, 0);
 
-    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(new Response().insertion(req.getInsertion()));
+    when(apiFactory.getSdkDelivery().runDelivery(any())).thenReturn(Response.newBuilder().addAllInsertion(reqBuilder.getInsertionList()).build());
     
     client.deliver(dreq);
     

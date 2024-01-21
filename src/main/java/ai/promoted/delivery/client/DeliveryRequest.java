@@ -3,7 +3,7 @@ package ai.promoted.delivery.client;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-import ai.promoted.delivery.model.Request;
+import ai.promoted.proto.delivery.Request;
 import ai.promoted.proto.event.CohortMembership;
 
 /**
@@ -12,7 +12,7 @@ import ai.promoted.proto.event.CohortMembership;
 public class DeliveryRequest implements Cloneable {
 
   /** The underlying request for ranked content. */
-  private Request request;
+  private Request.Builder requestBuilder;
 
   /** True to only send logs to Metrics API */
   private final boolean onlyLog;
@@ -30,15 +30,15 @@ public class DeliveryRequest implements Cloneable {
   /**
    * Instantiates a new delivery request.
    *
-   * @param request the request to process
+   * @param requestBuilder the builder for the request to process
    * @param experiment the experiment that the user is in, may be null, which means apply the
    *        treatment
    * @param onlyLog if true, will log to Promoted.ai Metrics but not call Delivery API to re-rank
    * @param retrievalInsertionOffset start index in the request insertions in the list of ALL insertions
    */
-  public DeliveryRequest(Request request, CohortMembership experiment, boolean onlyLog,
+  public DeliveryRequest(Request.Builder requestBuilder, CohortMembership experiment, boolean onlyLog,
       int retrievalInsertionOffset, DeliveryRequestValidator validator) {
-    this.request = request;
+    this.requestBuilder = requestBuilder;
     this.onlyLog = onlyLog;
     this.experiment = experiment;
     this.retrievalInsertionOffset = retrievalInsertionOffset;
@@ -48,35 +48,35 @@ public class DeliveryRequest implements Cloneable {
   /**
    * Instantiates a new delivery request.
    *
-   * @param request the request to process
+   * @param requestBuilder the builder for the request to process
    * @param experiment the experiment that the user is in, may be null, which means apply the
    *        treatment
    * @param onlyLog if true, will log to Promoted.ai Metrics but not call Delivery API to re-rank
    * @param retrievalInsertionOffset start index in the request insertions in the list of ALL insertions
    */
-  public DeliveryRequest(Request request, CohortMembership experiment, boolean onlyLog,
+  public DeliveryRequest(Request.Builder requestBuilder, CohortMembership experiment, boolean onlyLog,
       int retrievalInsertionOffset) {
-    this(request, experiment, onlyLog, retrievalInsertionOffset, DefaultDeliveryRequestValidator.INSTANCE);
+    this(requestBuilder, experiment, onlyLog, retrievalInsertionOffset, DefaultDeliveryRequestValidator.INSTANCE);
   }
 
   /**
    * Instantiates a new delivery request.
    *
-   * @param request the request to process
+   * @param requestBuilder the builder for the request to process
    * @param experiment the experiment that the user is in, may be null, which means apply the
    *        treatment
    */
-  public DeliveryRequest(Request request, CohortMembership experiment) {
-    this(request, experiment, false, 0);
+  public DeliveryRequest(Request.Builder requestBuilder, CohortMembership experiment) {
+    this(requestBuilder, experiment, false, 0);
   }
 
   /**
    * Instantiates a new delivery request.
    *
-   * @param request the request to process =
+   * @param requestBuilder the builder for the request to process
    */
-  public DeliveryRequest(Request request) {
-    this(request, null);
+  public DeliveryRequest(Request.Builder requestBuilder) {
+    this(requestBuilder, null);
   }
 
   /**
@@ -84,8 +84,8 @@ public class DeliveryRequest implements Cloneable {
    *
    * @return the request
    */
-  public Request getRequest() {
-    return request;
+  public Request.Builder getRequestBuilder() {
+    return requestBuilder;
   }
 
   /**
@@ -117,7 +117,6 @@ public class DeliveryRequest implements Cloneable {
 
   public DeliveryRequest clone() throws CloneNotSupportedException {
     DeliveryRequest deliveryRequestCopy = (DeliveryRequest) super.clone();
-    deliveryRequestCopy.request = request.clone();
     return deliveryRequestCopy;
   }
 

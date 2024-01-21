@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ai.promoted.delivery.model.Response;
+import ai.promoted.proto.delivery.Response;
 
 /**
  * Client for Promoted.ai's Delivery API.
@@ -144,7 +144,7 @@ public class ApiDelivery implements Delivery  {
 
   // @VisibleForTesting
   static void validate(Response response) throws DeliveryException {
-    if (response.getRequestId() == null || response.getRequestId().equals("")) {
+    if (response.getRequestId().isBlank()) {
       throw new DeliveryException("Delivery Response should contain a requestId");
     }
   }

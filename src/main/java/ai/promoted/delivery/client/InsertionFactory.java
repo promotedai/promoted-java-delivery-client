@@ -73,7 +73,7 @@ public class InsertionFactory {
   public static void prepareResponseInsertion(Insertion.Builder ins, int position) {
     ins.setPosition(position);
     // If the Request Insertion insertionId is set, pass through the insertion ID.
-    if (ins.getInsertionId() == null || ins.getInsertionId().isEmpty()) {
+    if (ins.getInsertionId().isBlank()) {
       ins.setInsertionId(UUID.randomUUID().toString());
     }
   }
