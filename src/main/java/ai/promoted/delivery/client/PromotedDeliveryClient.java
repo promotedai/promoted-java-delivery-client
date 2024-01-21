@@ -366,7 +366,7 @@ public class PromotedDeliveryClient {
    */
   private void fillInRequestFields(Request.Builder requestBuilder) {
     if (!requestBuilder.hasClientInfo()) {
-      requestBuilder.setClientInfo(ClientInfo.newBuilder().build());
+      requestBuilder.setClientInfo(ClientInfo.newBuilder());
     }
     requestBuilder.getClientInfoBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.SHADOW);
 
@@ -381,7 +381,7 @@ public class PromotedDeliveryClient {
    */
   private void ensureClientTimestamp(Request.Builder requestBuilder) {
     if (!requestBuilder.hasTiming()) {
-      requestBuilder.setTiming(Timing.newBuilder().build());
+      requestBuilder.setTiming(Timing.newBuilder());
     }
     if (requestBuilder.getTiming().getClientLogTimestamp() == 0) {
       requestBuilder.getTimingBuilder().setClientLogTimestamp(System.currentTimeMillis());

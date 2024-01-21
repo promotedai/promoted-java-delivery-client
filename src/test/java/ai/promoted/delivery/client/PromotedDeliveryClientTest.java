@@ -306,9 +306,8 @@ class PromotedDeliveryClientTest {
     PromotedDeliveryClient client = createDefaultClient();
 
     Request.Builder reqBuilder = Request.newBuilder().addAllInsertion(TestUtils.createTestRequestInsertions(10));
-    List<Insertion.Builder> insBuilders = reqBuilder.getInsertionBuilderList();
-    for (int i = 0; i < insBuilders.size(); i++) {
-      insBuilders.get(i).setInsertionId("ins" + i);
+    for (int i = 0; i < reqBuilder.getInsertionBuilderList().size(); i++) {
+      reqBuilder.getInsertionBuilder(i).setInsertionId("ins" + i);
     }
     DeliveryRequest dreq = new DeliveryRequest(reqBuilder, null, true, 0);
 

@@ -13,7 +13,7 @@ class ApiDeliveryTest {
 
   @Test
   void validate_missingRequestId() {
-    assertThrows(DeliveryException.class, () -> ApiDelivery.validate(Response.newBuilder().build()));
+    assertThrows(DeliveryException.class, () -> ApiDelivery.validate(Response.getDefaultInstance()));
   }
 
   @Test
