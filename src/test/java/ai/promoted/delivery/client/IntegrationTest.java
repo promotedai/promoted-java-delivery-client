@@ -7,11 +7,11 @@ import java.util.UUID;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ai.promoted.delivery.model.Request;
-import ai.promoted.delivery.model.Response;
 import ai.promoted.proto.common.UserInfo;
 import ai.promoted.proto.delivery.Insertion;
 import ai.promoted.proto.delivery.Paging;
+import ai.promoted.proto.delivery.Request;
+import ai.promoted.proto.delivery.Response;
 
 @Disabled("only runs locally for interactive debugging")
 public class IntegrationTest {
@@ -28,20 +28,20 @@ public class IntegrationTest {
     searchProps.put("lng", -122.3);
     myProps.put("search", searchProps);
     
-    Request req = new Request().userInfo(UserInfo.newBuilder().setAnonUserId("12355").build()).platformId(0)
-        .paging(Paging.newBuilder().setOffset(0).setSize(100).build())
-        .addInsertionItem(InsertionFactory.createInsertionWithProperties("28835", myProps))
-        .addInsertionItem(Insertion.newBuilder().setContentId("49550").build());
-    add100Insertions(req);
+    Request.Builder reqBuilder = Request.newBuilder().setUserInfo(UserInfo.newBuilder().setAnonUserId("12355")).setPlatformId(0)
+        .setPaging(Paging.newBuilder().setOffset(0).setSize(100))
+        .addInsertion(InsertionFactory.createInsertionWithProperties("28835", myProps))
+        .addInsertion(Insertion.newBuilder().setContentId("49550"));
+    add100Insertions(reqBuilder);
     
-    DeliveryResponse resp = client.deliver(new DeliveryRequest(req, null, false, 0));
+    DeliveryResponse resp = client.deliver(new DeliveryRequest(reqBuilder, null, false, 0));
     System.out.println(resp);
     assertTrue(true);
   }
 
-  private void add100Insertions(Request req) {
+  private void add100Insertions(Request.Builder reqBuilder) {
     for (int i = 0; i < 1000; i++) {
-      req.addInsertionItem(Insertion.newBuilder().setContentId(UUID.randomUUID().toString()).build());
+      reqBuilder.addInsertion(Insertion.newBuilder().setContentId(UUID.randomUUID().toString())).build();
     }
   }
 

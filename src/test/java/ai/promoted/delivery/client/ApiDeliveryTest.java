@@ -2,21 +2,18 @@ package ai.promoted.delivery.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import ai.promoted.delivery.model.Response;
+import ai.promoted.proto.delivery.Response;
 
 class ApiDeliveryTest {
 
   @Test
   void validate() throws DeliveryException {
-    Response response = new Response();
-    response.setRequestId("reqid");
-    ApiDelivery.validate(response);
+    ApiDelivery.validate(Response.newBuilder().setRequestId("reqid").build());
   }
 
   @Test
   void validate_missingRequestId() {
-    Response response = new Response();
-    assertThrows(DeliveryException.class, () -> ApiDelivery.validate(response));
+    assertThrows(DeliveryException.class, () -> ApiDelivery.validate(Response.newBuilder().build()));
   }
 
   @Test

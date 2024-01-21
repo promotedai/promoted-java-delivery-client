@@ -1,14 +1,13 @@
 package ai.promoted.delivery.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import ai.promoted.delivery.model.Request;
 import ai.promoted.proto.event.CohortArm;
 import ai.promoted.proto.event.CohortMembership;
 import ai.promoted.proto.common.UserInfo;
 import ai.promoted.proto.delivery.Insertion;
+import ai.promoted.proto.delivery.Request;
 
 class DeliveryRequestTest {
 
@@ -17,13 +16,13 @@ class DeliveryRequestTest {
      DeliveryRequest req = new DeliveryRequest(null);
      List<String> errors = req.validate();
      assertEquals(1, errors.size());
-     assertEquals("Request must be set", errors.get(0));
+     assertEquals("Request builder must be set", errors.get(0));
   }
 
   @Test
   void testValidateRequestIdMustBeUnsetOnRequest() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().requestId("z").userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).insertion(new ArrayList<>()),
+        Request.newBuilder().setRequestId("z").setUserInfo(UserInfo.newBuilder().setAnonUserId("a")),
         null,
         false,
         0);
@@ -35,7 +34,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateRetrievalInsertionOffsetMustBeNonNeg() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
+      Request.newBuilder().setUserInfo(UserInfo.newBuilder().setAnonUserId("a")).addInsertion(Insertion.newBuilder().setContentId("z")),
         null,
         false,
         -1);
@@ -47,7 +46,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateContentIdMustBeSet() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(Insertion.newBuilder().setContentId("").build()),
+      Request.newBuilder().setUserInfo(UserInfo.newBuilder().setAnonUserId("a")).addInsertion(Insertion.newBuilder().setContentId("")),
         null,
         false,
         0);
@@ -59,7 +58,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateWithValidInsertion() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
+      Request.newBuilder().setUserInfo(UserInfo.newBuilder().setAnonUserId("a")).addInsertion(Insertion.newBuilder().setContentId("z")),
         null,
         false,
         0);
@@ -70,7 +69,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateExperimentValid() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("a").build()).addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
+      Request.newBuilder().setUserInfo(UserInfo.newBuilder().setAnonUserId("a")).addInsertion(Insertion.newBuilder().setContentId("z")),
         CohortMembership.newBuilder().setArm(CohortArm.TREATMENT).setCohortId("my cohort").build(),
         false,
         0);
@@ -81,7 +80,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateUserInfoOnRequest() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
+      Request.newBuilder().addInsertion(Insertion.newBuilder().setContentId("z")),
         null,
         false,
         0);
@@ -93,7 +92,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateAnonUserIdOnRequest() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().userInfo(UserInfo.newBuilder().setAnonUserId("").build()).addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
+      Request.newBuilder().setUserInfo(UserInfo.newBuilder().setAnonUserId("")).addInsertion(Insertion.newBuilder().setContentId("z")),
         CohortMembership.newBuilder().setArm(CohortArm.TREATMENT).setCohortId("my cohort").build(),
         false,
         0);
@@ -106,7 +105,7 @@ class DeliveryRequestTest {
   @Test
   void testValidateCapturesMultipleErrors() {
     DeliveryRequest req = new DeliveryRequest(
-        new Request().requestId("a").userInfo(UserInfo.newBuilder().setAnonUserId("").build()).addInsertionItem(Insertion.newBuilder().setContentId("z").build()),
+      Request.newBuilder().setRequestId("a").setUserInfo(UserInfo.newBuilder().setAnonUserId("")).addInsertion(Insertion.newBuilder().setContentId("z")),
         CohortMembership.newBuilder().setArm(CohortArm.TREATMENT).setCohortId("my cohort").build(),
         false,
         0);

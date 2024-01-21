@@ -8,8 +8,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ai.promoted.delivery.model.DeliveryLog;
 import ai.promoted.delivery.model.LogRequest;
-import ai.promoted.delivery.model.Request;
-import ai.promoted.delivery.model.Response;
 import javax.annotation.Nullable;
 import ai.promoted.proto.event.CohortArm;
 import ai.promoted.proto.event.CohortMembership;
@@ -19,6 +17,8 @@ import ai.promoted.proto.common.ClientInfo.TrafficType;
 import ai.promoted.proto.common.Timing;
 import ai.promoted.proto.delivery.DeliveryExecution;
 import ai.promoted.proto.delivery.ExecutionServer;
+import ai.promoted.proto.delivery.Request;
+import ai.promoted.proto.delivery.Response;
 
 /**
  * PromotedDeliveryClient is the main class for interacting with the Promoted.ai Delivery API.
@@ -186,8 +186,8 @@ public class PromotedDeliveryClient {
         LOGGER.log(Level.WARNING, "Delivery Request Validation Error", validationError);
       }
     }
-    ensureClientRequestId(deliveryRequest.getRequest(), plan.getClientRequestId());
-    fillInRequestFields(deliveryRequest.getRequest());
+    ensureClientRequestId(deliveryRequest.getRequestBuilder(), plan.getClientRequestId());
+    fillInRequestFields(deliveryRequest.getRequestBuilder());
   }
 
   /**
@@ -236,7 +236,7 @@ public class PromotedDeliveryClient {
       deliverShadowTraffic(deliveryRequest);
     }
 
-    return new DeliveryResponse(response, deliveryRequest.getRequest().getClientRequestId(), execSrv);
+    return new DeliveryResponse(response, deliveryRequest.getRequestBuilder().getClientRequestId(), execSrv);
   }
 
   /**
@@ -256,11 +256,11 @@ public class PromotedDeliveryClient {
       // We need a clone here in order to safely modify the ClientInfo.
       DeliveryRequest requestToSend = deliveryRequest.clone();
       
-      Request request = requestToSend.getRequest();
+      Request.Builder requestBuilder = requestToSend.getRequestBuilder();
       // We ensured earlier that client info was filled in.
-      assert request.getClientInfo() != null;
+      assert requestBuilder.hasClientInfo();
 
-      request.setClientInfo(request.getClientInfo().toBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.SHADOW).build());
+      requestBuilder.getClientInfoBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.SHADOW);
       
       apiDelivery.runDelivery(requestToSend);
     } catch (DeliveryException | CloneNotSupportedException ex) {
@@ -283,7 +283,7 @@ public class PromotedDeliveryClient {
       return true;
     }
 
-    return cohortMembership.getArm() == null || cohortMembership.getArm() != CohortArm.CONTROL;
+    return cohortMembership.getArm() != CohortArm.CONTROL;
   }
 
   /**
@@ -335,19 +335,19 @@ public class PromotedDeliveryClient {
   private LogRequest createLogRequest(DeliveryRequest deliveryRequest, Response response,
       CohortMembership cohortMembershipToLog, ExecutionServer execSvr) {
 
-    Request request = deliveryRequest.getRequest();
+    Request.Builder requestBuilder = deliveryRequest.getRequestBuilder();
     
     LogRequest logRequest = new LogRequest()
-        .userInfo(request.getUserInfo())
-        .clientInfo(request.getClientInfo())
-        .platformId(request.getPlatformId())
-        .timing(request.getTiming());
+        .userInfo(requestBuilder.getUserInfo())
+        .clientInfo(requestBuilder.getClientInfo())
+        .platformId(requestBuilder.getPlatformId())
+        .timing(requestBuilder.getTiming());
 
     // If delivery was done API-side, we don't need to follow up with a delivery log.
     if (execSvr != ExecutionServer.API) {    
       DeliveryLog deliveryLog = new DeliveryLog()
           .execution(DeliveryExecution.newBuilder().setExecutionServer(execSvr).setServerVersion(SERVER_VERSION).build())
-          .request(request)
+          .request(requestBuilder.build())
           .response(response);
       logRequest.addDeliveryLogItem(deliveryLog);
     }
@@ -364,14 +364,14 @@ public class PromotedDeliveryClient {
    *
    * @param request the request to populate
    */
-  private void fillInRequestFields(Request request) {
-    if (request.getClientInfo() == null) {
-      request.setClientInfo(ClientInfo.newBuilder().build());
+  private void fillInRequestFields(Request.Builder requestBuilder) {
+    if (!requestBuilder.hasClientInfo()) {
+      requestBuilder.setClientInfo(ClientInfo.newBuilder().build());
     }
-    request.setClientInfo(request.getClientInfo().toBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.SHADOW).build());
+    requestBuilder.getClientInfoBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.SHADOW);
 
     // If there is no client timestamp set by the caller, we fill in the current time.
-    ensureClientTimestamp(request);
+    ensureClientTimestamp(requestBuilder);
   }
 
   /**
@@ -379,12 +379,12 @@ public class PromotedDeliveryClient {
    *
    * @param request the request
    */
-  private void ensureClientTimestamp(Request request) {
-    if (request.getTiming() == null) {
-      request.setTiming(Timing.newBuilder().build());
+  private void ensureClientTimestamp(Request.Builder requestBuilder) {
+    if (!requestBuilder.hasTiming()) {
+      requestBuilder.setTiming(Timing.newBuilder().build());
     }
-    if (request.getTiming().getClientLogTimestamp() == 0) {
-      request.setTiming(request.getTiming().toBuilder().setClientLogTimestamp(System.currentTimeMillis()).build());
+    if (requestBuilder.getTiming().getClientLogTimestamp() == 0) {
+      requestBuilder.getTimingBuilder().setClientLogTimestamp(System.currentTimeMillis());
     }
   }
 
@@ -394,9 +394,9 @@ public class PromotedDeliveryClient {
    * @param request the request
    * @param clientRequestId
    */
-  private void ensureClientRequestId(Request request, String clientRequestId) {
-    if (request.getClientRequestId() == null || request.getClientRequestId().isBlank()) {
-      request.setClientRequestId(clientRequestId);
+  private void ensureClientRequestId(Request.Builder requestBuilder, String clientRequestId) {
+    if (requestBuilder.getClientRequestId().isBlank()) {
+      requestBuilder.setClientRequestId(clientRequestId);
     }
   }
 

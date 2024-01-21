@@ -1,8 +1,12 @@
 package ai.promoted.delivery.client;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
-import ai.promoted.delivery.model.Request;
-import ai.promoted.delivery.model.Response;
+
+import ai.promoted.proto.delivery.Insertion;
+import ai.promoted.proto.delivery.Request;
+import ai.promoted.proto.delivery.Response;
 
 /**
  * Holds state of a request during processing.
@@ -39,14 +43,16 @@ class DeliveryRequestState {
    * @return the pre-processed request.
    */
   public Request getRequestToSend(int maxRequestInsertions) {
-    Request req = deliveryRequest.getRequest();
+    Request.Builder reqBuilder = deliveryRequest.getRequestBuilder();
     
     // Trim the list if necessary.
-    if (req.getInsertion().size() > maxRequestInsertions) {
+    if (reqBuilder.getInsertionCount() > maxRequestInsertions) {
       LOGGER.warning("Too many request insertions, truncating at " + maxRequestInsertions);
-      req.setInsertion(req.getInsertion().subList(0, maxRequestInsertions));
+      List<Insertion> truncatedList = new ArrayList<>(reqBuilder.getInsertionList().subList(0, maxRequestInsertions));
+      reqBuilder.clearInsertion();
+      reqBuilder.addAllInsertion(truncatedList);
     }
-    
-    return req;
+
+    return reqBuilder.build();
   }
 }

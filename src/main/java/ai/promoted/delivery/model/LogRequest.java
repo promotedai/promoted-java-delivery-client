@@ -31,7 +31,7 @@ public class LogRequest {
   private ClientInfo clientInfo;
 
   public static final String JSON_PROPERTY_PLATFORM_ID = "platformId";
-  private Integer platformId;
+  private Long platformId;
 
   public static final String JSON_PROPERTY_TIMING = "timing";
   private Timing timing;
@@ -126,7 +126,7 @@ public class LogRequest {
     this.clientInfo = clientInfo;
   }
 
-  public LogRequest platformId(Integer platformId) {
+  public LogRequest platformId(Long platformId) {
     this.platformId = platformId;
     return this;
   }
@@ -139,14 +139,14 @@ public class LogRequest {
   @JsonProperty(JSON_PROPERTY_PLATFORM_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Integer getPlatformId() {
+  public Long getPlatformId() {
     return platformId;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PLATFORM_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPlatformId(Integer platformId) {
+  public void setPlatformId(Long platformId) {
     this.platformId = platformId;
   }
 
