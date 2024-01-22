@@ -15,10 +15,4 @@ class ApiDeliveryTest {
   void validate_missingRequestId() {
     assertThrows(DeliveryException.class, () -> ApiDelivery.validate(Response.getDefaultInstance()));
   }
-
-  @Test
-  void removeDeliverSuffix() {
-    assertEquals("http://delivery.example.com", ApiDelivery.removeDeliverSuffix("http://delivery.example.com/deliver"));
-    assertEquals("http://delivery.example.com", ApiDelivery.removeDeliverSuffix("http://delivery.example.com"));
-  }
 }

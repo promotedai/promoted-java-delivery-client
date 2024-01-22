@@ -22,7 +22,7 @@ public class TestApiFactory implements ApiFactory {
 
   @Override
   public Delivery createApiDelivery(String endpoint, String apiKey, long timeoutMillis,
-      boolean warmup, int maxRequestInsertions, boolean acceptGzip) {
+      boolean warmup, int maxRequestInsertions, boolean acceptGzip, boolean useGrpc) {
     return apiDelivery;
   }
 

@@ -87,13 +87,15 @@ public class PromotedDeliveryClient {
    * @param sampler the sampler to use
    * @param blockingShadowTraffic flag to make shadow traffic a blocking (instead of background) call
    * @param acceptGzip whether the client accepts gzip
+   * @param useGrpc whether to use gRPC instead of HTTP for delivery
    */
   private PromotedDeliveryClient(String deliveryEndpoint, String deliveryApiKey,
       long deliveryTimeoutMillis, String metricsEndpoint, String metricsApiKey,
       long metricsTimeoutMillis, boolean warmup, Executor executor,
       int maxRequestInsertions, ApplyTreatmentChecker applyTreatmentChecker,
       ApiFactory apiFactory, float shadowTrafficDeliveryRate, Sampler sampler,
-      boolean performChecks, boolean blockingShadowTraffic, boolean acceptGzip) {
+      boolean performChecks, boolean blockingShadowTraffic, boolean acceptGzip,
+      boolean useGrpc) {
 
     if (deliveryTimeoutMillis <= 0) {
       deliveryTimeoutMillis = DEFAULT_DELIVERY_TIMEOUT_MILLIS;
@@ -128,7 +130,7 @@ public class PromotedDeliveryClient {
     this.applyTreatmentChecker = applyTreatmentChecker;
     this.sdkDelivery = apiFactory.createSdkDelivery();
     this.apiMetrics = apiFactory.createApiMetrics(metricsEndpoint, metricsApiKey, metricsTimeoutMillis);
-    this.apiDelivery = apiFactory.createApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis, warmup, maxRequestInsertions, acceptGzip);
+    this.apiDelivery = apiFactory.createApiDelivery(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis, warmup, maxRequestInsertions, acceptGzip, useGrpc);
     this.performChecks = performChecks;
     this.blockingShadowTraffic = blockingShadowTraffic;
   }
@@ -475,6 +477,9 @@ public class PromotedDeliveryClient {
     /** The acceptsGzip value. */
     private boolean acceptGzip = true;
 
+    /** Whether to use gRPC instead of HTTP for delivery. */
+    private boolean useGrpc = false;
+
     /**
      * Instantiates a new builder.
      */
@@ -657,6 +662,17 @@ public class PromotedDeliveryClient {
     }
 
     /**
+     * Whether to use gRPC instead of HTTP for delivery. Defauls to false.
+     *
+     * @param useGrpc uses gRPC
+     * @return the builder
+     */
+    public Builder withUseGrpc(boolean useGrpc) {
+      this.useGrpc = useGrpc;
+      return this;
+    }
+
+    /**
      * Builds the {@link PromotedDeliveryClient}.
      *
      * @return the promoted delivery client
@@ -665,7 +681,7 @@ public class PromotedDeliveryClient {
       return new PromotedDeliveryClient(deliveryEndpoint, deliveryApiKey, deliveryTimeoutMillis,
           metricsEndpoint, metricsApiKey, metricsTimeoutMillis, warmup, executor,
           maxRequestInsertions, applyTreatmentChecker, apiFactory, shadowTrafficDeliveryRate,
-          sampler, performChecks, blockingShadowTraffic, acceptGzip);
+          sampler, performChecks, blockingShadowTraffic, acceptGzip, useGrpc);
     }
   }
 }

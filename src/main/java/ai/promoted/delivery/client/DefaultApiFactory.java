@@ -11,8 +11,8 @@ public class DefaultApiFactory implements ApiFactory {
   }
 
   @Override
-  public Delivery createApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions, boolean acceptGzip) {
-    return new ApiDelivery(endpoint, apiKey, timeoutMillis, warmup, maxRequestInsertions, acceptGzip);
+  public Delivery createApiDelivery(String endpoint, String apiKey, long timeoutMillis, boolean warmup, int maxRequestInsertions, boolean acceptGzip, boolean useGrpc) {
+    return new ApiDelivery(endpoint, apiKey, timeoutMillis, warmup, maxRequestInsertions, acceptGzip, useGrpc);
   }
 
   @Override
