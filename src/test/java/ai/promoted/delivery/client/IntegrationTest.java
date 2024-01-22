@@ -34,9 +34,7 @@ public class IntegrationTest {
         .addInsertion(Insertion.newBuilder().setContentId("49550"));
     add100Insertions(reqBuilder);
     
-    DeliveryResponse resp = client.deliver(new DeliveryRequest(reqBuilder, null, false, 0));
-    System.out.println(resp);
-    assertTrue(true);
+    client.deliver(new DeliveryRequest(reqBuilder, null, false, 0));
   }
 
   @Test
@@ -57,9 +55,7 @@ public class IntegrationTest {
         .addInsertion(Insertion.newBuilder().setContentId("49550"));
     add100Insertions(reqBuilder);
     
-    DeliveryResponse resp = client.deliver(new DeliveryRequest(reqBuilder, null, false, 0));
-    System.out.println(resp);
-    assertTrue(true);
+    client.deliver(new DeliveryRequest(reqBuilder, null, false, 0));
   }
 
   private void add100Insertions(Request.Builder reqBuilder) {
