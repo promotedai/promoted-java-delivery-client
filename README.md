@@ -32,6 +32,7 @@ PromotedDeliveryClient client = PromotedDeliveryClient.builder()
     .withDeliveryApiKey("<get this from Promoted.ai>")
     .withMetricsEndpoint("<get this from Promoted.ai>")
     .withMetricsApiKey("<get this from Promoted.ai>")
+    .withUseGrpc(true)
     .withWarmup(true)
     .build();
 ```
@@ -46,6 +47,7 @@ PromotedDeliveryClient client = PromotedDeliveryClient.builder()
 | `metricsEndpoint`               | String                                                      | API endpoint for Promoted.ai's Metrics API                                                                                                                                         |
 | `metricsApiKey`               | String                                                      | API key used in the `x-api-key` header for Promoted.ai's Metrics API                                                                                                                                         |
 | `metricsTimeoutMillis`        | long                                                         | Timeout on the Metrics API call. Defaults to 3000.                                                                                                                                                                                                                                        |
+| `useGrpc`        | boolean                                                         | Use gRPC for delivery requests instead of plain HTTP.                                                                                                                                                                                                                                        |
 | `warmup`        | boolean                                                         | Option to warm up the HTTP connection pool at initialization.                                                                                                                                                                                                                                        |
 | `metricsExecutor`        | Executor                                                         | Metrics API calls take place on an `ExecutorService`. You are expected to supply one that suits your application requirements.                                                                                                                                                                                                                                        |
 | `applyTreatmentChecker`         | ApplyTreatmentChecker | Optional function interface called during delivery, accepts an experiment and returns a boolean indicating whether the request should be considered part of the control group (false) or in the treatment arm of an experiment (true). If not set, the default behavior of checking the experiement `arm` is applied. |
@@ -262,19 +264,20 @@ We might modify to something like this:
 ```java
 void getProducts(ProductRequest req) {
   List<Product> products = ...;
-  Request req = new Request().userInfo(new UserInfo()
-      .anonUserId("12355")
-      .paging(new Paging().size(100).offset(0)));
-  DeliveryRequest deliveryRequest = new DeliveryRequest(req);
+  Request.Builder reqBuilder = Request.newBuilder()
+      .setUserInfo(UserInfo.newBuilder().setAnonUserId("12355"))
+      .setPaging(Paging.newBuilder().setSize(100).setOffset(0));
+  DeliveryRequest deliveryRequest = new DeliveryRequest(reqBuilder);
   Map<String, Product> productsMap = new HashMap<>();
   for (Product product : products) {
-      deliveryRequest.getRequest().addInsertion(new Insertion().contentId(product.getProductId()));
+      deliveryRequest.getRequestBuilder().addInsertion(
+          Insertion.newBuilder().setContentId(product.getProductId()));
       productsMap.put(product.getProductId(), product);
   }
 
   DeliveryResponse response = promotedDeliveryClient.deliver(deliveryRequest);
   List<Product> rankedProducts = new ArrayList<>();
-  for (Insertion responseInsertion : response.getResponse().getInsertion()) {
+  for (Insertion responseInsertion : response.getResponse().getInsertionList()) {
       rankedProducts.add(productsMap.get(responseInsertion.getContentId()));
   }
 
@@ -321,9 +324,9 @@ void getProducts(ProductRequest req) {
   String anonUserId = getAnonUserId(req);
   CohortMembership experimentMembership = experimentConfig.checkMembership(anonUserId);
 
-  Request req = new Request().userInfo(new UserInfo()
-      .anonUserId("12355")
-      .paging(new Paging().size(100).offset(0)));
+  Request.Builder reqBuilder = Request.newBuilder()
+    .setUserInfo(UserInfo.newBuilder().setAnonUserId("12355"))
+    .setPaging(Paging.newBuilder().setSize(100).setOffset(0));
 
   // If experimentActivated can be false (e.g. only 5% of users get put into an experiment) and
   // you want the non-activated behavior to not call Delivery API, then you need to specify onlyLog to false.
@@ -331,7 +334,7 @@ void getProducts(ProductRequest req) {
   //
   // Example:
   // `onlyLog: experimentMembership == null`
-  DeliveryRequest deliveryRequest = new DeliveryRequest(req, experimentMembership);
+  DeliveryRequest deliveryRequest = new DeliveryRequest(reqBuilder, experimentMembership);
 
   DeliveryResponse response = promotedDeliveryClient.deliver(deliveryRequest);
   //...
@@ -350,8 +353,10 @@ Here's an example using custom arm assignment logic (not using `twoArmExperiment
   	boolean inTreatment = isUserInTreatmentArm(experimentName, anonUserId);
   	
     // Only log if the user is activated into the experiment.
-    experimentMembership = new CohortMembership().cohortId(experimentName)
-        .arm(inTreatment ? CohortArm.TREATMENT : CohortArm.CONTROL);
+    experimentMembership = CohortMembership.newBuilder()
+        .setCohortId(experimentName)
+        .setArm(inTreatment ? CohortArm.TREATMENT : CohortArm.CONTROL)
+        .build();
   }
 ```
 
