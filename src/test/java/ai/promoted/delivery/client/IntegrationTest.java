@@ -39,6 +39,29 @@ public class IntegrationTest {
     assertTrue(true);
   }
 
+  @Test
+  public void testCallDeliverWithGrpc() throws Exception {
+    PromotedDeliveryClient client = PromotedDeliveryClient.builder()
+        .withDeliveryEndpoint("http://localhost:9091/deliver")
+        .withDeliveryApiKey("abc").withDeliveryTimeoutMillis(30000).withUseGrpc(true).build();
+
+    Map<String, Object> myProps = new HashMap<>();
+    Map<String, Object> searchProps = new HashMap<>();
+    searchProps.put("lat", 40.0);
+    searchProps.put("lng", -122.3);
+    myProps.put("search", searchProps);
+    
+    Request.Builder reqBuilder = Request.newBuilder().setUserInfo(UserInfo.newBuilder().setAnonUserId("12355")).setPlatformId(0)
+        .setPaging(Paging.newBuilder().setOffset(0).setSize(100))
+        .addInsertion(InsertionFactory.createInsertionWithProperties("28835", myProps))
+        .addInsertion(Insertion.newBuilder().setContentId("49550"));
+    add100Insertions(reqBuilder);
+    
+    DeliveryResponse resp = client.deliver(new DeliveryRequest(reqBuilder, null, false, 0));
+    System.out.println(resp);
+    assertTrue(true);
+  }
+
   private void add100Insertions(Request.Builder reqBuilder) {
     for (int i = 0; i < 1000; i++) {
       reqBuilder.addInsertion(Insertion.newBuilder().setContentId(UUID.randomUUID().toString())).build();
