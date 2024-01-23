@@ -1,6 +1,5 @@
 package ai.promoted.delivery.client;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -30,7 +29,7 @@ public class IntegrationTest {
     
     Request.Builder reqBuilder = Request.newBuilder().setUserInfo(UserInfo.newBuilder().setAnonUserId("12355")).setPlatformId(0)
         .setPaging(Paging.newBuilder().setOffset(0).setSize(100))
-        .addInsertion(InsertionFactory.createInsertionWithProperties("28835", myProps))
+        .addInsertion(InsertionFactory.createInsertionBuilderWithProperties("28835", myProps))
         .addInsertion(Insertion.newBuilder().setContentId("49550"));
     add100Insertions(reqBuilder);
     
@@ -51,7 +50,7 @@ public class IntegrationTest {
     
     Request.Builder reqBuilder = Request.newBuilder().setUserInfo(UserInfo.newBuilder().setAnonUserId("12355")).setPlatformId(0)
         .setPaging(Paging.newBuilder().setOffset(0).setSize(100))
-        .addInsertion(InsertionFactory.createInsertionWithProperties("28835", myProps))
+        .addInsertion(InsertionFactory.createInsertionBuilderWithProperties("28835", myProps))
         .addInsertion(Insertion.newBuilder().setContentId("49550"));
     add100Insertions(reqBuilder);
     
