@@ -13,7 +13,7 @@ public class PropertiesFactory {
   /**
    * Create a properties builder with a struct equivalent to the given map.
    * @param map the properties as a map
-   * @return a populated Insertion
+   * @return a populated Properties
    */
   public static Properties.Builder createPropertiesBuilder(Map<String, Object> properties) {
     Properties.Builder propertiesBuilder = Properties.newBuilder();
@@ -26,7 +26,7 @@ public class PropertiesFactory {
   /**
    * Create a properties with a struct equivalent to the given map.
    * @param map the properties as a map
-   * @return a populated Insertion
+   * @return a populated Properties
    */
   public static Properties createProperties(Map<String, Object> properties) {
     return createPropertiesBuilder(properties).build();
