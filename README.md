@@ -420,6 +420,7 @@ Uses
 
 ## Scripts
 
+- Update git submodules: `git submodule update --recursive`.  If the submodule/schema is empty, you might need to add `--init` to the args.
 - Test: `mvn test`
 - Build and install SNAPSHOT locally: `mvn install`
 
@@ -436,4 +437,4 @@ Follow the auth and gpg instructions on [sonatype.org](https://central.sonatype.
 3. Create a non-SNAPSHOT.
 - Follow similar steps to 1.  Change to `mvn versions:set -DnewVersion=x.y.z`
 - Go to [Sonatype](https://s01.oss.sonatype.org/#view-repositories;staging~browsestorage).  In the left nav, click on "Staging Repositories" under "Build Promotion" section.  Use "Close" and "Release" steps for deploying.  There can be delay in the staging repository showing up in the list.  Also click "Refresh".
-- Send a PR for the updated `pom.xml` file to the next patched SNAPSHOT version.  This can be a little misleading and confusing if the next release is not a patch change.
+- Send a PR for the updated `pom.xml` file.
