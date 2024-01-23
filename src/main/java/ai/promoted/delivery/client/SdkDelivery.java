@@ -49,7 +49,7 @@ public class SdkDelivery implements Delivery {
       Insertion reqIns = requestBuilder.getInsertion(index);
       Insertion.Builder respInsBuilder = Insertion.newBuilder().setContentId(reqIns.getContentId())
           .setInsertionId(reqIns.getInsertionId());
-      InsertionFactory.prepareResponseInsertion(respInsBuilder, offset);
+      InsertionFactory.prepareResponseInsertionBuilder(respInsBuilder, offset);
       respBuilder.addInsertion(respInsBuilder);
       index++;
       offset++;
