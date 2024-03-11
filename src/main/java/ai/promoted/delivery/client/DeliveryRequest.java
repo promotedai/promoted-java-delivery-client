@@ -117,6 +117,10 @@ public class DeliveryRequest implements Cloneable {
 
   public DeliveryRequest clone() throws CloneNotSupportedException {
     DeliveryRequest deliveryRequestCopy = (DeliveryRequest) super.clone();
+    // We have to explicitly deep-copy.
+    if (requestBuilder != null) {
+      deliveryRequestCopy.requestBuilder = requestBuilder.clone();
+    }
     return deliveryRequestCopy;
   }
 

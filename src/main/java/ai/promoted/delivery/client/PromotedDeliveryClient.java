@@ -371,7 +371,7 @@ public class PromotedDeliveryClient {
     if (!requestBuilder.hasClientInfo()) {
       requestBuilder.setClientInfo(ClientInfo.newBuilder());
     }
-    requestBuilder.getClientInfoBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.SHADOW);
+    requestBuilder.getClientInfoBuilder().setClientType(ClientType.PLATFORM_SERVER).setTrafficType(TrafficType.PRODUCTION);
 
     // If there is no client timestamp set by the caller, we fill in the current time.
     ensureClientTimestamp(requestBuilder);
