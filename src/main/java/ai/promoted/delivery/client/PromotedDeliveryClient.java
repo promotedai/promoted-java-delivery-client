@@ -25,7 +25,7 @@ import ai.promoted.proto.event.LogRequest;
  */
 public class PromotedDeliveryClient {
 
-  private static final String SERVER_VERSION = "java.3.1.0";
+  private static final String SERVER_VERSION = "java.3.1.1";
 
   private static final Logger LOGGER = Logger.getLogger(PromotedDeliveryClient.class.getName());
 
