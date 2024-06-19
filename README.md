@@ -237,6 +237,7 @@ Field Name | Type | Optional? | Description
 `response` | Response | No | The reponse from Delivery API, which includes the insertions. These are from Delivery API (when `deliver` was called, i.e. we weren't either only-log or part of an experiment) or the input insertions (when the other conditions don't hold).
 `clientRequestId` | String | Yes | Client-generated request id sent to Delivery API and may be useful for logging and debugging. You may fill this in yourself if you have a suitable id, otherwise the SDK will generate one.
 `executionServer` | one of 'API' or 'SDK' | Yes | Indicates if response insertions on a delivery request came from the API or the SDK.
+`exception` | DeliveryException | Yes | Is set to a not-null value if the SDK encounters an exception that it swallows.  The default behavior of the top-level `deliver` method is to try Delivery API and fallback to the SDK ranking if the call fails.  
 
 ---
 

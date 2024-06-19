@@ -17,18 +17,23 @@ public class DeliveryResponse {
   /** The execution server which indicates if delivery happened in the SDK or vai Delivery API */
   private final ExecutionServer executionServer;
   
+  /** If an exception was encountered.  Nulable. */
+  private final DeliveryException exception;
+
   /**
    * Instantiates a new delivery response.
    *
    * @param response the response from Delivery
    * @param clientRequestId the client request id
    * @param executionServer the execution server (SDK or API)
+   * @param exception if an exception was encountered
    */
   public DeliveryResponse(Response response, String clientRequestId,
-      ExecutionServer executionServer) {
+      ExecutionServer executionServer, DeliveryException exception) {
     this.response = response;
     this.clientRequestId = clientRequestId;
     this.executionServer = executionServer;
+    this.exception = exception;
   }
 
   /**
@@ -56,5 +61,14 @@ public class DeliveryResponse {
    */
   public Response getResponse() {
     return response;
+  }
+
+  /**
+   * Gets an exception.
+   * 
+   * @return the exception
+   */
+  public DeliveryException getException() {
+    return exception;
   }
 }
