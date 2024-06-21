@@ -1,6 +1,7 @@
 package ai.promoted.delivery.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -278,8 +279,8 @@ class PromotedDeliveryClientTest {
     Request.Builder reqBuilder = Request.newBuilder().addAllInsertion(TestUtils.createTestRequestInsertions(10));
     DeliveryRequest dreq = new DeliveryRequest(reqBuilder, null, false, 0);
 
-
-    when(apiFactory.getApiDelivery().runDelivery(any())).thenThrow(DeliveryException.class);
+    DeliveryException exception = new DeliveryException("failed");
+    when(apiFactory.getApiDelivery().runDelivery(any())).thenThrow(exception);
     when(apiFactory.getSdkDelivery().runDelivery(any()))
         .thenReturn(Response.newBuilder().addAllInsertion(reqBuilder.getInsertionList()).build());
 
@@ -295,7 +296,7 @@ class PromotedDeliveryClientTest {
     LogRequest logRequest = logRequestCaptor.getValue();
 
     assertSDKLogRequest(reqBuilder, resp.getResponse(), logRequest);
-    assertDeliveryResponse(resp, ExecutionServer.SDK);
+    assertDeliveryResponse(resp, ExecutionServer.SDK, exception);
   }
 
   @Test
@@ -344,7 +345,12 @@ class PromotedDeliveryClientTest {
   }
 
   private void assertDeliveryResponse(DeliveryResponse resp, ExecutionServer sdk) {
+    assertDeliveryResponse(resp, sdk, null);
+  }
+
+  private void assertDeliveryResponse(DeliveryResponse resp, ExecutionServer sdk, DeliveryException e) {
     assertEquals(sdk, resp.getExecutionServer());
     assertTrue(resp.getClientRequestId().length() > 0);
+    assertEquals(e, resp.getException());
   }
 }

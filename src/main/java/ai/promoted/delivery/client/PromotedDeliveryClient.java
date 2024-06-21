@@ -146,14 +146,16 @@ public class PromotedDeliveryClient {
     prepareRequest(deliveryRequest, plan);
 
     Response apiResponse = null;
+    DeliveryException exception = null;
     if (plan.useApiResponse()) {
       try {
         apiResponse = callDeliveryAPI(deliveryRequest);
       } catch (DeliveryException ex) {
+        exception = ex;
         LOGGER.log(Level.WARNING, "Error calling Delivery API, falling back", ex);
       }
     }
-    return handleSdkAndLog(deliveryRequest, plan, apiResponse);
+    return handleSdkAndLog(deliveryRequest, plan, apiResponse, exception);
   }
 
   /**
@@ -216,6 +218,12 @@ public class PromotedDeliveryClient {
    */
   public DeliveryResponse handleSdkAndLog(DeliveryRequest deliveryRequest, DeliveryPlan plan,
       @Nullable Response apiResponse) throws DeliveryException {
+    return handleSdkAndLog(deliveryRequest, plan, apiResponse, null);
+  }
+
+  // Internal version for passing through exception.
+  private DeliveryResponse handleSdkAndLog(DeliveryRequest deliveryRequest, DeliveryPlan plan,
+      @Nullable Response apiResponse, DeliveryException exception) throws DeliveryException {
     CohortMembership cohortMembership = cloneCohortMembership(deliveryRequest.getExperiment());
 
     Response response;
@@ -238,7 +246,7 @@ public class PromotedDeliveryClient {
       deliverShadowTraffic(deliveryRequest);
     }
 
-    return new DeliveryResponse(response, deliveryRequest.getRequestBuilder().getClientRequestId(), execSrv);
+    return new DeliveryResponse(response, deliveryRequest.getRequestBuilder().getClientRequestId(), execSrv, exception);
   }
 
   /**
