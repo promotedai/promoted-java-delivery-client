@@ -17,7 +17,7 @@ public class DeliveryResponse {
   /** The execution server which indicates if delivery happened in the SDK or vai Delivery API */
   private final ExecutionServer executionServer;
   
-  /** If an exception was encountered.  Nulable. */
+  /** If an exception was encountered.  Nullable. */
   private final DeliveryException exception;
 
   /**
